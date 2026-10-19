@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Le Train des Époques</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Scène complète : vue fixe depuis le quai, rien ne défile dans la page -->
+  <main class="scene">
+
+    <!-- Décor du fond : plans éloignés, déplacés légèrement pour la parallaxe -->
+    <div class="decor" aria-hidden="true">
+      <div class="decor__ciel"></div>
+      <div class="decor__ville"></div>
+      <div class="decor__voie"></div>
+    </div>
+
+    <!-- Train : conteneur unique déplacé horizontalement par GSAP -->
+    <div class="train">
+
+      <section class="wagon wagon--1" data-epoque="epoque-1">
+        <div class="wagon__fenetre">
+          <h2 class="wagon__titre">Lorem ipsum</h2>
+          <p class="wagon__texte">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+        </div>
+      </section>
+
+      <section class="wagon wagon--2" data-epoque="epoque-2">
+        <div class="wagon__fenetre">
+          <h2 class="wagon__titre">Dolor sit amet</h2>
+          <p class="wagon__texte">Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+        </div>
+      </section>
+
+      <section class="wagon wagon--3" data-epoque="epoque-3">
+        <div class="wagon__fenetre">
+          <h2 class="wagon__titre">Consectetur</h2>
+          <p class="wagon__texte">Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.</p>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- Quai : premier plan, devant le bas du train -->
+    <div class="quai" aria-hidden="true">
+      <div class="quai__bordure"></div>
+      <div class="quai__sol"></div>
+    </div>
+
+    <!-- Indicateur discret de l'époque courante, rempli par main.js -->
+    <p class="indicateur" aria-live="polite">
+      <span class="indicateur__numero"></span>
+      <span class="indicateur__nom"></span>
+    </p>
+
+  </main>
+
+  <!-- GSAP : moteur d'animation -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <!-- Plugin Observer : écoute molette, tactile et pointeur -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/Observer.min.js"></script>
+  <!-- Howler : gestion du son (activé plus tard) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.4/howler.min.js"></script>
+  <!-- Notre script, toujours en dernier -->
+  <script src="js/main.js"></script>
+</body>
+</html>

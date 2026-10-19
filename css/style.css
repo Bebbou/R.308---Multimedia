@@ -1,0 +1,352 @@
+/* ==========================================================
+   1. Variables
+   ========================================================== */
+
+:root {
+  /* Couleurs générales */
+  --couleur-fond: #10131a;
+  --couleur-texte: #f2f2f2;
+
+  /* Couleurs du décor */
+  --couleur-ciel-haut: #1d2a44;
+  --couleur-ciel-bas: #c98b6b;
+  --couleur-ville-loin: #4a4458;
+  --couleur-ville-proche: #2d2a3a;
+  --couleur-poteau: #1b1a24;
+  --couleur-rail: #6b6870;
+
+  /* Couleurs du quai */
+  --couleur-quai: #8a8478;
+  --couleur-quai-joint: #746e64;
+  --couleur-quai-ombre: rgba(0, 0, 0, 0.35);
+  --couleur-bande-securite: #e8c547;
+  --couleur-bord-quai: #b9b2a5;
+
+  /* Couleurs des wagons (placeholders) */
+  --couleur-wagon-1: #8c3b3b;
+  --couleur-wagon-2: #2f6b5a;
+  --couleur-wagon-3: #3c4f8c;
+  --couleur-toit: rgba(0, 0, 0, 0.25);
+  --couleur-vitre: rgba(255, 255, 255, 0.14);
+  --couleur-attelage: #22212a;
+
+  /* Dimensions */
+  --hauteur-quai: 24vh;
+  --hauteur-wagon: 52vh;
+  --largeur-wagon: 72vw;
+  --ecart-wagons: 4vw;
+  --rayon-wagon: 18px;
+
+  /* Débordement des plans de parallaxe hors de l'écran,
+     pour qu'aucun bord ne soit visible quand ils se décalent */
+  --debordement-parallaxe: 60vw;
+}
+
+
+/* ==========================================================
+   2. Reset et base
+   ========================================================== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  background-color: var(--couleur-fond);
+  color: var(--couleur-texte);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  /* La page ne défile jamais : c'est le train qui bouge */
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+
+/* Conteneur plein écran de toute l'expérience */
+.scene {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  /* Empêche le navigateur de gérer lui-même le glissé tactile */
+  touch-action: none;
+}
+
+
+/* ==========================================================
+   3. Décor (fond)
+   ========================================================== */
+
+.decor {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+/* Ciel : dégradé fixe, il ne bouge jamais */
+.decor__ciel {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, var(--couleur-ciel-haut), var(--couleur-ciel-bas));
+}
+
+/* Silhouettes de bâtiments : plan le plus lointain de la parallaxe.
+   Trois bandes de hauteurs différentes forment une ligne d'horizon. */
+.decor__ville {
+  position: absolute;
+  left: calc(-1 * var(--debordement-parallaxe));
+  right: calc(-1 * var(--debordement-parallaxe));
+  bottom: calc(var(--hauteur-quai) + 6vh);
+  height: 10vh;
+  background-color: var(--couleur-ville-proche);
+}
+
+.decor__ville::before,
+.decor__ville::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 100%;
+}
+
+/* Bâtiments hauts et éloignés */
+.decor__ville::before {
+  height: 22vh;
+  background: repeating-linear-gradient(
+    to right,
+    transparent 0 5vw,
+    var(--couleur-ville-loin) 5vw 9vw,
+    transparent 9vw 13vw,
+    var(--couleur-ville-loin) 13vw 15vw,
+    transparent 15vw 21vw
+  );
+}
+
+/* Bâtiments moyens, plus proches */
+.decor__ville::after {
+  height: 12vh;
+  background: repeating-linear-gradient(
+    to right,
+    var(--couleur-ville-proche) 0 7vw,
+    transparent 7vw 10vw,
+    var(--couleur-ville-proche) 10vw 12vw,
+    transparent 12vw 17vw
+  );
+}
+
+/* Voie ferrée et poteaux : plan intermédiaire, à la profondeur du train */
+.decor__voie {
+  position: absolute;
+  left: calc(-1 * var(--debordement-parallaxe));
+  right: calc(-1 * var(--debordement-parallaxe));
+  bottom: var(--hauteur-quai);
+  height: calc(var(--hauteur-wagon) + 16vh);
+  /* Poteaux verticaux régulièrement espacés */
+  background: repeating-linear-gradient(
+    to right,
+    transparent 0 calc(30vw - 8px),
+    var(--couleur-poteau) calc(30vw - 8px) 30vw
+  );
+}
+
+/* Rail visible sous le train */
+.decor__voie::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 1vh;
+  height: 1vh;
+  background-color: var(--couleur-rail);
+}
+
+
+/* ==========================================================
+   4. Train et wagons
+   ========================================================== */
+
+/* Le train est une rangée de wagons. GSAP le déplace sur l'axe x. */
+.train {
+  position: absolute;
+  left: 0;
+  /* Le bas du train passe derrière le bord du quai */
+  bottom: calc(var(--hauteur-quai) - 3vh);
+  z-index: 2;
+  display: flex;
+  gap: var(--ecart-wagons);
+  width: max-content;
+}
+
+.wagon {
+  position: relative;
+  flex: 0 0 var(--largeur-wagon);
+  height: var(--hauteur-wagon);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--rayon-wagon);
+  box-shadow: 0 1.5vh 3vh var(--couleur-quai-ombre);
+}
+
+/* Toit du wagon : bande plus sombre en haut */
+.wagon::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 12%;
+  border-radius: var(--rayon-wagon) var(--rayon-wagon) 0 0;
+  background-color: var(--couleur-toit);
+}
+
+/* Attelage entre deux wagons */
+.wagon::after {
+  content: "";
+  position: absolute;
+  left: 100%;
+  bottom: 18%;
+  width: var(--ecart-wagons);
+  height: 1.5vh;
+  background-color: var(--couleur-attelage);
+}
+
+/* Le dernier wagon n'a pas d'attelage derrière lui */
+.wagon:last-child::after {
+  display: none;
+}
+
+/* Couleurs provisoires, une par wagon */
+.wagon--1 {
+  background-color: var(--couleur-wagon-1);
+}
+
+.wagon--2 {
+  background-color: var(--couleur-wagon-2);
+}
+
+.wagon--3 {
+  background-color: var(--couleur-wagon-3);
+}
+
+/* Grande vitre centrale, qui contiendra plus tard la scène de l'époque */
+.wagon__fenetre {
+  max-width: 70%;
+  padding: 2.5rem 3rem;
+  border-radius: calc(var(--rayon-wagon) / 2);
+  background-color: var(--couleur-vitre);
+  text-align: center;
+}
+
+.wagon__titre {
+  margin-bottom: 1rem;
+  font-size: clamp(1.5rem, 3vw, 2.5rem);
+  font-weight: 600;
+}
+
+.wagon__texte {
+  font-size: clamp(0.95rem, 1.3vw, 1.15rem);
+  line-height: 1.6;
+}
+
+
+/* ==========================================================
+   5. Quai (premier plan)
+   ========================================================== */
+
+.quai {
+  position: absolute;
+  left: calc(-1 * var(--debordement-parallaxe));
+  right: calc(-1 * var(--debordement-parallaxe));
+  bottom: 0;
+  height: var(--hauteur-quai);
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Bord du quai avec la bande de sécurité jaune */
+.quai__bordure {
+  height: 2.5vh;
+  border-top: 0.6vh solid var(--couleur-bord-quai);
+  background: repeating-linear-gradient(
+    to right,
+    var(--couleur-bande-securite) 0 1.2vw,
+    var(--couleur-quai) 1.2vw 1.8vw
+  );
+}
+
+/* Sol : dalles dont les joints rendent la parallaxe visible */
+.quai__sol {
+  flex: 1;
+  background:
+    linear-gradient(to bottom, var(--couleur-quai-ombre), transparent 40%),
+    repeating-linear-gradient(
+      to right,
+      var(--couleur-quai) 0 calc(12vw - 3px),
+      var(--couleur-quai-joint) calc(12vw - 3px) 12vw
+    );
+}
+
+
+/* ==========================================================
+   6. Pensées (bulles)
+   ========================================================== */
+
+/* Réservé à une étape suivante, après validation */
+
+
+/* ==========================================================
+   7. Indicateur de l'époque courante
+   ========================================================== */
+
+.indicateur {
+  position: absolute;
+  top: 1.5rem;
+  left: 1.5rem;
+  z-index: 4;
+  display: flex;
+  gap: 0.75rem;
+  font-size: 0.8rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  opacity: 0.75;
+  pointer-events: none;
+}
+
+/* Chiffres de largeur fixe pour éviter que le texte bouge */
+.indicateur__numero {
+  font-variant-numeric: tabular-nums;
+}
+
+
+/* ==========================================================
+   8. Responsive
+   ========================================================== */
+
+@media (max-width: 700px) {
+  :root {
+    --largeur-wagon: 86vw;
+    --hauteur-wagon: 46vh;
+    --hauteur-quai: 22vh;
+  }
+
+  .wagon__fenetre {
+    max-width: 82%;
+    padding: 1.5rem 1.25rem;
+  }
+
+  .indicateur {
+    top: 1rem;
+    left: 1rem;
+  }
+}

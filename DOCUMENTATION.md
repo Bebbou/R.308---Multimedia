@@ -73,7 +73,8 @@ Ne jamais changer une version sans prévenir l'équipe.
 ## 3. Structure des fichiers
 
 ```
-train-mmi/
+R.308---Multimedia/
+├── README.md             présentation courte du dépôt
 ├── DOCUMENTATION.md      ce fichier
 ├── index.html            la seule page du site
 ├── css/
@@ -142,10 +143,12 @@ Règles :
 - Ordre du fichier, séparé par des commentaires de section :
   1. Variables
   2. Reset et base
-  3. Quai (décor fixe)
+  3. Décor (fond)
   4. Train et wagons
-  5. Pensées (bulles)
-  6. Responsive (media queries)
+  5. Quai (premier plan)
+  6. Pensées (bulles)
+  7. Indicateur de l'époque courante
+  8. Responsive (media queries)
 - Pas de `!important`. Pas d'`id` pour styler (les `id` servent au JS si besoin).
 - Les animations de déplacement du train se font en GSAP, pas en CSS.
 
