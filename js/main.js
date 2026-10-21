@@ -2,18 +2,23 @@
    1. Réglages
    ========================================================== */
 
-// Durée d'un trajet entre deux wagons, en secondes
-const DUREE_TRANSITION = 1.2;
-// Durée utilisée si l'utilisateur a demandé moins d'animations
-const DUREE_TRANSITION_REDUITE = 0.3;
-// Courbe d'accélération commune : démarrage et freinage en douceur
-const EASING_TRANSITION = "power2.inOut";
+// Taille de la toile pixel art, en pixels source
+const TOILE_LARGEUR = 320;
+const TOILE_HAUTEUR = 180;
 
-// Parallaxe : part du déplacement du train reprise par chaque plan, en sens inverse,
-// comme si le regard suivait légèrement le train. Plus le plan est proche, plus il bouge.
-const FACTEUR_PARALLAXE_VILLE = 0.03;
-const FACTEUR_PARALLAXE_VOIE = 0.08;
-const FACTEUR_PARALLAXE_QUAI = 0.15;
+// Durées des transitions, en secondes
+const DUREE_PORTE = 0.7;
+const DUREE_FONDU = 0.4;
+// Coefficient appliqué aux durées si l'utilisateur demande moins d'animations
+const COEF_MOUVEMENT_REDUIT = 0.4;
+
+// Largeur d'un battant de porte, en pixels source (il glisse de cette distance)
+const LARGEUR_BATTANT = 16;
+
+// Temps pour que le paysage défile d'une largeur complète, en secondes
+const DUREE_PAYSAGE = 8;
+// Intervalle entre deux secousses du train (passage sur un joint de rail)
+const INTERVALLE_SECOUSSE = 2.4;
 
 // Distance minimale (en pixels) avant qu'Observer considère un geste
 const TOLERANCE_OBSERVER = 10;
@@ -23,22 +28,24 @@ const TOLERANCE_OBSERVER = 10;
    2. Sélection des éléments du DOM
    ========================================================== */
 
-const train = document.querySelector(".train");
+const scene = document.querySelector(".scene");
 const wagons = document.querySelectorAll(".wagon");
-const ville = document.querySelector(".decor__ville");
-const voie = document.querySelector(".decor__voie");
-const quai = document.querySelector(".quai");
+const bandeGauche = document.querySelector(".paysage__cote--gauche .paysage__bande");
+const bandeDroite = document.querySelector(".paysage__cote--droite .paysage__bande");
+const lumiere = document.querySelector(".lumiere");
+const fondu = document.querySelector(".fondu");
 const indicateurNumero = document.querySelector(".indicateur__numero");
 const indicateurNom = document.querySelector(".indicateur__nom");
+const boutonArriere = document.querySelector(".bouton-arriere");
 
 
 /* ==========================================================
    3. État
    ========================================================== */
 
-// Index du wagon arrêté devant l'utilisateur (0 = premier wagon)
+// Index du wagon dans lequel se trouve l'utilisateur (0 = premier wagon)
 let wagonActuel = 0;
-// Verrou : vrai tant que le train roule, pour ignorer les autres actions
+// Verrou : vrai pendant une transition, pour ignorer les autres actions
 let enAnimation = false;
 // Préférence système "réduire les animations"
 const mouvementReduit = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -48,23 +55,10 @@ const mouvementReduit = window.matchMedia("(prefers-reduced-motion: reduce)").ma
    4. Fonctions
    ========================================================== */
 
-// Calcule la position x du train pour centrer le wagon demandé à l'écran.
-// index : numéro du wagon (0 = premier wagon)
-function calculerPositionTrain(index) {
-  const wagon = wagons[index];
-  const centreEcran = window.innerWidth / 2;
-  const centreWagon = wagon.offsetLeft + wagon.offsetWidth / 2;
-  return centreEcran - centreWagon;
-}
-
-// Renvoie les positions x de chaque plan pour une position donnée du train.
-// xTrain : position x du train
-function calculerPositionsPlans(xTrain) {
-  return {
-    ville: -xTrain * FACTEUR_PARALLAXE_VILLE,
-    voie: -xTrain * FACTEUR_PARALLAXE_VOIE,
-    quai: -xTrain * FACTEUR_PARALLAXE_QUAI,
-  };
+// Renvoie une durée, raccourcie si l'utilisateur préfère moins d'animations.
+// duree : durée normale en secondes
+function adapterDuree(duree) {
+  return mouvementReduit ? duree * COEF_MOUVEMENT_REDUIT : duree;
 }
 
 // Écrit un nombre sur deux chiffres (1 devient "01").
@@ -72,88 +66,141 @@ function formaterNumero(nombre) {
   return String(nombre).padStart(2, "0");
 }
 
-// Met à jour le numéro et le nom de l'époque affichés dans l'indicateur.
-function mettreAJourIndicateur() {
-  const titre = wagons[wagonActuel].querySelector(".wagon__titre");
+// Renvoie les deux battants de porte d'un wagon.
+// wagon : élément section.wagon
+function trouverPortes(wagon) {
+  return {
+    gauche: wagon.querySelector(".wagon__porte--gauche"),
+    droite: wagon.querySelector(".wagon__porte--droite"),
+  };
+}
+
+// Met à jour l'indicateur et l'état du bouton Arrière.
+function mettreAJourInterface() {
   indicateurNumero.textContent = `${formaterNumero(wagonActuel + 1)} / ${formaterNumero(wagons.length)}`;
-  indicateurNom.textContent = titre.textContent;
+  indicateurNom.textContent = wagons[wagonActuel].dataset.titre;
+  boutonArriere.disabled = wagonActuel === 0;
 }
 
-// Place le train et les plans sans animation (au chargement et au redimensionnement).
-function placerSansAnimation() {
-  // Arrête un éventuel trajet en cours, sinon il finirait à une position périmée
-  gsap.killTweensOf([train, ville, voie, quai, indicateurNom]);
-  enAnimation = false;
-
-  const xTrain = calculerPositionTrain(wagonActuel);
-  const plans = calculerPositionsPlans(xTrain);
-
-  gsap.set(train, { x: xTrain });
-  gsap.set(ville, { x: plans.ville });
-  gsap.set(voie, { x: plans.voie });
-  gsap.set(quai, { x: plans.quai });
-  gsap.set(indicateurNom, { opacity: 1 });
-  mettreAJourIndicateur();
-}
-
-// Déplace le train pour placer le wagon demandé devant l'utilisateur.
+// Affiche uniquement le wagon demandé et referme ses portes.
 // index : numéro du wagon (0 = premier wagon)
-function allerAuWagon(index) {
-  // Verrou : on ignore toute action pendant un trajet
-  if (enAnimation) {
-    return;
-  }
-  // Pas de wagon avant le premier ni après le dernier
-  if (index < 0 || index >= wagons.length) {
-    return;
-  }
-
-  enAnimation = true;
+function afficherWagon(index) {
+  wagons.forEach((wagon, i) => {
+    gsap.set(wagon, { autoAlpha: i === index ? 1 : 0 });
+  });
+  const portes = trouverPortes(wagons[index]);
+  gsap.set([portes.gauche, portes.droite], { xPercent: 0 });
   wagonActuel = index;
+  mettreAJourInterface();
+}
 
-  const duree = mouvementReduit ? DUREE_TRANSITION_REDUITE : DUREE_TRANSITION;
-  const xTrain = calculerPositionTrain(index);
-  const plans = calculerPositionsPlans(xTrain);
+// Ajoute à une timeline le fondu au noir, le changement de wagon, puis le retour à l'image.
+// trajet : timeline GSAP
+// index : wagon à afficher pendant le noir
+function ajouterFondu(trajet, index) {
+  const duree = adapterDuree(DUREE_FONDU);
+  trajet
+    .to(fondu, { opacity: 1, duration: duree, ease: "steps(4)" })
+    .call(afficherWagon, [index])
+    .to(fondu, { opacity: 0, duration: duree, ease: "steps(4)" });
+}
 
-  // Tous les plans partent ensemble (position 0 de la timeline) avec la même courbe
-  const trajet = gsap.timeline({
-    defaults: { duration: duree, ease: EASING_TRANSITION },
+// Crée une timeline qui libère le verrou à la fin.
+function creerTrajet() {
+  enAnimation = true;
+  return gsap.timeline({
     onComplete: () => {
       enAnimation = false;
     },
   });
-
-  trajet
-    .to(train, { x: xTrain }, 0)
-    .to(ville, { x: plans.ville }, 0)
-    .to(voie, { x: plans.voie }, 0)
-    .to(quai, { x: plans.quai }, 0)
-    // L'indicateur s'efface, change de texte à mi-parcours, puis réapparaît
-    .to(indicateurNom, { opacity: 0, duration: duree * 0.25 }, 0)
-    .call(mettreAJourIndicateur, null, duree * 0.5)
-    .to(indicateurNom, { opacity: 1, duration: duree * 0.25 }, duree * 0.75);
 }
 
-// Passe au wagon suivant (époque suivante).
+// Ouvre la porte du fond puis passe au wagon suivant.
+// Au dernier wagon, la porte est verrouillée et tremble.
 function wagonSuivant() {
-  allerAuWagon(wagonActuel + 1);
+  if (enAnimation) {
+    return;
+  }
+
+  const portes = trouverPortes(wagons[wagonActuel]);
+
+  if (wagonActuel >= wagons.length - 1) {
+    porteVerrouillee(portes);
+    return;
+  }
+
+  // Déplacement d'un battant, en pourcentage de la largeur du calque
+  const ouverture = (LARGEUR_BATTANT / TOILE_LARGEUR) * 100;
+  const trajet = creerTrajet();
+
+  // Les battants glissent pixel par pixel dans la paroi
+  trajet
+    .to(portes.gauche, { xPercent: -ouverture, duration: adapterDuree(DUREE_PORTE), ease: `steps(${LARGEUR_BATTANT})` }, 0)
+    .to(portes.droite, { xPercent: ouverture, duration: adapterDuree(DUREE_PORTE), ease: `steps(${LARGEUR_BATTANT})` }, 0);
+  ajouterFondu(trajet, wagonActuel + 1);
 }
 
-// Revient au wagon précédent (époque précédente).
+// Revient au wagon précédent par un simple fondu au noir.
 function wagonPrecedent() {
-  allerAuWagon(wagonActuel - 1);
+  if (enAnimation || wagonActuel === 0) {
+    return;
+  }
+  const trajet = creerTrajet();
+  ajouterFondu(trajet, wagonActuel - 1);
+}
+
+// Fait trembler la porte fermée, de 1 pixel source à gauche et à droite.
+// portes : battants renvoyés par trouverPortes()
+function porteVerrouillee(portes) {
+  const unPixel = (1 / TOILE_LARGEUR) * 100;
+  const trajet = creerTrajet();
+  trajet
+    .to([portes.gauche, portes.droite], { xPercent: -unPixel, duration: 0.05, ease: "steps(1)" })
+    .to([portes.gauche, portes.droite], { xPercent: unPixel, duration: 0.05, ease: "steps(1)", repeat: 3, yoyo: true })
+    .to([portes.gauche, portes.droite], { xPercent: 0, duration: 0.05, ease: "steps(1)" });
 }
 
 
 /* ==========================================================
-   5. Écouteurs
+   5. Ambiance
+   ========================================================== */
+
+// Fait défiler le paysage en boucle : vers la gauche à gauche, vers la droite à droite,
+// comme vu depuis un train qui avance vers la porte du fond.
+function lancerPaysage() {
+  const pas = `steps(${TOILE_LARGEUR})`;
+  gsap.fromTo(bandeGauche, { xPercent: 0 }, { xPercent: -50, duration: DUREE_PAYSAGE, ease: pas, repeat: -1 });
+  gsap.fromTo(bandeDroite, { xPercent: 0 }, { xPercent: 50, duration: DUREE_PAYSAGE, ease: pas, repeat: -1 });
+}
+
+// Secousse régulière de la scène, d'un pixel source vers le bas puis retour.
+function lancerSecousses() {
+  const unPixel = (1 / TOILE_HAUTEUR) * 100;
+  gsap.timeline({ repeat: -1, repeatDelay: INTERVALLE_SECOUSSE })
+    .to(scene, { yPercent: unPixel, duration: 0.08, ease: "steps(1)" })
+    .to(scene, { yPercent: 0, duration: 0.08, ease: "steps(1)" });
+}
+
+// Scintillement bref et irrégulier de la lumière, puis on reprogramme le suivant.
+function scintiller() {
+  gsap.timeline({ onComplete: scintiller, delay: gsap.utils.random(3, 7) })
+    .to(lumiere, { opacity: 0.4, duration: 0.06, ease: "steps(1)" })
+    .to(lumiere, { opacity: 1, duration: 0.06, ease: "steps(1)" })
+    .to(lumiere, { opacity: 0.6, duration: 0.05, ease: "steps(1)" })
+    .to(lumiere, { opacity: 1, duration: 0.1, ease: "steps(1)" });
+}
+
+
+/* ==========================================================
+   6. Écouteurs
    ========================================================== */
 
 gsap.registerPlugin(Observer);
 
 // Molette et tactile.
 // wheelSpeed: -1 inverse la molette pour qu'elle se comporte comme le doigt :
-// molette vers le bas et swipe vers le haut déclenchent tous les deux onUp (wagon suivant).
+// molette vers le bas et swipe vers le haut déclenchent tous les deux onUp.
+// Pour l'instant, le retour se fait uniquement avec le bouton Arrière.
 Observer.create({
   target: window,
   type: "wheel,touch",
@@ -161,31 +208,32 @@ Observer.create({
   tolerance: TOLERANCE_OBSERVER,
   preventDefault: true,
   onUp: wagonSuivant,
-  onDown: wagonPrecedent,
 });
 
-// Clavier : flèches droite et bas pour avancer, gauche et haut pour reculer
+// Clavier : flèches droite et bas pour avancer
 document.addEventListener("keydown", (evenement) => {
   // Une touche maintenue enfoncée ne doit pas enchaîner les wagons
   if (evenement.repeat) {
     return;
   }
-
   if (evenement.key === "ArrowRight" || evenement.key === "ArrowDown") {
     evenement.preventDefault();
     wagonSuivant();
-  } else if (evenement.key === "ArrowLeft" || evenement.key === "ArrowUp") {
-    evenement.preventDefault();
-    wagonPrecedent();
   }
 });
 
-// Recentre le wagon courant si la taille de la fenêtre change
-window.addEventListener("resize", placerSansAnimation);
+// Bouton de retour au wagon précédent
+boutonArriere.addEventListener("click", wagonPrecedent);
 
 
 /* ==========================================================
-   6. Initialisation
+   7. Initialisation
    ========================================================== */
 
-placerSansAnimation();
+afficherWagon(0);
+lancerPaysage();
+
+if (!mouvementReduit) {
+  lancerSecousses();
+  scintiller();
+}

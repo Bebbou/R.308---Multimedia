@@ -3,43 +3,24 @@
    ========================================================== */
 
 :root {
-  /* Couleurs générales */
-  --couleur-fond: #10131a;
-  --couleur-texte: #f2f2f2;
+  /* Couleurs, tirées de la palette commune Sweetie 16 */
+  --couleur-fond: #1a1c2c;
+  --couleur-texte: #f4f4f4;
+  --couleur-texte-discret: #94b0c2;
+  --couleur-bouton: #333c57;
+  --couleur-bouton-survol: #566c86;
+  --couleur-bordure: #94b0c2;
+  --couleur-fondu: #1a1c2c;
+  --couleur-lumiere: rgba(255, 205, 117, 0.08);
+  --couleur-vignette: rgba(26, 28, 44, 0.35);
 
-  /* Couleurs du décor */
-  --couleur-ciel-haut: #1d2a44;
-  --couleur-ciel-bas: #c98b6b;
-  --couleur-ville-loin: #4a4458;
-  --couleur-ville-proche: #2d2a3a;
-  --couleur-poteau: #1b1a24;
-  --couleur-rail: #6b6870;
+  /* Taille de la toile pixel art (en pixels source) */
+  --toile-largeur: 320;
+  --toile-hauteur: 180;
 
-  /* Couleurs du quai */
-  --couleur-quai: #8a8478;
-  --couleur-quai-joint: #746e64;
-  --couleur-quai-ombre: rgba(0, 0, 0, 0.35);
-  --couleur-bande-securite: #e8c547;
-  --couleur-bord-quai: #b9b2a5;
-
-  /* Couleurs des wagons (placeholders) */
-  --couleur-wagon-1: #8c3b3b;
-  --couleur-wagon-2: #2f6b5a;
-  --couleur-wagon-3: #3c4f8c;
-  --couleur-toit: rgba(0, 0, 0, 0.25);
-  --couleur-vitre: rgba(255, 255, 255, 0.14);
-  --couleur-attelage: #22212a;
-
-  /* Dimensions */
-  --hauteur-quai: 24vh;
-  --hauteur-wagon: 52vh;
-  --largeur-wagon: 72vw;
-  --ecart-wagons: 4vw;
-  --rayon-wagon: 18px;
-
-  /* Débordement des plans de parallaxe hors de l'écran,
-     pour qu'aucun bord ne soit visible quand ils se décalent */
-  --debordement-parallaxe: 60vw;
+  /* Police d'interface : chasse fixe, proche de l'esprit pixel art */
+  --police-interface: "Courier New", Courier, monospace;
+  --marge-interface: 1.25rem;
 }
 
 
@@ -61,240 +42,128 @@ body {
 }
 
 body {
-  background-color: var(--couleur-fond);
-  color: var(--couleur-texte);
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  /* La page ne défile jamais : c'est le train qui bouge */
-  overflow: hidden;
-  overscroll-behavior: none;
-}
-
-/* Conteneur plein écran de toute l'expérience */
-.scene {
-  position: relative;
-  width: 100%;
+  display: grid;
+  place-items: center;
   height: 100vh;
   height: 100dvh;
+  background-color: var(--couleur-fond);
+  color: var(--couleur-texte);
+  font-family: var(--police-interface);
+  /* La page ne défile jamais : tout se passe dans la scène */
   overflow: hidden;
+  overscroll-behavior: none;
   /* Empêche le navigateur de gérer lui-même le glissé tactile */
   touch-action: none;
 }
 
-
-/* ==========================================================
-   3. Décor (fond)
-   ========================================================== */
-
-.decor {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-}
-
-/* Ciel : dégradé fixe, il ne bouge jamais */
-.decor__ciel {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to bottom, var(--couleur-ciel-haut), var(--couleur-ciel-bas));
-}
-
-/* Silhouettes de bâtiments : plan le plus lointain de la parallaxe.
-   Trois bandes de hauteurs différentes forment une ligne d'horizon. */
-.decor__ville {
-  position: absolute;
-  left: calc(-1 * var(--debordement-parallaxe));
-  right: calc(-1 * var(--debordement-parallaxe));
-  bottom: calc(var(--hauteur-quai) + 6vh);
-  height: 10vh;
-  background-color: var(--couleur-ville-proche);
-}
-
-.decor__ville::before,
-.decor__ville::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 100%;
-}
-
-/* Bâtiments hauts et éloignés */
-.decor__ville::before {
-  height: 22vh;
-  background: repeating-linear-gradient(
-    to right,
-    transparent 0 5vw,
-    var(--couleur-ville-loin) 5vw 9vw,
-    transparent 9vw 13vw,
-    var(--couleur-ville-loin) 13vw 15vw,
-    transparent 15vw 21vw
-  );
-}
-
-/* Bâtiments moyens, plus proches */
-.decor__ville::after {
-  height: 12vh;
-  background: repeating-linear-gradient(
-    to right,
-    var(--couleur-ville-proche) 0 7vw,
-    transparent 7vw 10vw,
-    var(--couleur-ville-proche) 10vw 12vw,
-    transparent 12vw 17vw
-  );
-}
-
-/* Voie ferrée et poteaux : plan intermédiaire, à la profondeur du train */
-.decor__voie {
-  position: absolute;
-  left: calc(-1 * var(--debordement-parallaxe));
-  right: calc(-1 * var(--debordement-parallaxe));
-  bottom: var(--hauteur-quai);
-  height: calc(var(--hauteur-wagon) + 16vh);
-  /* Poteaux verticaux régulièrement espacés */
-  background: repeating-linear-gradient(
-    to right,
-    transparent 0 calc(30vw - 8px),
-    var(--couleur-poteau) calc(30vw - 8px) 30vw
-  );
-}
-
-/* Rail visible sous le train */
-.decor__voie::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 1vh;
-  height: 1vh;
-  background-color: var(--couleur-rail);
+/* Toutes les images pixel art restent nettes une fois agrandies */
+img {
+  display: block;
+  image-rendering: pixelated;
 }
 
 
 /* ==========================================================
-   4. Train et wagons
+   3. Scène (cadre 16:9)
    ========================================================== */
 
-/* Le train est une rangée de wagons. GSAP le déplace sur l'axe x. */
-.train {
-  position: absolute;
-  left: 0;
-  /* Le bas du train passe derrière le bord du quai */
-  bottom: calc(var(--hauteur-quai) - 3vh);
-  z-index: 2;
-  display: flex;
-  gap: var(--ecart-wagons);
-  width: max-content;
-}
-
-.wagon {
+/* La scène occupe le plus de place possible sans jamais être rognée */
+.scene {
   position: relative;
-  flex: 0 0 var(--largeur-wagon);
-  height: var(--hauteur-wagon);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: var(--rayon-wagon);
-  box-shadow: 0 1.5vh 3vh var(--couleur-quai-ombre);
+  width: min(100vw, calc(100vh * 16 / 9));
+  width: min(100vw, calc(100dvh * 16 / 9));
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
 }
 
-/* Toit du wagon : bande plus sombre en haut */
-.wagon::before {
-  content: "";
+
+/* ==========================================================
+   4. Paysage
+   ========================================================== */
+
+.paysage {
+  position: absolute;
+  inset: 0;
+}
+
+/* Chaque moitié de l'écran contient son propre défilement */
+.paysage__cote {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 50%;
+  overflow: hidden;
+}
+
+.paysage__cote--gauche {
+  left: 0;
+}
+
+.paysage__cote--droite {
+  right: 0;
+}
+
+/* Bande de deux paysages côte à côte : GSAP la décale d'un paysage
+   puis recommence, ce qui donne un défilement sans fin */
+.paysage__bande {
   position: absolute;
   top: 0;
   left: 0;
+  height: 100%;
+  width: 400%;
+  background-image: url("../assets/images/commun/paysage.png");
+  background-repeat: repeat-x;
+  background-size: 50% 100%;
+  image-rendering: pixelated;
+}
+
+/* Côté droit : la bande est calée sur le bord droit de la scène */
+.paysage__cote--droite .paysage__bande {
+  left: auto;
   right: 0;
-  height: 12%;
-  border-radius: var(--rayon-wagon) var(--rayon-wagon) 0 0;
-  background-color: var(--couleur-toit);
-}
-
-/* Attelage entre deux wagons */
-.wagon::after {
-  content: "";
-  position: absolute;
-  left: 100%;
-  bottom: 18%;
-  width: var(--ecart-wagons);
-  height: 1.5vh;
-  background-color: var(--couleur-attelage);
-}
-
-/* Le dernier wagon n'a pas d'attelage derrière lui */
-.wagon:last-child::after {
-  display: none;
-}
-
-/* Couleurs provisoires, une par wagon */
-.wagon--1 {
-  background-color: var(--couleur-wagon-1);
-}
-
-.wagon--2 {
-  background-color: var(--couleur-wagon-2);
-}
-
-.wagon--3 {
-  background-color: var(--couleur-wagon-3);
-}
-
-/* Grande vitre centrale, qui contiendra plus tard la scène de l'époque */
-.wagon__fenetre {
-  max-width: 70%;
-  padding: 2.5rem 3rem;
-  border-radius: calc(var(--rayon-wagon) / 2);
-  background-color: var(--couleur-vitre);
-  text-align: center;
-}
-
-.wagon__titre {
-  margin-bottom: 1rem;
-  font-size: clamp(1.5rem, 3vw, 2.5rem);
-  font-weight: 600;
-}
-
-.wagon__texte {
-  font-size: clamp(0.95rem, 1.3vw, 1.15rem);
-  line-height: 1.6;
 }
 
 
 /* ==========================================================
-   5. Quai (premier plan)
+   5. Wagons et calques
    ========================================================== */
 
-.quai {
+/* Tous les wagons sont superposés, le JavaScript n'en montre qu'un */
+.wagon {
   position: absolute;
-  left: calc(-1 * var(--debordement-parallaxe));
-  right: calc(-1 * var(--debordement-parallaxe));
-  bottom: 0;
-  height: var(--hauteur-quai);
-  z-index: 3;
-  display: flex;
-  flex-direction: column;
+  inset: 0;
 }
 
-/* Bord du quai avec la bande de sécurité jaune */
-.quai__bordure {
-  height: 2.5vh;
-  border-top: 0.6vh solid var(--couleur-bord-quai);
-  background: repeating-linear-gradient(
-    to right,
-    var(--couleur-bande-securite) 0 1.2vw,
-    var(--couleur-quai) 1.2vw 1.8vw
-  );
+/* Chaque calque couvre toute la scène (toile 320 x 180) */
+.wagon__calque {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
 }
 
-/* Sol : dalles dont les joints rendent la parallaxe visible */
-.quai__sol {
-  flex: 1;
+/* Les personnages réagiront plus tard au survol et au clic */
+.wagon__personnage {
+  pointer-events: none;
+}
+
+/* Lumière d'ambiance : reflet chaud et bords légèrement assombris */
+.lumiere {
+  position: absolute;
+  inset: 0;
   background:
-    linear-gradient(to bottom, var(--couleur-quai-ombre), transparent 40%),
-    repeating-linear-gradient(
-      to right,
-      var(--couleur-quai) 0 calc(12vw - 3px),
-      var(--couleur-quai-joint) calc(12vw - 3px) 12vw
-    );
+    radial-gradient(ellipse at 50% 0%, var(--couleur-lumiere), transparent 60%),
+    radial-gradient(ellipse at 50% 50%, transparent 60%, var(--couleur-vignette));
+  pointer-events: none;
+}
+
+/* Écran noir des transitions, invisible au repos */
+.fondu {
+  position: absolute;
+  inset: 0;
+  background-color: var(--couleur-fondu);
+  opacity: 0;
+  pointer-events: none;
 }
 
 
@@ -306,26 +175,62 @@ body {
 
 
 /* ==========================================================
-   7. Indicateur de l'époque courante
+   7. Interface (indicateur, bouton Arrière)
    ========================================================== */
 
 .indicateur {
-  position: absolute;
-  top: 1.5rem;
-  left: 1.5rem;
-  z-index: 4;
+  position: fixed;
+  top: var(--marge-interface);
+  left: var(--marge-interface);
   display: flex;
   gap: 0.75rem;
-  font-size: 0.8rem;
-  letter-spacing: 0.12em;
+  font-size: 0.85rem;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  opacity: 0.75;
+  color: var(--couleur-texte);
+  text-shadow: 2px 2px 0 var(--couleur-fond);
   pointer-events: none;
 }
 
 /* Chiffres de largeur fixe pour éviter que le texte bouge */
 .indicateur__numero {
+  color: var(--couleur-texte-discret);
   font-variant-numeric: tabular-nums;
+}
+
+/* Bouton carré, bordure franche, sans arrondi : style pixel */
+.bouton-arriere {
+  position: fixed;
+  bottom: var(--marge-interface);
+  left: var(--marge-interface);
+  padding: 0.6rem 1rem;
+  border: 3px solid var(--couleur-bordure);
+  border-radius: 0;
+  background-color: var(--couleur-bouton);
+  box-shadow: 4px 4px 0 var(--couleur-fond);
+  color: var(--couleur-texte);
+  font-family: var(--police-interface);
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.bouton-arriere:hover,
+.bouton-arriere:focus-visible {
+  background-color: var(--couleur-bouton-survol);
+}
+
+.bouton-arriere:focus-visible {
+  outline: 3px solid var(--couleur-texte);
+  outline-offset: 3px;
+}
+
+/* Au premier wagon, il n'y a pas de wagon précédent */
+.bouton-arriere:disabled {
+  opacity: 0.35;
+  cursor: default;
 }
 
 
@@ -335,18 +240,15 @@ body {
 
 @media (max-width: 700px) {
   :root {
-    --largeur-wagon: 86vw;
-    --hauteur-wagon: 46vh;
-    --hauteur-quai: 22vh;
-  }
-
-  .wagon__fenetre {
-    max-width: 82%;
-    padding: 1.5rem 1.25rem;
+    --marge-interface: 0.75rem;
   }
 
   .indicateur {
-    top: 1rem;
-    left: 1rem;
+    font-size: 0.75rem;
+  }
+
+  .bouton-arriere {
+    font-size: 0.8rem;
+    padding: 0.5rem 0.8rem;
   }
 }

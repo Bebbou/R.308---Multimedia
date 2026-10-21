@@ -3,34 +3,38 @@
 Projet de groupe, BUT MMI, ressource R3.08 Multimédia.
 Équipe : 4 personnes.
 
-Ce fichier est la référence unique du projet. Chaque membre le donne à son IA (ChatGPT, Claude, Copilot, etc.) au début de chaque session de travail, pour que tout le monde produise du code identique dans sa forme. En cas de doute, c'est ce fichier qui tranche. Toute modification de ce fichier se décide à quatre.
+Ce fichier est la référence unique du projet. Chaque membre le donne à son IA (ChatGPT, Claude, Copilot, etc.) au début de chaque session de travail, pour que tout le monde produise du code et des images identiques dans leur forme. En cas de doute, c'est ce fichier qui tranche. Toute modification de ce fichier se décide à quatre.
 
 ---
 
 ## 1. Le concept
 
-L'utilisateur est debout sur le quai d'une gare. La vue est fixe : la caméra ne bouge jamais, c'est le train qui bouge.
+L'utilisateur est **à l'intérieur** du train, debout au milieu de l'allée. Il regarde droit devant lui, vers la porte au bout du wagon. La perspective est centrale et symétrique.
 
-Un train passe devant lui. Chaque wagon représente une époque différente. L'un des wagons reprend la composition de La Cène de Léonard de Vinci.
+Le train compte 4 wagons. Chaque wagon raconte une histoire différente. Pour l'instant, les histoires sont des placeholders (Lorem ipsum).
 
-L'utilisateur est un spectateur omniscient : il peut lire les pensées des personnages et des objets présents dans le wagon arrêté devant lui.
+Des personnages sont assis sur des banquettes le long des deux parois, face à l'allée. L'utilisateur est un spectateur omniscient : plus tard, il pourra lire leurs pensées en survolant ou en cliquant sur un personnage (une bulle apparaît). Cette partie attend la validation de l'équipe.
+
+Le rendu est en **pixel art**, style 16 bits.
 
 ### Navigation
 
 | Action utilisateur | Effet |
 |---|---|
-| Molette vers le bas | Le train avance jusqu'au wagon suivant (époque suivante) |
-| Molette vers le haut | Le train recule jusqu'au wagon précédent (époque précédente) |
-| Swipe vers le haut (tactile) | Wagon suivant |
-| Swipe vers le bas (tactile) | Wagon précédent |
-| Flèche droite ou flèche bas | Wagon suivant |
-| Flèche gauche ou flèche haut | Wagon précédent |
+| Molette vers le bas | Passage au wagon suivant |
+| Swipe vers le haut (tactile) | Passage au wagon suivant |
+| Flèche droite ou flèche bas | Passage au wagon suivant |
+| Bouton "Arrière" à l'écran | Retour au wagon précédent |
+
+Passage au wagon suivant : la porte du fond s'ouvre, l'écran passe au noir, puis le wagon suivant apparaît.
+Retour : fondu au noir, puis le wagon précédent apparaît.
 
 Règles :
-- Un cran de molette, un swipe ou un appui sur une flèche = un seul wagon, jamais plus.
-- Le train s'arrête toujours pile devant l'utilisateur.
+- Une action = un seul wagon, jamais plus.
 - Pendant une animation, les nouvelles actions sont ignorées (pas de file d'attente).
-- Au premier wagon, on ne peut pas reculer. Au dernier, on ne peut pas avancer.
+- Au dernier wagon, la porte est verrouillée : elle tremble légèrement au lieu de s'ouvrir.
+- Au premier wagon, le bouton "Arrière" est désactivé.
+- Prévu plus tard (pas maintenant) : avancer progressivement dans l'allée, plusieurs crans de molette avant d'atteindre la porte.
 
 ---
 
@@ -43,11 +47,11 @@ Uniquement les technologies ci-dessous. Aucune autre bibliothèque, aucun framew
 | HTML5 | Structure | Natif |
 | CSS3 | Mise en forme, mise en page | Natif, un seul fichier |
 | JavaScript (ES6+) | Logique | Natif, sans module ni build |
-| GSAP 3 | Animations du train | CDN |
+| GSAP 3 | Animations | CDN |
 | GSAP Observer | Détection molette, tactile | CDN |
 | Howler.js | Son (plus tard) | CDN |
 
-Interdits : npm, Vite, Webpack, Sass, TypeScript, React, Vue, jQuery, Tailwind, Bootstrap, tout framework CSS ou JS.
+Interdits : npm, Vite, Webpack, Sass, TypeScript, React, Vue, jQuery, Tailwind, Bootstrap, canvas WebGL, tout framework CSS ou JS.
 
 Test en local : extension Live Server de VS Code (clic droit sur `index.html`, "Open with Live Server").
 
@@ -74,156 +78,200 @@ Ne jamais changer une version sans prévenir l'équipe.
 
 ```
 R.308---Multimedia/
-├── README.md             présentation courte du dépôt
-├── DOCUMENTATION.md      ce fichier
-├── index.html            la seule page du site
+├── README.md               présentation courte du dépôt
+├── DOCUMENTATION.md        ce fichier
+├── index.html              la seule page du site
 ├── css/
-│   └── style.css         tout le style
+│   └── style.css           tout le style
 ├── js/
-│   └── main.js           toute la logique
+│   └── main.js             toute la logique
 └── assets/
-    ├── images/           illustrations (décor, wagons, personnages, objets)
-    └── sons/             fichiers audio
+    ├── images/
+    │   ├── commun/         calques partagés par tous les wagons
+    │   │   ├── paysage.png         paysage vu par les fenêtres (raccordable)
+    │   │   ├── passage.png         couloir visible derrière la porte ouverte
+    │   │   ├── porte-gauche.png    battant gauche de la porte
+    │   │   └── porte-droite.png    battant droit de la porte
+    │   ├── wagon-01/
+    │   │   ├── interieur.png       parois, sol, plafond, banquettes
+    │   │   ├── personnage-01.png   un fichier par personnage
+    │   │   └── personnage-02.png   ...
+    │   ├── wagon-02/
+    │   ├── wagon-03/
+    │   └── wagon-04/
+    └── sons/               fichiers audio (plus tard)
 ```
 
 Règles :
-- On ne crée pas de nouveau fichier ou dossier sans accord de l'équipe.
+- On ne crée pas de nouveau fichier ou dossier sans accord de l'équipe (sauf un nouveau `personnage-XX.png` dans son propre wagon).
 - Un seul fichier CSS, un seul fichier JS, tant que l'équipe n'a pas décidé autrement.
-- Chemins toujours relatifs (`assets/images/quai.png`), jamais absolus (`C:\...` ou `/Users/...`).
-
-### Nommage des fichiers d'assets
-
-- Tout en minuscules, sans accent, sans espace, mots séparés par des tirets.
-- Préfixe = numéro du wagon sur deux chiffres, puis le sujet.
-- Exemples : `01-wagon-fond.png`, `03-cene-jesus.png`, `03-cene-calice.png`, `quai-fond.png`, `train-roulement.mp3`.
-- Formats : `.webp` ou `.png` pour les images (`.svg` si vectoriel), `.mp3` pour les sons.
+- Chemins toujours relatifs (`assets/images/commun/paysage.png`), jamais absolus (`C:\...` ou `/Users/...`).
+- Noms de fichiers : minuscules, sans accent, sans espace, mots séparés par des tirets, numéros sur deux chiffres.
+- Les fichiers vides `.gitkeep` servent seulement à garder les dossiers vides dans Git.
 
 ---
 
-## 4. Conventions de code communes
+## 4. Pixel art : règles communes
+
+Ces règles garantissent que les dessins des 4 membres s'assemblent sans retouche.
+
+### Format
+
+- Toile de **320 x 180 pixels** pour chaque calque (format 16:9). Le site l'agrandit sans flou.
+- Chaque calque fait toute la toile, même s'il ne contient qu'un petit personnage : le reste est transparent. Pas de positionnement à calculer, il suffit de dessiner au bon endroit.
+- Export en **PNG**, fond transparent, sans anticrénelage (pas de pixels semi-transparents sur les bords, pas d'outil flou).
+- Exception : `paysage.png` fait 320 x 180 et doit se raccorder parfaitement à gauche et à droite, car il défile en boucle.
+- Logiciels conseillés : Aseprite, Piskel (gratuit, en ligne), LibreSprite.
+
+### Perspective (repères à respecter)
+
+Point de fuite : **x = 160, y = 90** (centre exact de la toile).
+
+| Élément | Coordonnées sur la toile 320 x 180 |
+|---|---|
+| Mur du fond | x 114 à 206, y 64 à 142 |
+| Ouverture de la porte | x 144 à 176, y 72 à 142 |
+| Banquettes | le long des parois, du bas de l'écran jusqu'au mur du fond |
+| Fenêtres | sur les parois, au-dessus des banquettes, trouées (transparentes) |
+
+Ouvrir `assets/images/wagon-01/interieur.png` dans son logiciel donne tous ces repères : on peut s'en servir comme gabarit.
+
+### Ordre des calques (de l'arrière vers l'avant)
+
+1. `paysage.png` (derrière les fenêtres)
+2. `passage.png` (derrière la porte)
+3. `porte-gauche.png` et `porte-droite.png`
+4. `interieur.png` (avec trous transparents pour les fenêtres et la porte)
+5. `personnage-XX.png`, du plus éloigné au plus proche
+
+### Palette
+
+Palette commune : **Sweetie 16** (16 couleurs). Tout le monde l'importe dans son logiciel.
+
+```
+#1a1c2c  #5d275d  #b13e53  #ef7d57
+#ffcd75  #a7f070  #38b764  #257179
+#29366f  #3b5dc9  #41a6f6  #73eff7
+#f4f4f4  #94b0c2  #566c86  #333c57
+```
+
+Chaque wagon peut ajouter au maximum **3 couleurs propres** pour son ambiance. Elles sont notées dans le tableau des wagons (section 6).
+
+---
+
+## 5. Conventions de code communes
 
 ### Règles générales
 
 - Indentation : 2 espaces (pas de tabulation). Dans VS Code : "Spaces: 2" en bas à droite.
 - Encodage : UTF-8.
 - Commentaires en français, clairs, au-dessus du bloc qu'ils expliquent.
-- Noms de variables, fonctions et classes CSS : en anglais ou en français, mais l'équipe choisit une langue et s'y tient. Choix retenu : **français sans accent** (ex. `wagonActuel`, `.wagon__titre`).
+- Noms de variables, fonctions et classes CSS : **français sans accent** (ex. `wagonActuel`, `.wagon__calque`).
 - Aucun emoji, ni dans le code, ni dans les commentaires, ni dans les textes du site.
 - Pas de code mort ni de `console.log` oubliés dans ce qui est partagé.
 
 ### HTML
 
 - `<html lang="fr">`, `<meta charset="UTF-8">`, `<meta name="viewport" ...>`.
-- Balises sémantiques : `<main>`, `<section>`, `<article>`, `<button>`.
-- Chaque wagon est un élément avec la classe `wagon` et un attribut `data-epoque` :
+- Chaque wagon est une `<section class="wagon">` avec `data-titre` (nom affiché dans l'indicateur) :
   ```html
-  <section class="wagon" data-epoque="renaissance">
-    <!-- contenu du wagon -->
+  <section class="wagon" data-titre="Lorem ipsum">
+    <img class="wagon__calque" src="assets/images/commun/passage.png" alt="">
+    <img class="wagon__calque wagon__porte wagon__porte--gauche" src="assets/images/commun/porte-gauche.png" alt="">
+    <img class="wagon__calque wagon__porte wagon__porte--droite" src="assets/images/commun/porte-droite.png" alt="">
+    <img class="wagon__calque" src="assets/images/wagon-01/interieur.png" alt="Intérieur du wagon">
+    <img class="wagon__calque wagon__personnage" src="assets/images/wagon-01/personnage-01.png" alt="Voyageur assis" data-pensee="">
   </section>
   ```
-- Chaque élément "lisible" (personnage ou objet) porte `data-pensee` (texte ajouté plus tard, après validation) :
-  ```html
-  <img class="wagon__element" src="assets/images/03-cene-calice.png" alt="Calice posé sur la table" data-pensee="">
-  ```
-- Toute image a un `alt` descriptif en français.
+- Les personnages portent `data-pensee` (texte ajouté plus tard, après validation).
+- Les calques décoratifs ont `alt=""`, les personnages et l'intérieur ont un `alt` descriptif en français.
 - Pas de style en ligne (`style="..."`) ni de script en ligne (`onclick="..."`).
 
 ### CSS
 
 - Nommage des classes en BEM : `bloc`, `bloc__element`, `bloc--variante`.
-  Exemples : `.quai`, `.train`, `.wagon`, `.wagon__element`, `.wagon--actif`.
-- Couleurs, tailles et durées en variables dans `:root`, en haut du fichier :
-  ```css
-  :root {
-    --couleur-fond: #1a1a1a;
-    --couleur-texte: #f2f2f2;
-    --largeur-wagon: 100vw;
-  }
-  ```
+- Couleurs, tailles et durées en variables dans `:root`, en haut du fichier.
+- Toutes les images pixel art ont `image-rendering: pixelated` (sinon elles sont floues).
 - Ordre du fichier, séparé par des commentaires de section :
   1. Variables
   2. Reset et base
-  3. Décor (fond)
-  4. Train et wagons
-  5. Quai (premier plan)
+  3. Scène (cadre 16:9)
+  4. Paysage
+  5. Wagons et calques
   6. Pensées (bulles)
-  7. Indicateur de l'époque courante
+  7. Interface (indicateur, bouton Arrière)
   8. Responsive (media queries)
-- Pas de `!important`. Pas d'`id` pour styler (les `id` servent au JS si besoin).
-- Les animations de déplacement du train se font en GSAP, pas en CSS.
+- Pas de `!important`. Pas d'`id` pour styler.
+- Les animations se font en GSAP, pas en CSS.
 
 ### JavaScript
 
 - `const` par défaut, `let` si la valeur change, jamais `var`.
 - Fonctions nommées et courtes, une seule responsabilité chacune.
-- camelCase pour variables et fonctions (`allerAuWagon`), MAJUSCULES pour les constantes de réglage (`DUREE_TRANSITION`).
+- camelCase pour variables et fonctions (`allerAuWagon`), MAJUSCULES pour les constantes de réglage (`DUREE_PORTE`).
 - Le DOM est sélectionné une seule fois au début du fichier.
 - Organisation de `main.js`, avec un commentaire de section pour chaque partie :
   1. Réglages (constantes)
   2. Sélection des éléments du DOM
   3. État (wagon actuel, animation en cours)
-  4. Fonctions (déplacement du train, etc.)
-  5. Écouteurs (Observer pour molette et tactile, clavier)
-  6. Initialisation
-- Commentaire en tête de chaque fonction :
-  ```js
-  // Déplace le train pour placer le wagon demandé devant l'utilisateur.
-  // index : numéro du wagon (0 = premier wagon)
-  function allerAuWagon(index) {
-    // ...
-  }
-  ```
+  4. Fonctions
+  5. Ambiance (animations permanentes : paysage, lumière, secousses)
+  6. Écouteurs (Observer, clavier, bouton)
+  7. Initialisation
+- Commentaire en tête de chaque fonction, qui dit ce qu'elle fait et ce que sont ses paramètres.
+- Le nombre de wagons n'est jamais écrit en dur : le JavaScript les compte dans le HTML.
 
 ### Animations (GSAP)
 
-- Le train est un conteneur unique (`.train`) déplacé horizontalement avec `gsap.to()` sur `xPercent` ou `x`.
-- Durée et easing communs, définis dans les réglages :
-  `DUREE_TRANSITION = 1.2` (secondes), easing `"power2.inOut"`.
-- Un booléen `enAnimation` bloque toute nouvelle action tant que le train roule.
-- La molette et le tactile passent par `Observer.create()` (avec `type: "wheel,touch"` et une `tolerance`) ; le clavier par `keydown`.
-- Respect de `prefers-reduced-motion` : si l'utilisateur le demande, durée raccourcie.
+- Durées communes, définies dans les réglages de `main.js` : ouverture de porte 0,7 s, fondu au noir 0,4 s.
+- Pour garder l'aspect pixel art, les mouvements des calques utilisent l'easing `steps(n)` (déplacement pixel par pixel).
+- Un booléen `enAnimation` bloque toute nouvelle action tant qu'une transition est en cours.
+- Respect de `prefers-reduced-motion` : si l'utilisateur le demande, pas de secousses et transitions raccourcies.
 
 ---
 
-## 5. Les wagons
+## 6. Les wagons
 
-Liste provisoire, à compléter par l'équipe. L'ordre de ce tableau est l'ordre du train.
+L'ordre de ce tableau est l'ordre du train.
 
-| N° | `data-epoque` | Époque | Responsable | État |
-|---|---|---|---|---|
-| 01 | à définir | à définir | à définir | à faire |
-| 02 | à définir | à définir | à définir | à faire |
-| 03 | `renaissance` | Renaissance, La Cène | à définir | à faire |
-| 04 | à définir | à définir | à définir | à faire |
+| N° | Dossier | Histoire | Couleurs propres | Responsable | État |
+|---|---|---|---|---|---|
+| 01 | `wagon-01` | Placeholder (Lorem ipsum) | aucune | à définir | placeholder |
+| 02 | `wagon-02` | Placeholder (Dolor sit amet) | aucune | à définir | placeholder |
+| 03 | `wagon-03` | Placeholder (Consectetur) | aucune | à définir | placeholder |
+| 04 | `wagon-04` | Placeholder (Adipiscing elit) | aucune | à définir | placeholder |
 
-Ajouter ou retirer un wagon = modifier le HTML uniquement. Le JavaScript compte les wagons tout seul et ne doit jamais contenir un nombre de wagons écrit en dur.
+Ajouter ou retirer un wagon = ajouter ou retirer une `<section class="wagon">` dans le HTML et son dossier d'images.
 
 ---
 
-## 6. Organisation du travail en équipe
+## 7. Organisation du travail en équipe
 
 - Chacun travaille sur sa partie (un wagon, ou une fonctionnalité), sans réécrire celle des autres.
-- Avant de modifier une partie commune (structure HTML du train, `main.js`, variables CSS), on prévient le groupe.
+- Remplacer un placeholder = remplacer le fichier PNG en gardant exactement le même nom et la même taille. Aucun code à toucher.
+- Avant de modifier une partie commune (`index.html` hors de son wagon, `main.js`, variables CSS, calques du dossier `commun`), on prévient le groupe.
 - On garde toujours une version qui fonctionne : on ne partage jamais un code qui casse le site.
-- Si l'équipe utilise Git : une branche par personne ou par fonctionnalité, messages de commit en français à l'impératif (ex. `Ajoute le wagon de la Renaissance`).
+- Si l'équipe utilise Git : une branche par personne ou par fonctionnalité, messages de commit en français à l'impératif (ex. `Ajoute les personnages du wagon 02`).
 
 ---
 
-## 7. Règles pour les IA
+## 8. Règles pour les IA
 
 Copier le bloc ci-dessous en début de conversation avec son IA, avec ce fichier en pièce jointe.
 
 ```
 Tu m'aides sur un projet scolaire de groupe (BUT MMI, R3.08 Multimédia).
 Le fichier DOCUMENTATION.md joint est la référence absolue : respecte
-strictement ses technologies, sa structure, ses conventions de nommage
-et l'organisation de ses fichiers. Nous sommes 4 et nos IA doivent
-produire du code identique dans sa forme.
+strictement ses technologies, sa structure, ses conventions de nommage,
+ses règles de pixel art et l'organisation de ses fichiers. Nous sommes 4
+et nos IA doivent produire du code et des images identiques dans leur forme.
 
 Règles :
 - HTML, CSS et JavaScript natifs uniquement, GSAP + Observer et Howler
   via les liens CDN donnés. N'ajoute aucune autre bibliothèque, aucun
   outil de build, aucun fichier ou dossier non prévu sans me demander.
+- Pixel art : calques de 320 x 180 pixels, PNG transparent, palette
+  Sweetie 16, perspective centrée sur le point de fuite (160, 90).
 - Commente le code en français. Aucun emoji nulle part.
 - Avance étape par étape : un fichier ou une modification à la fois.
   Pour chacun, explique brièvement ce qu'il contient et pourquoi, puis
@@ -237,16 +285,15 @@ Règles :
 
 ---
 
-## 8. Étapes du projet
+## 9. Étapes du projet
 
 Chaque étape est validée par l'équipe avant de passer à la suivante.
 
-1. Documentation commune (ce fichier)
-2. Squelette : `index.html`, `css/style.css`, `js/main.js`, dossiers d'assets
-3. Quai fixe et train avec des wagons de couleur unie (sans illustration)
-4. Navigation : molette, tactile, clavier, arrêt pile sur chaque wagon
-5. Contenu des wagons : personnages et objets (images provisoires)
-6. Pensées : affichage au survol ou au clic (après validation)
-7. Son avec Howler (après validation)
-8. Illustrations définitives (après validation)
-9. Responsive, accessibilité, tests sur plusieurs navigateurs
+1. Documentation commune (fait)
+2. Maquette : 4 wagons en perspective, placeholders pixel art, navigation porte et bouton Arrière (fait)
+3. Choix des 4 histoires et répartition des wagons entre les membres
+4. Pensées : bulle au survol ou au clic sur un personnage (après validation)
+5. Illustrations définitives de chaque wagon (après validation)
+6. Son avec Howler (après validation)
+7. Avancée progressive dans l'allée à la molette (plus tard)
+8. Responsive, accessibilité, tests sur plusieurs navigateurs
