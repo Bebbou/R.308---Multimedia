@@ -13,7 +13,21 @@ L'utilisateur est **à l'intérieur** du train, debout au milieu de l'allée. Il
 
 Le train compte 4 wagons. Chaque wagon raconte une histoire différente. Pour l'instant, les histoires sont des placeholders (Lorem ipsum).
 
-Des personnages sont assis sur des banquettes le long des deux parois, face à l'allée. L'utilisateur est un spectateur omniscient : plus tard, il pourra lire leurs pensées en survolant ou en cliquant sur un personnage (une bulle apparaît). Cette partie attend la validation de l'équipe.
+Des personnages sont assis sur des banquettes le long des deux parois, face à l'allée. L'utilisateur est un spectateur omniscient : il lit leurs pensées dans une bulle qui apparaît au-dessus de la tête du personnage.
+
+### Pensées
+
+| Action utilisateur | Effet |
+|---|---|
+| Survol d'un personnage à la souris | Sa bulle de pensée apparaît, un contour blanc d'un pixel entoure sa silhouette, le curseur devient une main (aussi sur la porte) |
+| Souris hors du personnage | La bulle disparaît |
+| Clic ou tap sur un personnage | Sa bulle de pensée apparaît |
+| Clic ou tap ailleurs | La bulle disparaît |
+
+- Une seule bulle à la fois. Elle disparaît pendant les changements de wagon.
+- Le survol est détecté au pixel près : seuls les pixels visibles du calque du personnage comptent, pas le rectangle de l'image.
+- La bulle se place au-dessus du pixel le plus haut du personnage (le haut de la tête). Rien à régler : dessiner le personnage suffit.
+- Cette détection lit les pixels des images, ce que le navigateur n'autorise qu'avec un serveur. Il faut donc toujours ouvrir le site avec Live Server, jamais en double-cliquant sur `index.html`.
 
 Le rendu est en **pixel art**, style 16 bits.
 
@@ -24,6 +38,8 @@ Le rendu est en **pixel art**, style 16 bits.
 | Molette vers le bas | Passage au wagon suivant |
 | Swipe vers le haut (tactile) | Passage au wagon suivant |
 | Flèche droite ou flèche bas | Passage au wagon suivant |
+| Clic ou tap sur la porte du fond | Passage au wagon suivant |
+| Survol de la porte à la souris | Cadre lumineux autour de la porte et étiquette « Wagon suivant » (« Fin du train » au dernier wagon) |
 | Bouton "Arrière" à l'écran | Retour au wagon précédent |
 
 Passage au wagon suivant : la porte du fond s'ouvre, l'écran passe au noir, puis le wagon suivant apparaît.
@@ -53,7 +69,7 @@ Uniquement les technologies ci-dessous. Aucune autre bibliothèque, aucun framew
 
 Interdits : npm, Vite, Webpack, Sass, TypeScript, React, Vue, jQuery, Tailwind, Bootstrap, canvas WebGL, tout framework CSS ou JS.
 
-Test en local : extension Live Server de VS Code (clic droit sur `index.html`, "Open with Live Server").
+Test en local : extension Live Server de VS Code (clic droit sur `index.html`, "Open with Live Server"). Obligatoire : sans Live Server, les pensées ne fonctionnent pas.
 
 ### Liens CDN (versions figées, tout le monde utilise exactement celles-ci)
 
@@ -88,7 +104,10 @@ R.308---Multimedia/
 └── assets/
     ├── images/
     │   ├── commun/         calques partagés par tous les wagons
-    │   │   ├── paysage.png         paysage vu par les fenêtres (raccordable)
+    │   │   ├── paysage-ciel.png    ciel fixe vu par les fenêtres
+    │   │   ├── paysage-loin.png    montagnes et nuages (défilement lent)
+    │   │   ├── paysage-milieu.png  collines (défilement moyen)
+    │   │   ├── paysage-proche.png  sol et poteaux (défilement le plus rapide)
     │   │   ├── passage.png         couloir visible derrière la porte ouverte
     │   │   ├── porte-gauche.png    battant gauche de la porte
     │   │   └── porte-droite.png    battant droit de la porte
@@ -105,7 +124,7 @@ R.308---Multimedia/
 Règles :
 - On ne crée pas de nouveau fichier ou dossier sans accord de l'équipe (sauf un nouveau `personnage-XX.png` dans son propre wagon).
 - Un seul fichier CSS, un seul fichier JS, tant que l'équipe n'a pas décidé autrement.
-- Chemins toujours relatifs (`assets/images/commun/paysage.png`), jamais absolus (`C:\...` ou `/Users/...`).
+- Chemins toujours relatifs (`assets/images/commun/passage.png`), jamais absolus (`C:\...` ou `/Users/...`).
 - Noms de fichiers : minuscules, sans accent, sans espace, mots séparés par des tirets, numéros sur deux chiffres.
 - Les fichiers vides `.gitkeep` servent seulement à garder les dossiers vides dans Git.
 
@@ -120,7 +139,10 @@ Ces règles garantissent que les dessins des 4 membres s'assemblent sans retouch
 - Toile de **320 x 180 pixels** pour chaque calque (format 16:9). Le site l'agrandit sans flou.
 - Chaque calque fait toute la toile, même s'il ne contient qu'un petit personnage : le reste est transparent. Pas de positionnement à calculer, il suffit de dessiner au bon endroit.
 - Export en **PNG**, fond transparent, sans anticrénelage (pas de pixels semi-transparents sur les bords, pas d'outil flou).
-- Exception : `paysage.png` fait 320 x 180 et doit se raccorder parfaitement à gauche et à droite, car il défile en boucle.
+- Les trois couches `paysage-loin.png`, `paysage-milieu.png` et `paysage-proche.png` doivent se raccorder parfaitement à gauche et à droite, car elles défilent en boucle. Leur fond est transparent pour laisser voir la couche de derrière.
+- Ces trois couches se dessinent **à plat**, de profil, comme une bande de paysage vue par une fenêtre de face. L'horizon (hauteur des yeux) est sur la **ligne 90**. C'est le site qui les plaque en perspective sur un plan parallèle à chaque paroi, pour qu'elles suivent les fuyantes du wagon et défilent vers le spectateur.
+- `paysage-ciel.png` reste plat et fixe (le ciel est à l'infini) : horizon pâle vers la ligne 90.
+- Le paysage reste discret : couleurs douces, plus sombres que l'intérieur du wagon, pour que l'oeil reste sur les personnages. Plus une couche est proche, plus elle est sombre.
 - Logiciels conseillés : Aseprite, Piskel (gratuit, en ligne), LibreSprite.
 
 ### Perspective (repères à respecter)
@@ -138,7 +160,7 @@ Ouvrir `assets/images/wagon-01/interieur.png` dans son logiciel donne tous ces r
 
 ### Ordre des calques (de l'arrière vers l'avant)
 
-1. `paysage.png` (derrière les fenêtres)
+1. `paysage-ciel.png`, puis `paysage-loin.png`, `paysage-milieu.png`, `paysage-proche.png` (derrière les fenêtres)
 2. `passage.png` (derrière la porte)
 3. `porte-gauche.png` et `porte-droite.png`
 4. `interieur.png` (avec trous transparents pour les fenêtres et la porte)
@@ -180,10 +202,10 @@ Chaque wagon peut ajouter au maximum **3 couleurs propres** pour son ambiance. E
     <img class="wagon__calque wagon__porte wagon__porte--gauche" src="assets/images/commun/porte-gauche.png" alt="">
     <img class="wagon__calque wagon__porte wagon__porte--droite" src="assets/images/commun/porte-droite.png" alt="">
     <img class="wagon__calque" src="assets/images/wagon-01/interieur.png" alt="Intérieur du wagon">
-    <img class="wagon__calque wagon__personnage" src="assets/images/wagon-01/personnage-01.png" alt="Voyageur assis" data-pensee="">
+    <img class="wagon__calque wagon__personnage" src="assets/images/wagon-01/personnage-01.png" alt="Voyageur assis" data-pensee="Lorem ipsum dolor sit amet.">
   </section>
   ```
-- Les personnages portent `data-pensee` (texte ajouté plus tard, après validation).
+- Chaque personnage porte sa pensée dans `data-pensee`. Pour l'instant ce sont des phrases en Lorem ipsum, à remplacer par les vraies pensées. Le texte reste court (une ou deux phrases), sinon la bulle devient trop grande.
 - Les calques décoratifs ont `alt=""`, les personnages et l'intérieur ont un `alt` descriptif en français.
 - Pas de style en ligne (`style="..."`) ni de script en ligne (`onclick="..."`).
 
@@ -226,6 +248,7 @@ Chaque wagon peut ajouter au maximum **3 couleurs propres** pour son ambiance. E
 - Durées communes, définies dans les réglages de `main.js` : ouverture de porte 0,7 s, fondu au noir 0,4 s.
 - Pour garder l'aspect pixel art, les mouvements des calques utilisent l'easing `steps(n)` (déplacement pixel par pixel).
 - Un booléen `enAnimation` bloque toute nouvelle action tant qu'une transition est en cours.
+- Ambiance volontairement calme : le paysage défile en 120 s (loin), 60 s (milieu) et 30 s (proche) par largeur d'écran, la secousse revient toutes les 6 à 9 s, le scintillement toutes les 15 à 30 s. Ces réglages sont en haut de `main.js`.
 - Respect de `prefers-reduced-motion` : si l'utilisateur le demande, pas de secousses et transitions raccourcies.
 
 ---
@@ -292,7 +315,7 @@ Chaque étape est validée par l'équipe avant de passer à la suivante.
 1. Documentation commune (fait)
 2. Maquette : 4 wagons en perspective, placeholders pixel art, navigation porte et bouton Arrière (fait)
 3. Choix des 4 histoires et répartition des wagons entre les membres
-4. Pensées : bulle au survol ou au clic sur un personnage (après validation)
+4. Pensées : bulle au survol ou au toucher d'un personnage (fait, textes en Lorem ipsum)
 5. Illustrations définitives de chaque wagon (après validation)
 6. Son avec Howler (après validation)
 7. Avancée progressive dans l'allée à la molette (plus tard)

@@ -13,6 +13,12 @@
   --couleur-fondu: #1a1c2c;
   --couleur-lumiere: rgba(255, 205, 117, 0.08);
   --couleur-vignette: rgba(26, 28, 44, 0.35);
+  --couleur-pensee-fond: #f4f4f4;
+  --couleur-pensee-texte: #1a1c2c;
+  --couleur-pensee-bordure: #1a1c2c;
+  --couleur-pensee-ombre: rgba(26, 28, 44, 0.5);
+  --couleur-contour: #f4f4f4;
+  --couleur-etiquette-fermee: #b13e53;
 
   /* Taille de la toile pixel art (en pixels source) */
   --toile-largeur: 320;
@@ -21,6 +27,11 @@
   /* Police d'interface : chasse fixe, proche de l'esprit pixel art */
   --police-interface: "Courier New", Courier, monospace;
   --marge-interface: 1.25rem;
+  --pensee-largeur-max: 15rem;
+  /* Taille d'un pixel de la toile à l'écran (valable dans la scène uniquement) */
+  --pixel-source: calc(100cqw / 320);
+  /* Focale de la caméra (distance entre l'oeil et l'écran), pour la perspective du paysage */
+  --focale: calc(114.3 * var(--pixel-source));
 }
 
 
@@ -74,6 +85,8 @@ img {
   width: min(100vw, calc(100dvh * 16 / 9));
   aspect-ratio: 16 / 9;
   overflow: hidden;
+  /* Permet d'exprimer une taille en pixels source : 100cqw / 320 = 1 pixel de la toile */
+  container-type: inline-size;
 }
 
 
@@ -81,43 +94,72 @@ img {
    4. Paysage
    ========================================================== */
 
+/* Le paysage est vu en perspective, avec la même caméra que le dessin du wagon :
+   point de fuite au centre de la scène et focale de 114,3 pixels source.
+   Le ciel, à l'infini, reste une image plate en fond. */
 .paysage {
   position: absolute;
   inset: 0;
+  overflow: hidden;
+  background-image: url("../assets/images/commun/paysage-ciel.png");
+  background-size: 100% 100%;
+  image-rendering: pixelated;
+  perspective: var(--focale);
+  perspective-origin: 50% 50%;
 }
 
-/* Chaque moitié de l'écran contient son propre défilement */
+/* Chaque côté est un plan vertical parallèle à la paroi, un peu derrière les fenêtres.
+   Il part de la profondeur 0,5 et s'enfonce jusqu'à 6 (en unités de la caméra).
+   Dimensions en pixels source : 628,7 de long (5,5 unités) et 274,3 de haut (2,4 unités),
+   centré sur l'horizon (ligne 90). */
 .paysage__cote {
   position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 50%;
+  top: calc(-47.15 * var(--pixel-source));
+  width: calc(628.7 * var(--pixel-source));
+  height: calc(274.3 * var(--pixel-source));
   overflow: hidden;
 }
 
+/* Plan gauche : 1,7 unité à gauche de l'oeil, tourné pour s'enfoncer dans la profondeur */
 .paysage__cote--gauche {
-  left: 0;
+  left: calc(-34.3 * var(--pixel-source));
+  transform-origin: left center;
+  transform: translateZ(calc(0.5 * var(--focale))) rotateY(90deg);
 }
 
+/* Plan droit : symétrique du plan gauche */
 .paysage__cote--droite {
-  right: 0;
+  left: calc(-274.4 * var(--pixel-source));
+  transform-origin: right center;
+  transform: translateZ(calc(0.5 * var(--focale))) rotateY(-90deg);
 }
 
-/* Bande de deux paysages côte à côte : GSAP la décale d'un paysage
-   puis recommence, ce qui donne un défilement sans fin */
+/* Bande de trois paysages côte à côte : GSAP la décale d'un paysage
+   puis recommence, ce qui donne un défilement sans fin vers le spectateur */
 .paysage__bande {
   position: absolute;
   top: 0;
   left: 0;
   height: 100%;
-  width: 400%;
-  background-image: url("../assets/images/commun/paysage.png");
+  aspect-ratio: 960 / 180;
   background-repeat: repeat-x;
-  background-size: 50% 100%;
+  background-size: calc(100% / 3) 100%;
   image-rendering: pixelated;
 }
 
-/* Côté droit : la bande est calée sur le bord droit de la scène */
+.paysage__bande--loin {
+  background-image: url("../assets/images/commun/paysage-loin.png");
+}
+
+.paysage__bande--milieu {
+  background-image: url("../assets/images/commun/paysage-milieu.png");
+}
+
+.paysage__bande--proche {
+  background-image: url("../assets/images/commun/paysage-proche.png");
+}
+
+/* Côté droit : la bande est calée sur le bord droit du plan */
 .paysage__cote--droite .paysage__bande {
   left: auto;
   right: 0;
@@ -142,9 +184,41 @@ img {
   height: 100%;
 }
 
-/* Les personnages réagiront plus tard au survol et au clic */
+/* Les calques couvrent toute la scène : le survol est détecté pixel par pixel
+   dans main.js, pas par le navigateur */
 .wagon__personnage {
   pointer-events: none;
+}
+
+/* Personnage survolé (ou touché) : contour clair d'un pixel source autour de sa silhouette,
+   et légère hausse de luminosité. drop-shadow suit la forme réelle, pas le rectangle de l'image. */
+.wagon__personnage--survole {
+  filter:
+    brightness(1.12)
+    drop-shadow(var(--pixel-source) 0 0 var(--couleur-contour))
+    drop-shadow(calc(-1 * var(--pixel-source)) 0 0 var(--couleur-contour))
+    drop-shadow(0 var(--pixel-source) 0 var(--couleur-contour))
+    drop-shadow(0 calc(-1 * var(--pixel-source)) 0 var(--couleur-contour));
+}
+
+/* Porte survolée : battants légèrement éclaircis */
+.wagon__porte--survolee {
+  filter: brightness(1.2);
+}
+
+/* Cadre d'un pixel source autour de l'ouverture de la porte (x 144 à 176, y 72 à 142).
+   Il est posé au-dessus de l'intérieur, sinon le mur le cacherait. */
+.cadre-porte {
+  position: absolute;
+  left: calc(100% * 143 / 320);
+  top: calc(100% * 71 / 180);
+  width: calc(100% * 34 / 320);
+  height: calc(100% * 71 / 180);
+  border: var(--pixel-source) solid var(--couleur-contour);
+  border-bottom: none;
+  pointer-events: none;
+  visibility: hidden;
+  opacity: 0;
 }
 
 /* Lumière d'ambiance : reflet chaud et bords légèrement assombris */
@@ -167,11 +241,87 @@ img {
 }
 
 
+/* Étiquette au-dessus de la porte ("Wagon suivant" ou "Fin du train").
+   Centrée sur la porte, juste au-dessus du panneau lumineux (ligne 66 de la toile). */
+.etiquette-porte {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% * (180 - 66) / 180);
+  transform: translateX(-50%);
+  padding: 0.25rem 0.5rem;
+  border: 2px solid var(--couleur-pensee-bordure);
+  background-color: var(--couleur-pensee-fond);
+  color: var(--couleur-pensee-texte);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  pointer-events: none;
+  /* Cachée au départ, GSAP la fait apparaître */
+  visibility: hidden;
+  opacity: 0;
+}
+
+/* Au dernier wagon, la porte est verrouillée */
+.etiquette-porte--fermee {
+  background-color: var(--couleur-etiquette-fermee);
+  color: var(--couleur-texte);
+}
+
+
 /* ==========================================================
    6. Pensées (bulles)
    ========================================================== */
 
-/* Réservé à une étape suivante, après validation */
+/* Curseur main quand la souris passe sur un personnage */
+.scene--survol {
+  cursor: pointer;
+}
+
+/* Bulle carrée, bordure franche : style pixel.
+   Sa position (left, top) est calculée par main.js à partir de la tête du personnage. */
+.pensee {
+  position: absolute;
+  max-width: var(--pensee-largeur-max);
+  padding: 0.6rem 0.8rem;
+  border: 3px solid var(--couleur-pensee-bordure);
+  background-color: var(--couleur-pensee-fond);
+  box-shadow: 4px 4px 0 var(--couleur-pensee-ombre);
+  color: var(--couleur-pensee-texte);
+  font-size: 0.85rem;
+  line-height: 1.4;
+  pointer-events: none;
+  /* Cachée au départ, GSAP la fait apparaître */
+  visibility: hidden;
+  opacity: 0;
+}
+
+/* Petite pointe sous la bulle, dirigée vers la tête */
+.pensee::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  width: 9px;
+  height: 9px;
+  margin-left: -4px;
+  border-right: 3px solid var(--couleur-pensee-bordure);
+  border-bottom: 3px solid var(--couleur-pensee-bordure);
+  background-color: var(--couleur-pensee-fond);
+  transform: translateY(-5px) rotate(45deg);
+}
+
+/* Personnage près du bord gauche : la bulle part vers la droite */
+.pensee--gauche::after {
+  left: 1.2rem;
+}
+
+/* Personnage près du bord droit : la bulle part vers la gauche */
+.pensee--droite::after {
+  left: auto;
+  right: 1.2rem;
+}
 
 
 /* ==========================================================
@@ -241,6 +391,12 @@ img {
 @media (max-width: 700px) {
   :root {
     --marge-interface: 0.75rem;
+    --pensee-largeur-max: 10rem;
+  }
+
+  .pensee {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.75rem;
   }
 
   .indicateur {

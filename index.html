@@ -11,13 +11,19 @@
   <!-- Scène au format 16:9 : vue fixe depuis l'allée du wagon -->
   <main class="scene">
 
-    <!-- Paysage commun, visible à travers les fenêtres. Chaque côté défile dans son sens. -->
+    <!-- Paysage commun, visible à travers les fenêtres.
+         Ciel fixe, puis trois couches qui défilent de plus en plus vite (parallaxe).
+         Chaque côté défile dans son sens. -->
     <div class="paysage" aria-hidden="true">
       <div class="paysage__cote paysage__cote--gauche">
-        <div class="paysage__bande"></div>
+        <div class="paysage__bande paysage__bande--loin"></div>
+        <div class="paysage__bande paysage__bande--milieu"></div>
+        <div class="paysage__bande paysage__bande--proche"></div>
       </div>
       <div class="paysage__cote paysage__cote--droite">
-        <div class="paysage__bande"></div>
+        <div class="paysage__bande paysage__bande--loin"></div>
+        <div class="paysage__bande paysage__bande--milieu"></div>
+        <div class="paysage__bande paysage__bande--proche"></div>
       </div>
     </div>
 
@@ -27,10 +33,10 @@
       <img class="wagon__calque wagon__porte wagon__porte--gauche" src="assets/images/commun/porte-gauche.png" alt="">
       <img class="wagon__calque wagon__porte wagon__porte--droite" src="assets/images/commun/porte-droite.png" alt="">
       <img class="wagon__calque" src="assets/images/wagon-01/interieur.png" alt="Intérieur du wagon, banquettes le long des parois">
-      <img class="wagon__calque wagon__personnage" src="assets/images/wagon-01/personnage-01.png" alt="Voyageur assis" data-pensee="">
-      <img class="wagon__calque wagon__personnage" src="assets/images/wagon-01/personnage-02.png" alt="Voyageur assis" data-pensee="">
-      <img class="wagon__calque wagon__personnage" src="assets/images/wagon-01/personnage-03.png" alt="Voyageur assis" data-pensee="">
-      <img class="wagon__calque wagon__personnage" src="assets/images/wagon-01/personnage-04.png" alt="Voyageur assis" data-pensee="">
+      <img class="wagon__calque wagon__personnage" src="assets/images/wagon-01/personnage-01.png" alt="Voyageur assis" data-pensee="Lorem ipsum dolor sit amet, consectetur adipiscing elit.">
+      <img class="wagon__calque wagon__personnage" src="assets/images/wagon-01/personnage-02.png" alt="Voyageur assis" data-pensee="Sed do eiusmod tempor incididunt ut labore.">
+      <img class="wagon__calque wagon__personnage" src="assets/images/wagon-01/personnage-03.png" alt="Voyageur assis" data-pensee="Ut enim ad minim veniam, quis nostrud.">
+      <img class="wagon__calque wagon__personnage" src="assets/images/wagon-01/personnage-04.png" alt="Voyageur assis" data-pensee="Duis aute irure dolor in reprehenderit.">
     </section>
 
     <section class="wagon" data-titre="Dolor sit amet">
@@ -38,10 +44,10 @@
       <img class="wagon__calque wagon__porte wagon__porte--gauche" src="assets/images/commun/porte-gauche.png" alt="">
       <img class="wagon__calque wagon__porte wagon__porte--droite" src="assets/images/commun/porte-droite.png" alt="">
       <img class="wagon__calque" src="assets/images/wagon-02/interieur.png" alt="Intérieur du wagon, banquettes le long des parois">
-      <img class="wagon__calque wagon__personnage" src="assets/images/wagon-02/personnage-01.png" alt="Voyageur assis" data-pensee="">
-      <img class="wagon__calque wagon__personnage" src="assets/images/wagon-02/personnage-02.png" alt="Voyageur assis" data-pensee="">
-      <img class="wagon__calque wagon__personnage" src="assets/images/wagon-02/personnage-03.png" alt="Voyageur assis" data-pensee="">
-      <img class="wagon__calque wagon__personnage" src="assets/images/wagon-02/personnage-04.png" alt="Voyageur assis" data-pensee="">
+      <img class="wagon__calque wagon__personnage" src="assets/images/wagon-02/personnage-01.png" alt="Voyageur assis" data-pensee="Excepteur sint occaecat cupidatat non proident.">
+      <img class="wagon__calque wagon__personnage" src="assets/images/wagon-02/personnage-02.png" alt="Voyageur assis" data-pensee="Nemo enim ipsam voluptatem quia voluptas sit.">
+      <img class="wagon__calque wagon__personnage" src="assets/images/wagon-02/personnage-03.png" alt="Voyageur assis" data-pensee="Neque porro quisquam est, qui dolorem ipsum.">
+      <img class="wagon__calque wagon__personnage" src="assets/images/wagon-02/personnage-04.png" alt="Voyageur assis" data-pensee="Quis autem vel eum iure reprehenderit.">
     </section>
 
     <section class="wagon" data-titre="Consectetur">
@@ -49,10 +55,10 @@
       <img class="wagon__calque wagon__porte wagon__porte--gauche" src="assets/images/commun/porte-gauche.png" alt="">
       <img class="wagon__calque wagon__porte wagon__porte--droite" src="assets/images/commun/porte-droite.png" alt="">
       <img class="wagon__calque" src="assets/images/wagon-03/interieur.png" alt="Intérieur du wagon, banquettes le long des parois">
-      <img class="wagon__calque wagon__personnage" src="assets/images/wagon-03/personnage-01.png" alt="Voyageur assis" data-pensee="">
-      <img class="wagon__calque wagon__personnage" src="assets/images/wagon-03/personnage-02.png" alt="Voyageur assis" data-pensee="">
-      <img class="wagon__calque wagon__personnage" src="assets/images/wagon-03/personnage-03.png" alt="Voyageur assis" data-pensee="">
-      <img class="wagon__calque wagon__personnage" src="assets/images/wagon-03/personnage-04.png" alt="Voyageur assis" data-pensee="">
+      <img class="wagon__calque wagon__personnage" src="assets/images/wagon-03/personnage-01.png" alt="Voyageur assis" data-pensee="At vero eos et accusamus et iusto odio.">
+      <img class="wagon__calque wagon__personnage" src="assets/images/wagon-03/personnage-02.png" alt="Voyageur assis" data-pensee="Nam libero tempore, cum soluta nobis est.">
+      <img class="wagon__calque wagon__personnage" src="assets/images/wagon-03/personnage-03.png" alt="Voyageur assis" data-pensee="Temporibus autem quibusdam et aut officiis.">
+      <img class="wagon__calque wagon__personnage" src="assets/images/wagon-03/personnage-04.png" alt="Voyageur assis" data-pensee="Itaque earum rerum hic tenetur a sapiente.">
     </section>
 
     <section class="wagon" data-titre="Adipiscing elit">
@@ -60,14 +66,23 @@
       <img class="wagon__calque wagon__porte wagon__porte--gauche" src="assets/images/commun/porte-gauche.png" alt="">
       <img class="wagon__calque wagon__porte wagon__porte--droite" src="assets/images/commun/porte-droite.png" alt="">
       <img class="wagon__calque" src="assets/images/wagon-04/interieur.png" alt="Intérieur du wagon, banquettes le long des parois">
-      <img class="wagon__calque wagon__personnage" src="assets/images/wagon-04/personnage-01.png" alt="Voyageur assis" data-pensee="">
-      <img class="wagon__calque wagon__personnage" src="assets/images/wagon-04/personnage-02.png" alt="Voyageur assis" data-pensee="">
-      <img class="wagon__calque wagon__personnage" src="assets/images/wagon-04/personnage-03.png" alt="Voyageur assis" data-pensee="">
-      <img class="wagon__calque wagon__personnage" src="assets/images/wagon-04/personnage-04.png" alt="Voyageur assis" data-pensee="">
+      <img class="wagon__calque wagon__personnage" src="assets/images/wagon-04/personnage-01.png" alt="Voyageur assis" data-pensee="Similique sunt in culpa qui officia deserunt.">
+      <img class="wagon__calque wagon__personnage" src="assets/images/wagon-04/personnage-02.png" alt="Voyageur assis" data-pensee="Et harum quidem rerum facilis est et expedita.">
+      <img class="wagon__calque wagon__personnage" src="assets/images/wagon-04/personnage-03.png" alt="Voyageur assis" data-pensee="Omnis voluptas assumenda est, omnis dolor.">
+      <img class="wagon__calque wagon__personnage" src="assets/images/wagon-04/personnage-04.png" alt="Voyageur assis" data-pensee="Ut aut reiciendis voluptatibus maiores alias.">
     </section>
 
     <!-- Lumière d'ambiance posée sur toute la scène (léger scintillement) -->
     <div class="lumiere" aria-hidden="true"></div>
+
+    <!-- Bulle de pensée : une seule pour toute la scène, placée par main.js au-dessus du personnage -->
+    <div class="pensee" aria-live="polite">
+      <p class="pensee__texte"></p>
+    </div>
+
+    <!-- Survol de la porte du fond : cadre lumineux autour de l'ouverture et étiquette -->
+    <div class="cadre-porte" aria-hidden="true"></div>
+    <p class="etiquette-porte" aria-hidden="true"></p>
 
     <!-- Écran noir utilisé pour les fondus entre deux wagons -->
     <div class="fondu" aria-hidden="true"></div>
