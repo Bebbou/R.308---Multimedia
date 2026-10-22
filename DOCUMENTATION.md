@@ -164,10 +164,10 @@ Point de fuite : **x = 160, y = 90** (centre exact de la toile).
 
 | Élément | Coordonnées sur la toile 320 x 180 |
 |---|---|
-| Mur du fond | x 114 à 206, y 64 à 142 |
+| Mur du fond | x 114 à 206, y 64 à 142 (son haut suit la forme du plafond du wagon : plat, voûté, surélevé...) |
 | Ouverture de la porte | x 144 à 176, y 72 à 142 |
 | Banquettes | le long des parois, du bas de l'écran jusqu'au mur du fond |
-| Fenêtres | sur les parois, au-dessus des banquettes, trouées (transparentes) |
+| Fenêtres | sur les parois, au-dessus des banquettes, trouées (transparentes). Nombre, taille et forme libres selon le wagon |
 | Panneau numéroté | x 152 à 167, y 63 à 69, au-dessus de la porte (numéro du wagon sur deux chiffres) |
 | Personnages | dessinés entiers, pieds visibles : le bas de l'écran ne doit couper personne |
 
@@ -191,6 +191,8 @@ Palette commune : **Sweetie 16** (16 couleurs). Tout le monde l'importe dans son
 #29366f  #3b5dc9  #41a6f6  #73eff7
 #f4f4f4  #94b0c2  #566c86  #333c57
 ```
+
+Chaque wagon a sa propre **architecture** (époque du train : plafond, parois, fenêtres, sièges, éclairage). Ce qui ne change jamais d'un wagon à l'autre : le point de fuite, l'ouverture de la porte, le panneau numéroté et la place des personnages sur les banquettes.
 
 Chaque wagon peut ajouter au maximum **3 couleurs propres** pour son ambiance. Elles sont notées dans le tableau des wagons (section 6).
 
@@ -272,12 +274,12 @@ Chaque wagon peut ajouter au maximum **3 couleurs propres** pour son ambiance. E
 
 L'ordre de ce tableau est l'ordre du train.
 
-| N° | Dossier | Histoire | Couleurs propres | Responsable | État |
-|---|---|---|---|---|---|
-| 01 | `wagon-01` | Placeholder (Lorem ipsum) | aucune | à définir | placeholder |
-| 02 | `wagon-02` | Placeholder (Dolor sit amet) | aucune | à définir | placeholder |
-| 03 | `wagon-03` | Placeholder (Consectetur) | aucune | à définir | placeholder |
-| 04 | `wagon-04` | Placeholder (Adipiscing elit) | aucune | à définir | placeholder |
+| N° | Dossier | Architecture (placeholder) | Histoire | Couleurs propres | Responsable | État |
+|---|---|---|---|---|---|---|
+| 01 | `wagon-01` | Voiture en bois à lanterneau (vers 1900) : toit surélevé, lampes suspendues, banquettes à lattes, petites fenêtres | Placeholder (Lorem ipsum) | aucune | à définir | placeholder |
+| 02 | `wagon-02` | Voiture de luxe (années 1930) : boiseries sombres, filets dorés, velours capitonné, rideaux, appliques | Placeholder (Dolor sit amet) | aucune | à définir | placeholder |
+| 03 | `wagon-03` | Voiture Corail (années 1980) : plafond plat à néons, sièges orange à appui-tête | Placeholder (Consectetur) | aucune | à définir | placeholder |
+| 04 | `wagon-04` | Train du futur : plafond arrondi, bandes lumineuses cyan, grandes baies, sièges bleus | Placeholder (Adipiscing elit) | aucune | à définir | placeholder |
 
 Ajouter ou retirer un wagon = ajouter ou retirer une `<section class="wagon">` dans le HTML et son dossier d'images.
 
