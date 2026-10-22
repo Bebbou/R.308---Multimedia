@@ -155,6 +155,8 @@ Point de fuite : **x = 160, y = 90** (centre exact de la toile).
 | Ouverture de la porte | x 144 à 176, y 72 à 142 |
 | Banquettes | le long des parois, du bas de l'écran jusqu'au mur du fond |
 | Fenêtres | sur les parois, au-dessus des banquettes, trouées (transparentes) |
+| Panneau numéroté | x 152 à 167, y 63 à 69, au-dessus de la porte (numéro du wagon sur deux chiffres) |
+| Personnages | dessinés entiers, pieds visibles : le bas de l'écran ne doit couper personne |
 
 Ouvrir `assets/images/wagon-01/interieur.png` dans son logiciel donne tous ces repères : on peut s'en servir comme gabarit.
 
