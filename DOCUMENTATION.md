@@ -19,12 +19,13 @@ Des personnages sont assis sur des banquettes le long des deux parois, face à l
 
 | Action utilisateur | Effet |
 |---|---|
-| Survol d'un personnage à la souris | Sa bulle de pensée apparaît, un contour blanc d'un pixel entoure sa silhouette, le curseur devient une main (aussi sur la porte) |
+| Survol d'un personnage à la souris | Sa bulle de pensée apparaît, un contour blanc d'un pixel entoure sa silhouette, le curseur devient un oeil (une main sur la porte) |
 | Souris hors du personnage | La bulle disparaît |
 | Clic ou tap sur un personnage | Sa bulle de pensée apparaît |
-| Clic ou tap ailleurs | La bulle disparaît |
+| Clic ou tap ailleurs, ou touche Échap | La bulle disparaît |
 
 - Une seule bulle à la fois. Elle disparaît pendant les changements de wagon.
+- La bulle est un nuage pixel art (`assets/images/interface/bulle-cadre.png`, découpé en 9 morceaux par le CSS) relié à la tête par deux petites bulles (`bulle-queue.png`). Elle affiche le prénom du personnage (`data-nom`) puis sa pensée, écrite lettre par lettre.
 - Le survol est détecté au pixel près : seuls les pixels visibles du calque du personnage comptent, pas le rectangle de l'image.
 - La bulle se place au-dessus du pixel le plus haut du personnage (le haut de la tête). Rien à régler : dessiner le personnage suffit.
 - Cette détection lit les pixels des images, ce que le navigateur n'autorise qu'avec un serveur. Il faut donc toujours ouvrir le site avec Live Server, jamais en double-cliquant sur `index.html`.
@@ -38,12 +39,20 @@ Le rendu est en **pixel art**, style 16 bits.
 | Molette vers le bas | Passage au wagon suivant |
 | Swipe vers le haut (tactile) | Passage au wagon suivant |
 | Flèche droite ou flèche bas | Passage au wagon suivant |
+| Flèche gauche ou flèche haut | Retour au wagon précédent |
 | Clic ou tap sur la porte du fond | Passage au wagon suivant |
 | Survol de la porte à la souris | Cadre lumineux autour de la porte et étiquette « Wagon suivant » (« Fin du train » au dernier wagon) |
 | Bouton "Arrière" à l'écran | Retour au wagon précédent |
 
-Passage au wagon suivant : la porte du fond s'ouvre, l'écran passe au noir, puis le wagon suivant apparaît.
+Passage au wagon suivant : la porte du fond s'ouvre pendant que la vue s'approche d'elle (zoom), l'écran passe au noir, puis le wagon suivant apparaît avec un léger recul.
 Retour : fondu au noir, puis le wagon précédent apparaît.
+À chaque arrivée, un carton « Wagon 0X » et le titre du wagon (`data-titre`) s'affichent 1,5 s en haut de la scène.
+
+### Accueil et interface
+
+- Au chargement, un écran d'accueil (titre et consignes) couvre la fenêtre, le train roule déjà derrière. Le premier geste (clic, tap, molette, swipe ou touche) le ferme sans changer de wagon.
+- En haut à gauche, l'indicateur montre un petit train (un wagon par `section.wagon`, le wagon actuel allumé en jaune), le numéro et le titre du wagon.
+- Signes de vie : chaque voyageur se soulève d'un pixel de temps en temps (respiration). Après 8 s sans action, le cadre de la porte clignote doucement pour montrer où aller (sauf au dernier wagon).
 
 Règles :
 - Une action = un seul wagon, jamais plus.
@@ -111,6 +120,10 @@ R.308---Multimedia/
     │   │   ├── passage.png         couloir visible derrière la porte ouverte
     │   │   ├── porte-gauche.png    battant gauche de la porte
     │   │   └── porte-droite.png    battant droit de la porte
+    │   ├── interface/      petites images d'interface (pas au format 320 x 180)
+    │   │   ├── bulle-cadre.png     cadre en nuage de la bulle (24 x 24, 9 morceaux de 8 x 8)
+    │   │   ├── bulle-queue.png     petites bulles entre le nuage et la tête (7 x 11)
+    │   │   └── curseur-oeil.png    curseur sur un personnage (32 x 32)
     │   ├── wagon-01/
     │   │   ├── interieur.png       parois, sol, plafond, banquettes
     │   │   ├── personnage-01.png   un fichier par personnage
@@ -204,10 +217,10 @@ Chaque wagon peut ajouter au maximum **3 couleurs propres** pour son ambiance. E
     <img class="wagon__calque wagon__porte wagon__porte--gauche" src="assets/images/commun/porte-gauche.png" alt="">
     <img class="wagon__calque wagon__porte wagon__porte--droite" src="assets/images/commun/porte-droite.png" alt="">
     <img class="wagon__calque" src="assets/images/wagon-01/interieur.png" alt="Intérieur du wagon">
-    <img class="wagon__calque wagon__personnage" src="assets/images/wagon-01/personnage-01.png" alt="Voyageur assis" data-pensee="Lorem ipsum dolor sit amet.">
+    <img class="wagon__calque wagon__personnage" src="assets/images/wagon-01/personnage-01.png" alt="Voyageur assis" data-nom="Margot" data-pensee="Lorem ipsum dolor sit amet.">
   </section>
   ```
-- Chaque personnage porte sa pensée dans `data-pensee`. Pour l'instant ce sont des phrases en Lorem ipsum, à remplacer par les vraies pensées. Le texte reste court (une ou deux phrases), sinon la bulle devient trop grande.
+- Chaque personnage porte son prénom dans `data-nom` (affiché en haut de sa bulle) et sa pensée dans `data-pensee`. Pour l'instant ce sont des phrases en Lorem ipsum, à remplacer par les vraies pensées. Le texte reste court (une ou deux phrases), sinon la bulle devient trop grande.
 - Les calques décoratifs ont `alt=""`, les personnages et l'intérieur ont un `alt` descriptif en français.
 - Pas de style en ligne (`style="..."`) ni de script en ligne (`onclick="..."`).
 
@@ -223,7 +236,7 @@ Chaque wagon peut ajouter au maximum **3 couleurs propres** pour son ambiance. E
   4. Paysage
   5. Wagons et calques
   6. Pensées (bulles)
-  7. Interface (indicateur, bouton Arrière)
+  7. Interface (indicateur, bouton Arrière, carton titre, accueil)
   8. Responsive (media queries)
 - Pas de `!important`. Pas d'`id` pour styler.
 - Les animations se font en GSAP, pas en CSS.
@@ -247,11 +260,11 @@ Chaque wagon peut ajouter au maximum **3 couleurs propres** pour son ambiance. E
 
 ### Animations (GSAP)
 
-- Durées communes, définies dans les réglages de `main.js` : ouverture de porte 0,7 s, fondu au noir 0,4 s.
+- Durées communes, définies dans les réglages de `main.js` : ouverture de porte 0,7 s, fondu au noir 0,4 s, carton titre 1,5 s, écriture d'une pensée 0,025 s par lettre.
 - Pour garder l'aspect pixel art, les mouvements des calques utilisent l'easing `steps(n)` (déplacement pixel par pixel).
 - Un booléen `enAnimation` bloque toute nouvelle action tant qu'une transition est en cours.
 - Ambiance volontairement calme : le paysage défile en 120 s (loin), 60 s (milieu) et 30 s (proche) par largeur d'écran, la secousse revient toutes les 6 à 9 s, le scintillement toutes les 15 à 30 s. Ces réglages sont en haut de `main.js`.
-- Respect de `prefers-reduced-motion` : si l'utilisateur le demande, pas de secousses et transitions raccourcies.
+- Respect de `prefers-reduced-motion` : si l'utilisateur le demande, pas de secousses, de respiration ni de zoom, pensée affichée d'un coup et transitions raccourcies.
 
 ---
 

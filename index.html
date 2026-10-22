@@ -11,72 +11,77 @@
   <!-- Scène au format 16:9 : vue fixe depuis l'allée du wagon -->
   <main class="scene">
 
-    <!-- Paysage commun, visible à travers les fenêtres.
-         Ciel fixe, puis trois couches qui défilent de plus en plus vite (parallaxe).
-         Chaque côté défile dans son sens. -->
-    <div class="paysage" aria-hidden="true">
-      <div class="paysage__cote paysage__cote--gauche">
-        <div class="paysage__bande paysage__bande--loin"></div>
-        <div class="paysage__bande paysage__bande--milieu"></div>
-        <div class="paysage__bande paysage__bande--proche"></div>
+    <!-- Décor : paysage et wagons. C'est ce bloc qui tremble et qui zoome vers la porte,
+         jamais le paysage lui-même (sinon le ciel peut clignoter sur certaines cartes graphiques). -->
+    <div class="decor">
+      <!-- Paysage commun, visible à travers les fenêtres.
+           Ciel fixe, puis trois couches qui défilent de plus en plus vite (parallaxe).
+           Chaque côté défile dans son sens. -->
+      <div class="paysage" aria-hidden="true">
+        <div class="paysage__cote paysage__cote--gauche">
+          <div class="paysage__bande paysage__bande--loin"></div>
+          <div class="paysage__bande paysage__bande--milieu"></div>
+          <div class="paysage__bande paysage__bande--proche"></div>
+        </div>
+        <div class="paysage__cote paysage__cote--droite">
+          <div class="paysage__bande paysage__bande--loin"></div>
+          <div class="paysage__bande paysage__bande--milieu"></div>
+          <div class="paysage__bande paysage__bande--proche"></div>
+        </div>
       </div>
-      <div class="paysage__cote paysage__cote--droite">
-        <div class="paysage__bande paysage__bande--loin"></div>
-        <div class="paysage__bande paysage__bande--milieu"></div>
-        <div class="paysage__bande paysage__bande--proche"></div>
-      </div>
+
+      <!-- Wagons : calques empilés de l'arrière vers l'avant, un seul wagon visible à la fois -->
+      <section class="wagon" data-titre="Lorem ipsum">
+        <img class="wagon__calque" src="assets/images/commun/passage.png" alt="">
+        <img class="wagon__calque wagon__porte wagon__porte--gauche" src="assets/images/commun/porte-gauche.png" alt="">
+        <img class="wagon__calque wagon__porte wagon__porte--droite" src="assets/images/commun/porte-droite.png" alt="">
+        <img class="wagon__calque" src="assets/images/wagon-01/interieur.png" alt="Intérieur du wagon, banquettes le long des parois">
+        <img class="wagon__calque wagon__personnage" src="assets/images/wagon-01/personnage-01.png" alt="Voyageur assis" data-nom="Margot" data-pensee="Lorem ipsum dolor sit amet, consectetur adipiscing elit.">
+        <img class="wagon__calque wagon__personnage" src="assets/images/wagon-01/personnage-02.png" alt="Voyageur assis" data-nom="Jules" data-pensee="Sed do eiusmod tempor incididunt ut labore.">
+        <img class="wagon__calque wagon__personnage" src="assets/images/wagon-01/personnage-03.png" alt="Voyageur assis" data-nom="Inès" data-pensee="Ut enim ad minim veniam, quis nostrud.">
+        <img class="wagon__calque wagon__personnage" src="assets/images/wagon-01/personnage-04.png" alt="Voyageur assis" data-nom="Paul" data-pensee="Duis aute irure dolor in reprehenderit.">
+      </section>
+
+      <section class="wagon" data-titre="Dolor sit amet">
+        <img class="wagon__calque" src="assets/images/commun/passage.png" alt="">
+        <img class="wagon__calque wagon__porte wagon__porte--gauche" src="assets/images/commun/porte-gauche.png" alt="">
+        <img class="wagon__calque wagon__porte wagon__porte--droite" src="assets/images/commun/porte-droite.png" alt="">
+        <img class="wagon__calque" src="assets/images/wagon-02/interieur.png" alt="Intérieur du wagon, banquettes le long des parois">
+        <img class="wagon__calque wagon__personnage" src="assets/images/wagon-02/personnage-01.png" alt="Voyageur assis" data-nom="Lucie" data-pensee="Excepteur sint occaecat cupidatat non proident.">
+        <img class="wagon__calque wagon__personnage" src="assets/images/wagon-02/personnage-02.png" alt="Voyageur assis" data-nom="Hugo" data-pensee="Nemo enim ipsam voluptatem quia voluptas sit.">
+        <img class="wagon__calque wagon__personnage" src="assets/images/wagon-02/personnage-03.png" alt="Voyageur assis" data-nom="Rose" data-pensee="Neque porro quisquam est, qui dolorem ipsum.">
+        <img class="wagon__calque wagon__personnage" src="assets/images/wagon-02/personnage-04.png" alt="Voyageur assis" data-nom="Max" data-pensee="Quis autem vel eum iure reprehenderit.">
+      </section>
+
+      <section class="wagon" data-titre="Consectetur">
+        <img class="wagon__calque" src="assets/images/commun/passage.png" alt="">
+        <img class="wagon__calque wagon__porte wagon__porte--gauche" src="assets/images/commun/porte-gauche.png" alt="">
+        <img class="wagon__calque wagon__porte wagon__porte--droite" src="assets/images/commun/porte-droite.png" alt="">
+        <img class="wagon__calque" src="assets/images/wagon-03/interieur.png" alt="Intérieur du wagon, banquettes le long des parois">
+        <img class="wagon__calque wagon__personnage" src="assets/images/wagon-03/personnage-01.png" alt="Voyageur assis" data-nom="Alice" data-pensee="At vero eos et accusamus et iusto odio.">
+        <img class="wagon__calque wagon__personnage" src="assets/images/wagon-03/personnage-02.png" alt="Voyageur assis" data-nom="Léon" data-pensee="Nam libero tempore, cum soluta nobis est.">
+        <img class="wagon__calque wagon__personnage" src="assets/images/wagon-03/personnage-03.png" alt="Voyageur assis" data-nom="Nina" data-pensee="Temporibus autem quibusdam et aut officiis.">
+        <img class="wagon__calque wagon__personnage" src="assets/images/wagon-03/personnage-04.png" alt="Voyageur assis" data-nom="Tom" data-pensee="Itaque earum rerum hic tenetur a sapiente.">
+      </section>
+
+      <section class="wagon" data-titre="Adipiscing elit">
+        <img class="wagon__calque" src="assets/images/commun/passage.png" alt="">
+        <img class="wagon__calque wagon__porte wagon__porte--gauche" src="assets/images/commun/porte-gauche.png" alt="">
+        <img class="wagon__calque wagon__porte wagon__porte--droite" src="assets/images/commun/porte-droite.png" alt="">
+        <img class="wagon__calque" src="assets/images/wagon-04/interieur.png" alt="Intérieur du wagon, banquettes le long des parois">
+        <img class="wagon__calque wagon__personnage" src="assets/images/wagon-04/personnage-01.png" alt="Voyageur assis" data-nom="Zoé" data-pensee="Similique sunt in culpa qui officia deserunt.">
+        <img class="wagon__calque wagon__personnage" src="assets/images/wagon-04/personnage-02.png" alt="Voyageur assis" data-nom="Sam" data-pensee="Et harum quidem rerum facilis est et expedita.">
+        <img class="wagon__calque wagon__personnage" src="assets/images/wagon-04/personnage-03.png" alt="Voyageur assis" data-nom="Jeanne" data-pensee="Omnis voluptas assumenda est, omnis dolor.">
+        <img class="wagon__calque wagon__personnage" src="assets/images/wagon-04/personnage-04.png" alt="Voyageur assis" data-nom="Noé" data-pensee="Ut aut reiciendis voluptatibus maiores alias.">
+      </section>
     </div>
-
-    <!-- Wagons : calques empilés de l'arrière vers l'avant, un seul wagon visible à la fois -->
-    <section class="wagon" data-titre="Lorem ipsum">
-      <img class="wagon__calque" src="assets/images/commun/passage.png" alt="">
-      <img class="wagon__calque wagon__porte wagon__porte--gauche" src="assets/images/commun/porte-gauche.png" alt="">
-      <img class="wagon__calque wagon__porte wagon__porte--droite" src="assets/images/commun/porte-droite.png" alt="">
-      <img class="wagon__calque" src="assets/images/wagon-01/interieur.png" alt="Intérieur du wagon, banquettes le long des parois">
-      <img class="wagon__calque wagon__personnage" src="assets/images/wagon-01/personnage-01.png" alt="Voyageur assis" data-pensee="Lorem ipsum dolor sit amet, consectetur adipiscing elit.">
-      <img class="wagon__calque wagon__personnage" src="assets/images/wagon-01/personnage-02.png" alt="Voyageur assis" data-pensee="Sed do eiusmod tempor incididunt ut labore.">
-      <img class="wagon__calque wagon__personnage" src="assets/images/wagon-01/personnage-03.png" alt="Voyageur assis" data-pensee="Ut enim ad minim veniam, quis nostrud.">
-      <img class="wagon__calque wagon__personnage" src="assets/images/wagon-01/personnage-04.png" alt="Voyageur assis" data-pensee="Duis aute irure dolor in reprehenderit.">
-    </section>
-
-    <section class="wagon" data-titre="Dolor sit amet">
-      <img class="wagon__calque" src="assets/images/commun/passage.png" alt="">
-      <img class="wagon__calque wagon__porte wagon__porte--gauche" src="assets/images/commun/porte-gauche.png" alt="">
-      <img class="wagon__calque wagon__porte wagon__porte--droite" src="assets/images/commun/porte-droite.png" alt="">
-      <img class="wagon__calque" src="assets/images/wagon-02/interieur.png" alt="Intérieur du wagon, banquettes le long des parois">
-      <img class="wagon__calque wagon__personnage" src="assets/images/wagon-02/personnage-01.png" alt="Voyageur assis" data-pensee="Excepteur sint occaecat cupidatat non proident.">
-      <img class="wagon__calque wagon__personnage" src="assets/images/wagon-02/personnage-02.png" alt="Voyageur assis" data-pensee="Nemo enim ipsam voluptatem quia voluptas sit.">
-      <img class="wagon__calque wagon__personnage" src="assets/images/wagon-02/personnage-03.png" alt="Voyageur assis" data-pensee="Neque porro quisquam est, qui dolorem ipsum.">
-      <img class="wagon__calque wagon__personnage" src="assets/images/wagon-02/personnage-04.png" alt="Voyageur assis" data-pensee="Quis autem vel eum iure reprehenderit.">
-    </section>
-
-    <section class="wagon" data-titre="Consectetur">
-      <img class="wagon__calque" src="assets/images/commun/passage.png" alt="">
-      <img class="wagon__calque wagon__porte wagon__porte--gauche" src="assets/images/commun/porte-gauche.png" alt="">
-      <img class="wagon__calque wagon__porte wagon__porte--droite" src="assets/images/commun/porte-droite.png" alt="">
-      <img class="wagon__calque" src="assets/images/wagon-03/interieur.png" alt="Intérieur du wagon, banquettes le long des parois">
-      <img class="wagon__calque wagon__personnage" src="assets/images/wagon-03/personnage-01.png" alt="Voyageur assis" data-pensee="At vero eos et accusamus et iusto odio.">
-      <img class="wagon__calque wagon__personnage" src="assets/images/wagon-03/personnage-02.png" alt="Voyageur assis" data-pensee="Nam libero tempore, cum soluta nobis est.">
-      <img class="wagon__calque wagon__personnage" src="assets/images/wagon-03/personnage-03.png" alt="Voyageur assis" data-pensee="Temporibus autem quibusdam et aut officiis.">
-      <img class="wagon__calque wagon__personnage" src="assets/images/wagon-03/personnage-04.png" alt="Voyageur assis" data-pensee="Itaque earum rerum hic tenetur a sapiente.">
-    </section>
-
-    <section class="wagon" data-titre="Adipiscing elit">
-      <img class="wagon__calque" src="assets/images/commun/passage.png" alt="">
-      <img class="wagon__calque wagon__porte wagon__porte--gauche" src="assets/images/commun/porte-gauche.png" alt="">
-      <img class="wagon__calque wagon__porte wagon__porte--droite" src="assets/images/commun/porte-droite.png" alt="">
-      <img class="wagon__calque" src="assets/images/wagon-04/interieur.png" alt="Intérieur du wagon, banquettes le long des parois">
-      <img class="wagon__calque wagon__personnage" src="assets/images/wagon-04/personnage-01.png" alt="Voyageur assis" data-pensee="Similique sunt in culpa qui officia deserunt.">
-      <img class="wagon__calque wagon__personnage" src="assets/images/wagon-04/personnage-02.png" alt="Voyageur assis" data-pensee="Et harum quidem rerum facilis est et expedita.">
-      <img class="wagon__calque wagon__personnage" src="assets/images/wagon-04/personnage-03.png" alt="Voyageur assis" data-pensee="Omnis voluptas assumenda est, omnis dolor.">
-      <img class="wagon__calque wagon__personnage" src="assets/images/wagon-04/personnage-04.png" alt="Voyageur assis" data-pensee="Ut aut reiciendis voluptatibus maiores alias.">
-    </section>
 
     <!-- Lumière d'ambiance posée sur toute la scène (léger scintillement) -->
     <div class="lumiere" aria-hidden="true"></div>
 
     <!-- Bulle de pensée : une seule pour toute la scène, placée par main.js au-dessus du personnage -->
     <div class="pensee" aria-live="polite">
+      <p class="pensee__nom"></p>
       <p class="pensee__texte"></p>
     </div>
 
@@ -87,15 +92,37 @@
     <!-- Écran noir utilisé pour les fondus entre deux wagons -->
     <div class="fondu" aria-hidden="true"></div>
 
+    <!-- Carton titre affiché quelques instants à l'arrivée dans un wagon -->
+    <div class="carton" aria-hidden="true">
+      <p class="carton__numero"></p>
+      <p class="carton__titre"></p>
+    </div>
+
   </main>
 
-  <!-- Interface : indicateur du wagon courant et bouton de retour -->
+  <!-- Interface : indicateur du wagon courant et bouton de retour.
+       Le petit train est rempli par main.js (un wagon dessiné par section.wagon). -->
   <p class="indicateur" aria-live="polite">
+    <span class="indicateur__train" aria-hidden="true"></span>
     <span class="indicateur__numero"></span>
     <span class="indicateur__nom"></span>
   </p>
 
   <button class="bouton-arriere" type="button">Arrière</button>
+
+  <!-- Écran d'accueil : titre et consignes sur toute la fenêtre, disparaît à la première action -->
+  <div class="accueil">
+    <div class="accueil__contenu">
+      <h1 class="accueil__titre">Le Train des Époques</h1>
+      <ul class="accueil__consignes">
+        <li><span class="accueil__geste">Molette, glisser ou flèches</span> avancer d'un wagon</li>
+        <li><span class="accueil__geste">Survoler ou toucher un voyageur</span> lire sa pensée</li>
+        <li><span class="accueil__geste">Porte du fond</span> passer au wagon suivant</li>
+      </ul>
+      <button class="accueil__bouton" type="button">Monter à bord</button>
+      <p class="accueil__invite">ou appuie n'importe où</p>
+    </div>
+  </div>
 
   <!-- GSAP : moteur d'animation -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>

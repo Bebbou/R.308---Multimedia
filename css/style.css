@@ -19,6 +19,10 @@
   --couleur-pensee-ombre: rgba(26, 28, 44, 0.5);
   --couleur-contour: #f4f4f4;
   --couleur-etiquette-fermee: #b13e53;
+  --couleur-pensee-nom: #566c86;
+  --couleur-actif: #ffcd75;
+  --couleur-voile-accueil: rgba(26, 28, 44, 0.82);
+  --couleur-voile-carton: rgba(26, 28, 44, 0.75);
 
   /* Taille de la toile pixel art (en pixels source) */
   --toile-largeur: 320;
@@ -28,6 +32,10 @@
   --police-interface: "Courier New", Courier, monospace;
   --marge-interface: 1.25rem;
   --pensee-largeur-max: 15rem;
+  /* Taille d'un pixel des images de la bulle (cadre en nuage et petites bulles) */
+  --pensee-pixel: 2px;
+  /* Centre de la porte du fond (x 160, y 107 sur la toile) : point vers lequel on zoome */
+  --origine-zoom: 50% calc(100% * 107 / 180);
   /* Taille d'un pixel de la toile à l'écran (valable dans la scène uniquement) */
   --pixel-source: calc(100cqw / 320);
   /* Focale de la caméra (distance entre l'oeil et l'écran), pour la perspective du paysage */
@@ -94,6 +102,16 @@ img {
    4. Paysage
    ========================================================== */
 
+/* Bloc qui contient le paysage et les wagons : GSAP le fait trembler et zoomer.
+   Le zoom vers la porte, au passage d'un wagon, part du centre de la porte.
+   will-change le garde sur sa propre couche graphique, ce qui évite des clignotements. */
+.decor {
+  position: absolute;
+  inset: 0;
+  transform-origin: var(--origine-zoom);
+  will-change: transform;
+}
+
 /* Le paysage est vu en perspective, avec la même caméra que le dessin du wagon :
    point de fuite au centre de la scène et focale de 114,3 pixels source.
    Le ciel, à l'infini, reste une image plate en fond. */
@@ -134,7 +152,7 @@ img {
   transform: translateZ(calc(0.5 * var(--focale))) rotateY(-90deg);
 }
 
-/* Bande de trois paysages côte à côte : GSAP la décale d'un paysage
+/* Bande de trois paysages côte à côte : GSAP fait glisser son image de fond d'un paysage
    puis recommence, ce qui donne un défilement sans fin vers le spectateur */
 .paysage__bande {
   position: absolute;
@@ -274,20 +292,33 @@ img {
    6. Pensées (bulles)
    ========================================================== */
 
-/* Curseur main quand la souris passe sur un personnage */
-.scene--survol {
+/* Curseur en forme d'oeil sur un personnage (on "lit" sa pensée), main sur la porte.
+   Image de 32 x 32 : le point actif est au centre (16 16). */
+.scene--survol-personnage {
+  cursor: url("../assets/images/interface/curseur-oeil.png") 16 16, pointer;
+}
+
+.scene--survol-porte {
   cursor: pointer;
 }
 
-/* Bulle carrée, bordure franche : style pixel.
+/* Bulle en forme de nuage : le cadre est une petite image découpée en 9 morceaux
+   (border-image) dont les bords festonnés se répètent selon la taille du texte.
    Sa position (left, top) est calculée par main.js à partir de la tête du personnage. */
 .pensee {
   position: absolute;
   max-width: var(--pensee-largeur-max);
-  padding: 0.6rem 0.8rem;
-  border: 3px solid var(--couleur-pensee-bordure);
-  background-color: var(--couleur-pensee-fond);
-  box-shadow: 4px 4px 0 var(--couleur-pensee-ombre);
+  /* La bulle est remontée de la hauteur des petites bulles qui la relient à la tête */
+  margin-top: calc(-11 * var(--pensee-pixel));
+  padding: 0 0.2rem;
+  border: calc(8 * var(--pensee-pixel)) solid transparent;
+  border-image: url("../assets/images/interface/bulle-cadre.png") 8 fill / calc(8 * var(--pensee-pixel)) round;
+  /* Fond blanc légèrement en retrait des bords festonnés : il bouche les fines lignes
+     que le navigateur laisse parfois entre les 9 morceaux du cadre */
+  background: linear-gradient(var(--couleur-pensee-fond), var(--couleur-pensee-fond))
+    center / calc(100% - 6 * var(--pensee-pixel)) calc(100% - 6 * var(--pensee-pixel)) no-repeat border-box;
+  image-rendering: pixelated;
+  filter: drop-shadow(var(--pensee-pixel) var(--pensee-pixel) 0 var(--couleur-pensee-ombre));
   color: var(--couleur-pensee-texte);
   font-size: 0.85rem;
   line-height: 1.4;
@@ -297,30 +328,38 @@ img {
   opacity: 0;
 }
 
-/* Petite pointe sous la bulle, dirigée vers la tête */
+/* Prénom du personnage, au-dessus de sa pensée */
+.pensee__nom {
+  margin-bottom: 0.15rem;
+  color: var(--couleur-pensee-nom);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* Petites bulles sous le nuage, qui descendent vers la tête */
 .pensee::after {
   content: "";
   position: absolute;
-  top: 100%;
+  top: calc(100% + 8 * var(--pensee-pixel));
   left: 50%;
-  width: 9px;
-  height: 9px;
-  margin-left: -4px;
-  border-right: 3px solid var(--couleur-pensee-bordure);
-  border-bottom: 3px solid var(--couleur-pensee-bordure);
-  background-color: var(--couleur-pensee-fond);
-  transform: translateY(-5px) rotate(45deg);
+  width: calc(7 * var(--pensee-pixel));
+  height: calc(11 * var(--pensee-pixel));
+  margin-left: calc(-3.5 * var(--pensee-pixel));
+  background: url("../assets/images/interface/bulle-queue.png") center / 100% 100% no-repeat;
+  image-rendering: pixelated;
 }
 
-/* Personnage près du bord gauche : la bulle part vers la droite */
+/* Personnage près du bord gauche : la bulle part vers la droite,
+   les petites bulles restent sous la tête (10 % de la largeur, comme dans main.js) */
 .pensee--gauche::after {
-  left: 1.2rem;
+  left: 10%;
 }
 
 /* Personnage près du bord droit : la bulle part vers la gauche */
 .pensee--droite::after {
-  left: auto;
-  right: 1.2rem;
+  left: 90%;
 }
 
 
@@ -333,6 +372,7 @@ img {
   top: var(--marge-interface);
   left: var(--marge-interface);
   display: flex;
+  align-items: center;
   gap: 0.75rem;
   font-size: 0.85rem;
   letter-spacing: 0.1em;
@@ -346,6 +386,56 @@ img {
 .indicateur__numero {
   color: var(--couleur-texte-discret);
   font-variant-numeric: tabular-nums;
+}
+
+/* Petit train : un wagon dessiné par section.wagon (créés par main.js) */
+.indicateur__train {
+  display: flex;
+  gap: 6px;
+}
+
+/* Wagon en pixels : caisse à bordure franche et deux fenêtres (dessinées par ::before) */
+.indicateur__wagon {
+  position: relative;
+  width: 22px;
+  height: 12px;
+  border: 2px solid var(--couleur-bordure);
+  background-color: var(--couleur-bouton);
+  opacity: 0.5;
+}
+
+.indicateur__wagon::before {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 3px;
+  width: 4px;
+  height: 3px;
+  background-color: var(--couleur-fond);
+  box-shadow: 8px 0 0 var(--couleur-fond);
+}
+
+/* Attelage entre deux wagons */
+.indicateur__wagon + .indicateur__wagon::after {
+  content: "";
+  position: absolute;
+  top: 3px;
+  left: -10px;
+  width: 6px;
+  height: 2px;
+  background-color: var(--couleur-bordure);
+}
+
+/* Wagons déjà traversés */
+.indicateur__wagon--passe {
+  opacity: 1;
+}
+
+/* Wagon où se trouve l'utilisateur : allumé */
+.indicateur__wagon--actuel {
+  border-color: var(--couleur-actif);
+  background-color: var(--couleur-actif);
+  opacity: 1;
 }
 
 /* Bouton carré, bordure franche, sans arrondi : style pixel */
@@ -367,6 +457,19 @@ img {
   cursor: pointer;
 }
 
+/* Flèche pixel vers la gauche (grille de 8 x 7), de la couleur du texte */
+.bouton-arriere::before {
+  content: "";
+  display: inline-block;
+  width: 0.8em;
+  height: 0.7em;
+  margin-right: 0.5em;
+  background-color: currentColor;
+  clip-path: polygon(37.5% 0, 50% 0, 50% 28.57%, 100% 28.57%, 100% 71.43%, 50% 71.43%, 50% 100%,
+    37.5% 100%, 37.5% 85.71%, 25% 85.71%, 25% 71.43%, 12.5% 71.43%, 12.5% 57.14%, 0 57.14%,
+    0 42.86%, 12.5% 42.86%, 12.5% 28.57%, 25% 28.57%, 25% 14.29%, 37.5% 14.29%);
+}
+
 .bouton-arriere:hover,
 .bouton-arriere:focus-visible {
   background-color: var(--couleur-bouton-survol);
@@ -383,6 +486,122 @@ img {
   cursor: default;
 }
 
+/* Carton titre : bandeau sombre en haut de la scène, à l'arrivée dans un wagon */
+.carton {
+  position: absolute;
+  top: 12%;
+  left: 0;
+  right: 0;
+  padding: 0.7rem 1rem;
+  border-top: 3px solid var(--couleur-bordure);
+  border-bottom: 3px solid var(--couleur-bordure);
+  background-color: var(--couleur-voile-carton);
+  text-align: center;
+  text-transform: uppercase;
+  pointer-events: none;
+  /* Caché au départ, GSAP le fait apparaître */
+  visibility: hidden;
+  opacity: 0;
+}
+
+.carton__numero {
+  color: var(--couleur-actif);
+  font-size: 0.8rem;
+  letter-spacing: 0.3em;
+}
+
+.carton__titre {
+  font-size: clamp(1.2rem, 4cqw, 2.4rem);
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-shadow: 3px 3px 0 var(--couleur-fond);
+}
+
+/* Écran d'accueil : voile sombre sur toute la fenêtre (le train roule déjà derrière) */
+.accueil {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background-color: var(--couleur-voile-accueil);
+  text-align: center;
+  cursor: pointer;
+}
+
+.accueil__contenu {
+  display: grid;
+  justify-items: center;
+  gap: 1.2rem;
+}
+
+/* Titre : ombres pleines décalées pixel par pixel, effet relief */
+.accueil__titre {
+  font-size: clamp(1.6rem, 6vw, 3.6rem);
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  line-height: 1.1;
+  text-transform: uppercase;
+  color: var(--couleur-actif);
+  text-shadow:
+    2px 2px 0 var(--couleur-etiquette-fermee),
+    4px 4px 0 var(--couleur-etiquette-fermee),
+    6px 6px 0 var(--couleur-fond);
+}
+
+.accueil__consignes {
+  display: grid;
+  gap: 0.4rem;
+  list-style: none;
+  font-size: 0.85rem;
+  color: var(--couleur-texte-discret);
+}
+
+/* Le geste est mis en avant, la conséquence reste discrète */
+.accueil__geste {
+  margin-right: 0.5em;
+  color: var(--couleur-texte);
+  font-weight: 700;
+}
+
+.accueil__geste::after {
+  content: " :";
+}
+
+/* Même style pixel que le bouton Arrière */
+.accueil__bouton {
+  padding: 0.7rem 1.4rem;
+  border: 3px solid var(--couleur-actif);
+  border-radius: 0;
+  background-color: var(--couleur-bouton);
+  box-shadow: 4px 4px 0 var(--couleur-fond);
+  color: var(--couleur-texte);
+  font-family: var(--police-interface);
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.accueil__bouton:hover,
+.accueil__bouton:focus-visible {
+  background-color: var(--couleur-bouton-survol);
+}
+
+.accueil__bouton:focus-visible {
+  outline: 3px solid var(--couleur-texte);
+  outline-offset: 3px;
+}
+
+/* Invitation clignotante (animée par main.js) */
+.accueil__invite {
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--couleur-texte-discret);
+}
+
 
 /* ==========================================================
    8. Responsive
@@ -395,8 +614,19 @@ img {
   }
 
   .pensee {
-    padding: 0.4rem 0.6rem;
     font-size: 0.75rem;
+  }
+
+  .pensee__nom {
+    font-size: 0.6rem;
+  }
+
+  .accueil__contenu {
+    gap: 0.6rem;
+  }
+
+  .accueil__consignes {
+    font-size: 0.7rem;
   }
 
   .indicateur {
