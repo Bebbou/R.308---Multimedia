@@ -19,7 +19,7 @@ Des personnages sont assis dans le wagon. Selon l'architecture du wagon, on les 
 
 | Action utilisateur | Effet |
 |---|---|
-| Survol d'un personnage à la souris | Sa bulle de pensée apparaît, un contour blanc d'un pixel entoure sa silhouette, le curseur devient un oeil (une main sur la porte) |
+| Survol d'un personnage à la souris | Sa bulle de pensée apparaît, un contour blanc fin entoure sa silhouette, le curseur devient un oeil (une main sur la porte) |
 | Souris hors du personnage | La bulle disparaît |
 | Clic ou tap sur un personnage | Sa bulle de pensée apparaît |
 | Clic ou tap ailleurs, ou touche Échap | La bulle disparaît |
@@ -30,7 +30,7 @@ Des personnages sont assis dans le wagon. Selon l'architecture du wagon, on les 
 - La bulle se place au-dessus du pixel le plus haut du personnage (le haut de la tête). Rien à régler : dessiner le personnage suffit.
 - Cette détection lit les pixels des images, ce que le navigateur n'autorise qu'avec un serveur. Il faut donc toujours ouvrir le site avec Live Server, jamais en double-cliquant sur `index.html`.
 
-Le rendu est en **pixel art**, style 16 bits.
+Le rendu est en **pixel art 2D**, dans le style de Joaquim (le personnage de Lino) : voir la charte de direction artistique, section 4.
 
 ### Navigation
 
@@ -120,7 +120,7 @@ R.308---Multimedia/
     │   │   ├── passage.png         couloir visible derrière la porte ouverte
     │   │   ├── porte-gauche.png    battant gauche de la porte
     │   │   └── porte-droite.png    battant droit de la porte
-    │   ├── interface/      petites images d'interface (pas au format 320 x 180)
+    │   ├── interface/      petites images d'interface (pas au format 640 x 360)
     │   │   ├── bulle-cadre.png     cadre en nuage de la bulle (24 x 24, 9 morceaux de 8 x 8)
     │   │   ├── bulle-queue.png     petites bulles entre le nuage et la tête (7 x 11)
     │   │   └── curseur-oeil.png    curseur sur un personnage (32 x 32)
@@ -145,32 +145,55 @@ Règles :
 
 ---
 
-## 4. Pixel art : règles communes
+## 4. Direction artistique et pixel art : règles communes
 
 Ces règles garantissent que les dessins des 4 membres s'assemblent sans retouche.
 
+### Charte de direction artistique (DA « Joaquim »)
+
+La référence visuelle du projet est **Joaquim**, le personnage dessiné par Lino (sprite de 70 x 144 pixels, assis sur une banquette du wagon 01 : `assets/images/wagon-01/personnage-03.png`). Tout ce qu'on dessine doit pouvoir s'asseoir à côté de lui sans faire tache. L'esprit : de la 2D simple, colorée et expressive, comme les jeux Pokémon en 2D. Pas de 3D, pas de rendu réaliste.
+
+| Règle | Concrètement |
+|---|---|
+| 2D à plat | Aplats de couleur, pas de dégradé lisse, pas de flou, pas de texture photo. La perspective du wagon reste (point de fuite au centre), mais tout est dessiné à plat dedans. |
+| Même taille de pixel | Un pixel de Joaquim fait 2 x 2 pixels de l'image : tout le projet est dessiné à cette taille (grille de 320 x 180 doublée, voir Format). Jamais de détail plus fin. |
+| Contour noir | Chaque personnage est cerné d'un trait noir `#000000` d'un pixel de grille, tout autour de sa silhouette (comme Joaquim). |
+| Encrage du décor | Entre deux zones de couleur du décor (deux faces d'un meuble, un cadre de fenêtre, une porte), un trait d'un pixel plus sombre que la couleur. Autour des trous (fenêtres, porte), un trait noir. |
+| Ombres simples | Une couleur de base, une ombre (plus sombre et un peu bleutée, jamais grise) et au besoin un reflet clair. Trois tons par matière, pas plus. |
+| Couleurs vives | Couleurs franches et saturées, paysage de beau temps (ciel bleu, collines vertes). Une ambiance plus sombre est permise si le wagon le demande (le salon vapeur, chaud et feutré). |
+| Personnages | Proportions et ombrages de Joaquim : tête d'environ un quart de la hauteur du personnage assis, corps large d'environ la moitié de sa hauteur bras compris, chemise blanche à plis gris, deux tons par vêtement, trait noir entre les pièces. Les voyageurs provisoires du wagon 01 sont des variantes de Joaquim (couleurs, coiffure, lunettes, vue de dos). |
+| Pixel net | Pixels pleins uniquement : pas d'anticrénelage, pas de pixel semi-transparent. Les trames (un pixel sur deux) sont permises pour les lumières et la vapeur. |
+| Pas de mise à l'échelle | Un sprite se dessine directement à sa taille finale, jamais agrandi ou réduit après coup (sinon les pixels ne sont plus de la même taille que ceux de Joaquim). |
+
+Taille des personnages : un adulte assis mesure **72 pixels de grille** de haut (144 dans l'image finale, comme Joaquim) quand il est au milieu du wagon, au niveau de Joaquim. Un voyageur vu de dos, plus loin ou plus près, se place par le haut de sa tête : seuls la tête et les épaules dépassent du dossier.
+
+Interface : boutons et étiquettes façon boîte de dialogue de jeu 2D (fond blanc, trait noir, ombre pleine), titre d'accueil jaune cerné de bleu nuit.
+
+Pour vérifier un dessin : l'ouvrir à côté de `wagon-01/personnage-03.png` (Joaquim) au même zoom. Mêmes tailles de pixels, même épaisseur de trait, couleurs aussi vives : c'est bon.
+
 ### Format
 
-- Toile de **320 x 180 pixels** pour chaque calque (format 16:9). Le site l'agrandit sans flou.
+- Image de **640 x 360 pixels** pour chaque calque (format 16:9). Le site l'agrandit sans flou.
+- **Taille des pixels** : Joaquim est dessiné en gros pixels de 2 x 2. Tout le reste aussi : on dessine sur une grille de **320 x 180**, puis on double l'image (agrandissement x 2 « au plus proche », sans lissage) pour obtenir le 640 x 360. Un pixel de la grille = un pixel de Joaquim. Les coordonnées données plus bas sont celles de l'image finale 640 x 360 (diviser par 2 pour la grille).
 - Chaque calque fait toute la toile, même s'il ne contient qu'un petit personnage : le reste est transparent. Pas de positionnement à calculer, il suffit de dessiner au bon endroit.
 - Export en **PNG**, fond transparent, sans anticrénelage (pas de pixels semi-transparents sur les bords, pas d'outil flou).
 - Les trois couches `paysage-loin.png`, `paysage-milieu.png` et `paysage-proche.png` doivent se raccorder parfaitement à gauche et à droite, car elles défilent en boucle. Leur fond est transparent pour laisser voir la couche de derrière.
-- Ces trois couches se dessinent **à plat**, de profil, comme une bande de paysage vue par une fenêtre de face. L'horizon (hauteur des yeux) est sur la **ligne 90**. C'est le site qui les plaque en perspective sur un plan parallèle à chaque paroi, pour qu'elles suivent les fuyantes du wagon et défilent vers le spectateur.
-- `paysage-ciel.png` reste plat et fixe (le ciel est à l'infini) : horizon pâle vers la ligne 90.
-- Le paysage reste discret : couleurs douces, plus sombres que l'intérieur du wagon, pour que l'oeil reste sur les personnages. Plus une couche est proche, plus elle est sombre.
+- Ces trois couches se dessinent **à plat**, de profil, comme une bande de paysage vue par une fenêtre de face. L'horizon (hauteur des yeux) est sur la **ligne 180**. C'est le site qui les plaque en perspective sur un plan parallèle à chaque paroi, pour qu'elles suivent les fuyantes du wagon et défilent vers le spectateur.
+- `paysage-ciel.png` reste plat et fixe (le ciel est à l'infini) : horizon pâle vers la ligne 180.
+- Paysage de beau temps, contours sombres comme le reste. Plus une couche est proche, plus elle est sombre, pour que l'oeil reste sur les personnages.
 - Logiciels conseillés : Aseprite, Piskel (gratuit, en ligne), LibreSprite.
 
 ### Perspective (repères à respecter)
 
-Point de fuite : **x = 160, y = 90** (centre exact de la toile).
+Point de fuite : **x = 320, y = 180** (centre exact de la toile).
 
-| Élément | Coordonnées sur la toile 320 x 180 |
+| Élément | Coordonnées sur la toile 640 x 360 |
 |---|---|
-| Mur du fond | x 114 à 206, y 64 à 142 (son haut suit la forme du plafond du wagon : plat, voûté, surélevé...) |
-| Ouverture de la porte | x 144 à 176, y 72 à 142 |
+| Mur du fond | x 228 à 412, y 128 à 284 (son haut suit la forme du plafond du wagon : plat, voûté, surélevé...) |
+| Ouverture de la porte | x 288 à 352, y 144 à 284 |
 | Banquettes | le long des parois, du bas de l'écran jusqu'au mur du fond |
 | Fenêtres | sur les parois, au-dessus des banquettes, trouées (transparentes). Nombre, taille et forme libres selon le wagon |
-| Panneau numéroté | x 152 à 167, y 63 à 69, au-dessus de la porte (numéro du wagon sur deux chiffres) |
+| Panneau numéroté | x 304 à 335, y 126 à 139, au-dessus de la porte (numéro du wagon sur deux chiffres, chiffres de 6 x 10 pixels) |
 | Personnages | vus de côté, de face ou de dos selon les sièges. Pieds visibles quand ils ne sont pas cachés par un siège : le bas de l'écran ne doit couper personne |
 
 Ouvrir `assets/images/wagon-01/interieur.png` dans son logiciel donne tous ces repères : on peut s'en servir comme gabarit.
@@ -193,18 +216,32 @@ Les personnages sont toujours au-dessus de l'intérieur. Si un siège placé dev
 
 ### Palette
 
-Palette commune : **Sweetie 16** (16 couleurs). Tout le monde l'importe dans son logiciel.
+Palette commune **« Joaquim »** : les couleurs du sprite de Joaquim, complétées de teintes vives. Tout le monde l'importe dans son logiciel.
 
 ```
-#1a1c2c  #5d275d  #b13e53  #ef7d57
-#ffcd75  #a7f070  #38b764  #257179
-#29366f  #3b5dc9  #41a6f6  #73eff7
-#f4f4f4  #94b0c2  #566c86  #333c57
+Contour   #000000
+Encre     #1b1a26   nuit      #22346e   gris foncé #3e434f   gris      #7d8799
+Blancs    #ffffff   #d1dae9   crème     #f6e7c1
+Peaux     #ffb096 (ombre #d3856b)   #e0996b   #9a5b3c
+Bois      #d29a5c   #9b6846   #5c2f17   cheveux bruns #44100a
+Rouges    #d8364b   bordeaux  #770013   orange    #f58a4c   jaune     #fdc86e
+Verts     #9be564   #3fae5a   #2a8c8c
+Bleus     #1882de   #5cc1f7   #8af0f0   violet    #6a3d8f
 ```
+
+Les ombres se font en assombrissant la couleur de base d'environ moitié, en tirant un peu vers le bleu (le générateur le fait tout seul).
 
 Chaque wagon a sa propre **architecture** (époque du train : plafond, parois, fenêtres, sièges, éclairage). Ce qui ne change jamais d'un wagon à l'autre : le point de fuite, l'ouverture de la porte, le panneau numéroté et la place des personnages sur les banquettes.
 
-Chaque wagon peut ajouter au maximum **3 couleurs propres** pour son ambiance. Elles sont notées dans le tableau des wagons (section 6).
+Chaque wagon peut ajouter **quelques couleurs propres** (5 au maximum) pour son ambiance. Elles sont notées dans le tableau des wagons (section 6).
+
+### Personnages dessinés à la main
+
+Un personnage dessiné par un membre (comme Joaquim) se pose tel quel dans son wagon :
+- on dessine le sprite seul, détouré, sur la grille (environ 72 pixels de haut pour un adulte assis au milieu du wagon), avec son contour noir, puis on le double ;
+- on le colle sur une toile 640 x 360 transparente, les pieds au sol de sa place (le gabarit `interieur.png` du wagon en calque de dessous aide à viser) ;
+- on l'exporte en `personnage-XX.png` dans le dossier du wagon, en gardant l'ordre du plus éloigné au plus proche ;
+- on envoie aussi le sprite seul à Lino, qui garde les originaux et les outils qui régénèrent les calques.
 
 ---
 
@@ -286,8 +323,8 @@ L'ordre de ce tableau est l'ordre du train.
 
 | N° | Dossier | Architecture (placeholder) | Histoire | Couleurs propres | Responsable | État |
 |---|---|---|---|---|---|---|
-| 01 | `wagon-01` | Voiture de 3e classe à vapeur (vers 1900) : compartiments ouverts, banquettes en bois face à face, poêle à charbon, toit à lanterneau, lampes suspendues. Voyageurs de face et de dos | Placeholder (Lorem ipsum) | aucune | à définir | placeholder |
-| 02 | `wagon-02` | Voiture-salon de 1re classe d'un train à vapeur (vers 1900) : voûte en acajou à caissons, filets de laiton, fenêtres cintrées à rideaux de velours et lambrequins, appliques et lampes à gaz, fauteuils de velours capitonnés, guéridons à nappe blanche, tapis d'Orient, tableaux au mur du fond. Dehors, la fumée de la locomotive passe devant les fenêtres. Voyageurs de côté, en tenue 1900 (enfant en marin, vieux monsieur à monocle, haut-de-forme, dame à chapeau à plume) | Le Salon à vapeur (pensées en Lorem ipsum) | acajou `#7a3b2e`, acajou sombre `#47212a`, laiton `#c98f3e` | à définir | illustration v1 |
+| 01 | `wagon-01` | Voiture en bois clair (placeholder) : compartiments ouverts, banquettes en bois face à face, poêle à charbon, toit à lanterneau, lampes suspendues. À droite, Joaquim (personnage de Lino) assis sur la banquette. Voyageurs de face et de dos | Placeholder (Lorem ipsum), futur wagon MMI | aucune en plus de la palette | à définir | placeholder + Joaquim |
+| 02 | `wagon-02` | Voiture-salon de 1re classe d'un train à vapeur (vers 1900) : voûte en acajou à caissons, filets de laiton, fenêtres cintrées à rideaux de velours et lambrequins, appliques et lampes à gaz, fauteuils de velours capitonnés, guéridons à nappe blanche, tapis d'Orient, tableaux au mur du fond. Dehors, la fumée de la locomotive passe devant les fenêtres. Voyageurs de côté, en tenue 1900 (enfant en marin, vieux monsieur à monocle, haut-de-forme, dame à chapeau à plume) | Le Salon à vapeur (pensées en Lorem ipsum) | acajou `#7a3b2e`, acajou sombre `#47212a`, laiton `#c98f3e`, velours `#b3263f`, velours prune `#5e1f45` | à définir | illustration v2 (DA Joaquim) |
 | 03 | `wagon-03` | Voiture Corail (années 1980) : rangées de sièges orange tournés vers la porte, têtières blanches, néons. Voyageurs de dos, tête au-dessus des dossiers | Placeholder (Consectetur) | aucune | à définir | placeholder |
 | 04 | `wagon-04` | Train du futur : sièges coques le long des parois, plafond arrondi, bandes lumineuses cyan, grandes baies. Voyageurs de côté | Placeholder (Adipiscing elit) | aucune | à définir | placeholder |
 
@@ -320,8 +357,10 @@ Règles :
 - HTML, CSS et JavaScript natifs uniquement, GSAP + Observer et Howler
   via les liens CDN donnés. N'ajoute aucune autre bibliothèque, aucun
   outil de build, aucun fichier ou dossier non prévu sans me demander.
-- Pixel art : calques de 320 x 180 pixels, PNG transparent, palette
-  Sweetie 16, perspective centrée sur le point de fuite (160, 90).
+- Pixel art 2D dans le style de Joaquim (section 4) : calques de
+  640 x 360 pixels, PNG transparent, palette « Joaquim », contour noir
+  d'un pixel autour des personnages, aplats et ombres simples, pas de 3D,
+  perspective centrée sur le point de fuite (320, 180).
 - Commente le code en français. Aucun emoji nulle part.
 - Avance étape par étape : un fichier ou une modification à la fois.
   Pour chacun, explique brièvement ce qu'il contient et pourquoi, puis
@@ -341,6 +380,7 @@ Chaque étape est validée par l'équipe avant de passer à la suivante.
 
 1. Documentation commune (fait)
 2. Maquette : 4 wagons en perspective, placeholders pixel art, navigation porte et bouton Arrière (fait)
+2 bis. Direction artistique « Joaquim » : toile en 640 x 360, tous les calques redessinés dans le style de Joaquim, Joaquim dans le wagon 01 (fait)
 3. Choix des 4 histoires et répartition des wagons entre les membres
 4. Pensées : bulle au survol ou au toucher d'un personnage (fait, textes en Lorem ipsum)
 5. Illustrations définitives de chaque wagon (après validation)

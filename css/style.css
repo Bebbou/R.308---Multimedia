@@ -3,32 +3,35 @@
    ========================================================== */
 
 :root {
-  /* Couleurs, tirées de la palette commune Sweetie 16 */
-  --couleur-fond: #1a1c2c;
-  --couleur-texte: #f4f4f4;
-  --couleur-texte-discret: #94b0c2;
-  --couleur-bouton: #333c57;
-  --couleur-bouton-survol: #566c86;
-  --couleur-bordure: #94b0c2;
-  --couleur-fondu: #1a1c2c;
+  /* Couleurs, tirées de la palette commune « Joaquim » (voir DOCUMENTATION.md, section 4) */
+  --couleur-fond: #1b1a26;
+  --couleur-texte: #ffffff;
+  --couleur-texte-discret: #d1dae9;
+  /* Boutons et cadres façon boîte de dialogue de jeu 2D : fond blanc, trait noir */
+  --couleur-bouton: #ffffff;
+  --couleur-bouton-survol: #d1dae9;
+  --couleur-bouton-texte: #1b1a26;
+  --couleur-titre-relief: #22346e;
+  --couleur-bordure: #000000;
+  --couleur-fondu: #1b1a26;
   --couleur-lumiere: rgba(255, 205, 117, 0.08);
-  --couleur-vignette: rgba(26, 28, 44, 0.35);
+  --couleur-vignette: rgba(27, 26, 38, 0.25);
   /* Opacité des halos de lampes (calques wagon__lueur), avant scintillement */
   --opacite-lueur: 0.45;
-  --couleur-pensee-fond: #f4f4f4;
-  --couleur-pensee-texte: #1a1c2c;
-  --couleur-pensee-bordure: #1a1c2c;
-  --couleur-pensee-ombre: rgba(26, 28, 44, 0.5);
-  --couleur-contour: #f4f4f4;
-  --couleur-etiquette-fermee: #b13e53;
-  --couleur-pensee-nom: #566c86;
-  --couleur-actif: #ffcd75;
-  --couleur-voile-accueil: rgba(26, 28, 44, 0.82);
-  --couleur-voile-carton: rgba(26, 28, 44, 0.75);
+  --couleur-pensee-fond: #ffffff;
+  --couleur-pensee-texte: #1b1a26;
+  --couleur-pensee-bordure: #000000;
+  --couleur-pensee-ombre: rgba(27, 26, 38, 0.5);
+  --couleur-contour: #ffffff;
+  --couleur-etiquette-fermee: #d8364b;
+  --couleur-pensee-nom: #1882de;
+  --couleur-actif: #fdc86e;
+  --couleur-voile-accueil: rgba(27, 26, 38, 0.82);
+  --couleur-voile-carton: rgba(27, 26, 38, 0.75);
 
   /* Taille de la toile pixel art (en pixels source) */
-  --toile-largeur: 320;
-  --toile-hauteur: 180;
+  --toile-largeur: 640;
+  --toile-hauteur: 360;
 
   /* Police d'interface : chasse fixe, proche de l'esprit pixel art */
   --police-interface: "Courier New", Courier, monospace;
@@ -36,12 +39,12 @@
   --pensee-largeur-max: 15rem;
   /* Taille d'un pixel des images de la bulle (cadre en nuage et petites bulles) */
   --pensee-pixel: 2px;
-  /* Centre de la porte du fond (x 160, y 107 sur la toile) : point vers lequel on zoome */
-  --origine-zoom: 50% calc(100% * 107 / 180);
+  /* Centre de la porte du fond (x 320, y 214 sur la toile) : point vers lequel on zoome */
+  --origine-zoom: 50% calc(100% * 214 / 360);
   /* Taille d'un pixel de la toile à l'écran (valable dans la scène uniquement) */
-  --pixel-source: calc(100cqw / 320);
+  --pixel-source: calc(100cqw / 640);
   /* Focale de la caméra (distance entre l'oeil et l'écran), pour la perspective du paysage */
-  --focale: calc(114.3 * var(--pixel-source));
+  --focale: calc(228.6 * var(--pixel-source));
 }
 
 
@@ -95,7 +98,7 @@ img {
   width: min(100vw, calc(100dvh * 16 / 9));
   aspect-ratio: 16 / 9;
   overflow: hidden;
-  /* Permet d'exprimer une taille en pixels source : 100cqw / 320 = 1 pixel de la toile */
+  /* Permet d'exprimer une taille en pixels source : 100cqw / 640 = 1 pixel de la toile */
   container-type: inline-size;
 }
 
@@ -115,7 +118,7 @@ img {
 }
 
 /* Le paysage est vu en perspective, avec la même caméra que le dessin du wagon :
-   point de fuite au centre de la scène et focale de 114,3 pixels source.
+   point de fuite au centre de la scène et focale de 228,6 pixels source.
    Le ciel, à l'infini, reste une image plate en fond. */
 .paysage {
   position: absolute;
@@ -130,26 +133,26 @@ img {
 
 /* Chaque côté est un plan vertical parallèle à la paroi, un peu derrière les fenêtres.
    Il part de la profondeur 0,5 et s'enfonce jusqu'à 6 (en unités de la caméra).
-   Dimensions en pixels source : 628,7 de long (5,5 unités) et 274,3 de haut (2,4 unités),
-   centré sur l'horizon (ligne 90). */
+   Dimensions en pixels source : 1257,3 de long (5,5 unités) et 548,6 de haut (2,4 unités),
+   centré sur l'horizon (ligne 180). */
 .paysage__cote {
   position: absolute;
-  top: calc(-47.15 * var(--pixel-source));
-  width: calc(628.7 * var(--pixel-source));
-  height: calc(274.3 * var(--pixel-source));
+  top: calc(-94.3 * var(--pixel-source));
+  width: calc(1257.3 * var(--pixel-source));
+  height: calc(548.6 * var(--pixel-source));
   overflow: hidden;
 }
 
 /* Plan gauche : 1,7 unité à gauche de l'oeil, tourné pour s'enfoncer dans la profondeur */
 .paysage__cote--gauche {
-  left: calc(-34.3 * var(--pixel-source));
+  left: calc(-68.6 * var(--pixel-source));
   transform-origin: left center;
   transform: translateZ(calc(0.5 * var(--focale))) rotateY(90deg);
 }
 
 /* Plan droit : symétrique du plan gauche */
 .paysage__cote--droite {
-  left: calc(-274.4 * var(--pixel-source));
+  left: calc(-548.7 * var(--pixel-source));
   transform-origin: right center;
   transform: translateZ(calc(0.5 * var(--focale))) rotateY(-90deg);
 }
@@ -196,7 +199,7 @@ img {
   inset: 0;
 }
 
-/* Chaque calque couvre toute la scène (toile 320 x 180) */
+/* Chaque calque couvre toute la scène (toile 640 x 360) */
 .wagon__calque {
   position: absolute;
   inset: 0;
@@ -210,11 +213,11 @@ img {
   pointer-events: none;
 }
 
-/* Personnage survolé (ou touché) : contour clair d'un pixel source autour de sa silhouette,
+/* Personnage survolé (ou touché) : contour clair fin (un pixel source) autour de sa silhouette,
    et légère hausse de luminosité. drop-shadow suit la forme réelle, pas le rectangle de l'image. */
 .wagon__personnage--survole {
   filter:
-    brightness(1.12)
+    brightness(1.05)
     drop-shadow(var(--pixel-source) 0 0 var(--couleur-contour))
     drop-shadow(calc(-1 * var(--pixel-source)) 0 0 var(--couleur-contour))
     drop-shadow(0 var(--pixel-source) 0 var(--couleur-contour))
@@ -240,15 +243,15 @@ img {
   filter: brightness(1.2);
 }
 
-/* Cadre d'un pixel source autour de l'ouverture de la porte (x 144 à 176, y 72 à 142).
+/* Cadre de deux pixels source autour de l'ouverture de la porte (x 288 à 352, y 144 à 284).
    Il est posé au-dessus de l'intérieur, sinon le mur le cacherait. */
 .cadre-porte {
   position: absolute;
-  left: calc(100% * 143 / 320);
-  top: calc(100% * 71 / 180);
-  width: calc(100% * 34 / 320);
-  height: calc(100% * 71 / 180);
-  border: var(--pixel-source) solid var(--couleur-contour);
+  left: calc(100% * 286 / 640);
+  top: calc(100% * 142 / 360);
+  width: calc(100% * 68 / 640);
+  height: calc(100% * 142 / 360);
+  border: calc(2 * var(--pixel-source)) solid var(--couleur-contour);
   border-bottom: none;
   pointer-events: none;
   visibility: hidden;
@@ -276,11 +279,11 @@ img {
 
 
 /* Étiquette au-dessus de la porte ("Wagon suivant" ou "Fin du train").
-   Centrée sur la porte, juste au-dessus du panneau lumineux numéroté (ligne 62 de la toile). */
+   Centrée sur la porte, juste au-dessus du panneau lumineux numéroté (ligne 124 de la toile). */
 .etiquette-porte {
   position: absolute;
   left: 50%;
-  bottom: calc(100% * (180 - 62) / 180);
+  bottom: calc(100% * (360 - 124) / 360);
   transform: translateX(-50%);
   padding: 0.25rem 0.5rem;
   border: 2px solid var(--couleur-pensee-bordure);
@@ -464,7 +467,7 @@ img {
   border-radius: 0;
   background-color: var(--couleur-bouton);
   box-shadow: 4px 4px 0 var(--couleur-fond);
-  color: var(--couleur-texte);
+  color: var(--couleur-bouton-texte);
   font-family: var(--police-interface);
   font-size: 0.9rem;
   font-weight: 700;
@@ -551,7 +554,7 @@ img {
   gap: 1.2rem;
 }
 
-/* Titre : ombres pleines décalées pixel par pixel, effet relief */
+/* Titre : jaune cerné de bleu nuit, comme un logo de jeu 2D, avec une ombre pleine */
 .accueil__titre {
   font-size: clamp(1.6rem, 6vw, 3.6rem);
   font-weight: 700;
@@ -560,8 +563,11 @@ img {
   text-transform: uppercase;
   color: var(--couleur-actif);
   text-shadow:
-    2px 2px 0 var(--couleur-etiquette-fermee),
-    4px 4px 0 var(--couleur-etiquette-fermee),
+    3px 0 0 var(--couleur-titre-relief),
+    -3px 0 0 var(--couleur-titre-relief),
+    0 3px 0 var(--couleur-titre-relief),
+    0 -3px 0 var(--couleur-titre-relief),
+    3px 3px 0 var(--couleur-titre-relief),
     6px 6px 0 var(--couleur-fond);
 }
 
@@ -591,7 +597,7 @@ img {
   border-radius: 0;
   background-color: var(--couleur-bouton);
   box-shadow: 4px 4px 0 var(--couleur-fond);
-  color: var(--couleur-texte);
+  color: var(--couleur-bouton-texte);
   font-family: var(--police-interface);
   font-size: 1rem;
   font-weight: 700;

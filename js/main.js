@@ -3,8 +3,8 @@
    ========================================================== */
 
 // Taille de la toile pixel art, en pixels source
-const TOILE_LARGEUR = 320;
-const TOILE_HAUTEUR = 180;
+const TOILE_LARGEUR = 640;
+const TOILE_HAUTEUR = 360;
 
 // Durées des transitions, en secondes
 const DUREE_PORTE = 0.7;
@@ -13,7 +13,7 @@ const DUREE_FONDU = 0.4;
 const COEF_MOUVEMENT_REDUIT = 0.4;
 
 // Largeur d'un battant de porte, en pixels source (il glisse de cette distance)
-const LARGEUR_BATTANT = 16;
+const LARGEUR_BATTANT = 32;
 
 // Temps pour que chaque couche du paysage défile d'une largeur complète, en secondes.
 // Plus la couche est lointaine, plus elle est lente : c'est ce qui donne la profondeur.
@@ -52,15 +52,17 @@ const DELAI_ATTENTE = 8;
 const TOLERANCE_OBSERVER = 10;
 
 // Pensées : espace entre le haut de la tête et la pointe de la bulle, en pixels source
-const ECART_BULLE = 3;
+const ECART_BULLE = 6;
+// Amplitude des secousses (train et porte verrouillée), en pixels source
+const PAS_SECOUSSE = 2;
 // Au-delà de cette distance (en pixels écran), un appui est un glissé et pas un clic ou un tap
 const DISTANCE_MAX_TAP = 10;
 // Part de la scène, à gauche et à droite, où la bulle se décale pour ne pas sortir de l'écran
 const ZONE_BORD = 0.2;
 
-// Ouverture de la porte du fond sur la toile 320 x 180 (voir DOCUMENTATION.md, Perspective).
+// Ouverture de la porte du fond sur la toile 640 x 360 (voir DOCUMENTATION.md, Perspective).
 // Un clic ou un tap dans cette zone ouvre la porte.
-const ZONE_PORTE = { gauche: 144, droite: 176, haut: 72, bas: 142 };
+const ZONE_PORTE = { gauche: 288, droite: 352, haut: 144, bas: 284 };
 
 
 /* ==========================================================
@@ -273,10 +275,10 @@ function wagonPrecedent() {
   ajouterFondu(trajet, wagonActuel - 1);
 }
 
-// Fait trembler la porte fermée, de 1 pixel source à gauche et à droite.
+// Fait trembler la porte fermée, de PAS_SECOUSSE pixels source à gauche et à droite.
 // portes : battants renvoyés par trouverPortes()
 function porteVerrouillee(portes) {
-  const unPixel = (1 / TOILE_LARGEUR) * 100;
+  const unPixel = (PAS_SECOUSSE / TOILE_LARGEUR) * 100;
   const trajet = creerTrajet();
   trajet
     .to([portes.gauche, portes.droite], { xPercent: -unPixel, duration: 0.05, ease: "steps(1)" })
@@ -291,7 +293,7 @@ function porteVerrouillee(portes) {
 async function analyserPersonnage(image) {
   await image.decode();
 
-  // On dessine l'image en taille réelle (320 x 180) dans un canvas invisible
+  // On dessine l'image en taille réelle (640 x 360) dans un canvas invisible
   const toile = document.createElement("canvas");
   toile.width = TOILE_LARGEUR;
   toile.height = TOILE_HAUTEUR;
@@ -340,7 +342,7 @@ async function preparerPersonnages() {
   }
 }
 
-// Convertit une position à l'écran en pixel de la toile 320 x 180.
+// Convertit une position à l'écran en pixel de la toile 640 x 360.
 // Renvoie null si le point est hors de la scène.
 // evenement : événement de pointeur (souris ou doigt)
 function convertirEnPixel(evenement) {
@@ -592,10 +594,10 @@ function lancerPaysage() {
   });
 }
 
-// Secousse du décor, d'un pixel source vers le bas puis retour, à intervalle irrégulier.
+// Secousse du décor, de PAS_SECOUSSE pixels source vers le bas puis retour, à intervalle irrégulier.
 // Seuls le paysage et les wagons bougent : la bulle de pensée et l'interface restent immobiles.
 function secouer() {
-  const unPixel = (1 / TOILE_HAUTEUR) * 100;
+  const unPixel = (PAS_SECOUSSE / TOILE_HAUTEUR) * 100;
   gsap.timeline({ onComplete: secouer, delay: gsap.utils.random(SECOUSSE_MIN, SECOUSSE_MAX) })
     .to(decor, { yPercent: unPixel, duration: 0.08, ease: "steps(1)" })
     .to(decor, { yPercent: 0, duration: 0.08, ease: "steps(1)" });
