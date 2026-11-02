@@ -13,7 +13,7 @@ L'utilisateur est **à l'intérieur** du train, debout au milieu de l'allée. Il
 
 Le train compte 4 wagons. Chaque wagon raconte une histoire différente. Pour l'instant, les histoires sont des placeholders (Lorem ipsum).
 
-Des personnages sont assis sur des banquettes le long des deux parois, face à l'allée. L'utilisateur est un spectateur omniscient : il lit leurs pensées dans une bulle qui apparaît au-dessus de la tête du personnage.
+Des personnages sont assis dans le wagon. Selon l'architecture du wagon, on les voit de côté (banquettes le long des parois), de face ou de dos (banquettes en travers). L'utilisateur est un spectateur omniscient : il lit leurs pensées dans une bulle qui apparaît au-dessus de la tête du personnage.
 
 ### Pensées
 
@@ -169,7 +169,7 @@ Point de fuite : **x = 160, y = 90** (centre exact de la toile).
 | Banquettes | le long des parois, du bas de l'écran jusqu'au mur du fond |
 | Fenêtres | sur les parois, au-dessus des banquettes, trouées (transparentes). Nombre, taille et forme libres selon le wagon |
 | Panneau numéroté | x 152 à 167, y 63 à 69, au-dessus de la porte (numéro du wagon sur deux chiffres) |
-| Personnages | dessinés entiers, pieds visibles : le bas de l'écran ne doit couper personne |
+| Personnages | vus de côté, de face ou de dos selon les sièges. Pieds visibles quand ils ne sont pas cachés par un siège : le bas de l'écran ne doit couper personne |
 
 Ouvrir `assets/images/wagon-01/interieur.png` dans son logiciel donne tous ces repères : on peut s'en servir comme gabarit.
 
@@ -180,6 +180,8 @@ Ouvrir `assets/images/wagon-01/interieur.png` dans son logiciel donne tous ces r
 3. `porte-gauche.png` et `porte-droite.png`
 4. `interieur.png` (avec trous transparents pour les fenêtres et la porte)
 5. `personnage-XX.png`, du plus éloigné au plus proche
+
+Les personnages sont toujours au-dessus de l'intérieur. Si un siège placé devant un voyageur doit le cacher en partie (banquette en travers, dossier), on dessine le voyageur **déjà découpé** : les pixels cachés par le siège sont transparents dans son calque. Ainsi seule sa partie visible réagit au survol.
 
 ### Palette
 
@@ -276,10 +278,10 @@ L'ordre de ce tableau est l'ordre du train.
 
 | N° | Dossier | Architecture (placeholder) | Histoire | Couleurs propres | Responsable | État |
 |---|---|---|---|---|---|---|
-| 01 | `wagon-01` | Voiture en bois à lanterneau (vers 1900) : toit surélevé, lampes suspendues, banquettes à lattes, petites fenêtres | Placeholder (Lorem ipsum) | aucune | à définir | placeholder |
-| 02 | `wagon-02` | Voiture de luxe (années 1930) : boiseries sombres, filets dorés, velours capitonné, rideaux, appliques | Placeholder (Dolor sit amet) | aucune | à définir | placeholder |
-| 03 | `wagon-03` | Voiture Corail (années 1980) : plafond plat à néons, sièges orange à appui-tête | Placeholder (Consectetur) | aucune | à définir | placeholder |
-| 04 | `wagon-04` | Train du futur : plafond arrondi, bandes lumineuses cyan, grandes baies, sièges bleus | Placeholder (Adipiscing elit) | aucune | à définir | placeholder |
+| 01 | `wagon-01` | Voiture de 3e classe à vapeur (vers 1900) : compartiments ouverts, banquettes en bois face à face, poêle à charbon, toit à lanterneau, lampes suspendues. Voyageurs de face et de dos | Placeholder (Lorem ipsum) | aucune | à définir | placeholder |
+| 02 | `wagon-02` | Voiture-salon Pullman (années 1930) : fauteuils capitonnés face à l'allée, petites tables à lampe, boiseries, rideaux. Voyageurs de côté | Placeholder (Dolor sit amet) | aucune | à définir | placeholder |
+| 03 | `wagon-03` | Voiture Corail (années 1980) : rangées de sièges orange tournés vers la porte, têtières blanches, néons. Voyageurs de dos, tête au-dessus des dossiers | Placeholder (Consectetur) | aucune | à définir | placeholder |
+| 04 | `wagon-04` | Train du futur : sièges coques le long des parois, plafond arrondi, bandes lumineuses cyan, grandes baies. Voyageurs de côté | Placeholder (Adipiscing elit) | aucune | à définir | placeholder |
 
 Ajouter ou retirer un wagon = ajouter ou retirer une `<section class="wagon">` dans le HTML et son dossier d'images.
 
