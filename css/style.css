@@ -13,6 +13,8 @@
   --couleur-fondu: #1a1c2c;
   --couleur-lumiere: rgba(255, 205, 117, 0.08);
   --couleur-vignette: rgba(26, 28, 44, 0.35);
+  /* Opacité des halos de lampes (calques wagon__lueur), avant scintillement */
+  --opacite-lueur: 0.45;
   --couleur-pensee-fond: #f4f4f4;
   --couleur-pensee-texte: #1a1c2c;
   --couleur-pensee-bordure: #1a1c2c;
@@ -217,6 +219,20 @@ img {
     drop-shadow(calc(-1 * var(--pixel-source)) 0 0 var(--couleur-contour))
     drop-shadow(0 var(--pixel-source) 0 var(--couleur-contour))
     drop-shadow(0 calc(-1 * var(--pixel-source)) 0 var(--couleur-contour));
+}
+
+/* Fumée de la locomotive, dehors : main.js l'agrandit depuis le point de fuite (centre de la toile),
+   ce qui fait glisser les bouffées le long des fenêtres vers le spectateur */
+.wagon__fumee {
+  transform-origin: 50% 50%;
+  opacity: 0;
+}
+
+/* Halos des lampes : ajoutés à la lumière de l'image (mode écran), opacité réglée par main.js */
+.wagon__lueur {
+  mix-blend-mode: screen;
+  opacity: var(--opacite-lueur);
+  pointer-events: none;
 }
 
 /* Porte survolée : battants légèrement éclaircis */

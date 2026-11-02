@@ -129,6 +129,8 @@ R.308---Multimedia/
     │   │   ├── personnage-01.png   un fichier par personnage
     │   │   └── personnage-02.png   ...
     │   ├── wagon-02/
+    │   │   ├── fumee.png           bouffées de vapeur dehors (calque facultatif, voir section 4)
+    │   │   └── lueurs.png          halos des lampes (calque facultatif, voir section 4)
     │   ├── wagon-03/
     │   └── wagon-04/
     └── sons/               fichiers audio (plus tard)
@@ -176,10 +178,16 @@ Ouvrir `assets/images/wagon-01/interieur.png` dans son logiciel donne tous ces r
 ### Ordre des calques (de l'arrière vers l'avant)
 
 1. `paysage-ciel.png`, puis `paysage-loin.png`, `paysage-milieu.png`, `paysage-proche.png` (derrière les fenêtres)
-2. `passage.png` (derrière la porte)
-3. `porte-gauche.png` et `porte-droite.png`
-4. `interieur.png` (avec trous transparents pour les fenêtres et la porte)
-5. `personnage-XX.png`, du plus éloigné au plus proche
+2. `fumee.png` (facultatif, classe `wagon__fumee`) : ce qui passe dehors, propre au wagon
+3. `passage.png` (derrière la porte)
+4. `porte-gauche.png` et `porte-droite.png`
+5. `interieur.png` (avec trous transparents pour les fenêtres et la porte)
+6. `lueurs.png` (facultatif, classe `wagon__lueur`) : halos des lampes
+7. `personnage-XX.png`, du plus éloigné au plus proche
+
+Calques facultatifs d'ambiance, utilisables par tous les wagons (le wagon 02 sert d'exemple) :
+- `wagon__fumee` : dessiné loin dehors, sur les plans du paysage (profondeur 3 à 6). `main.js` l'agrandit en boucle depuis le point de fuite, ce qui fait glisser son contenu le long des fenêtres vers le spectateur. Mettre trois fois la même image dans la section : les copies sont décalées dans le temps pour un défilement continu.
+- `wagon__lueur` : halos tramés (pixels pleins, un sur deux ou un sur quatre) autour des lampes. Le CSS les ajoute à l'image en mode écran (`mix-blend-mode: screen`) et `main.js` fait vaciller leur opacité comme une flamme.
 
 Les personnages sont toujours au-dessus de l'intérieur. Si un siège placé devant un voyageur doit le cacher en partie (banquette en travers, dossier), on dessine le voyageur **déjà découpé** : les pixels cachés par le siège sont transparents dans son calque. Ainsi seule sa partie visible réagit au survol.
 
@@ -267,8 +275,8 @@ Chaque wagon peut ajouter au maximum **3 couleurs propres** pour son ambiance. E
 - Durées communes, définies dans les réglages de `main.js` : ouverture de porte 0,7 s, fondu au noir 0,4 s, carton titre 1,5 s, écriture d'une pensée 0,025 s par lettre.
 - Pour garder l'aspect pixel art, les mouvements des calques utilisent l'easing `steps(n)` (déplacement pixel par pixel).
 - Un booléen `enAnimation` bloque toute nouvelle action tant qu'une transition est en cours.
-- Ambiance volontairement calme : le paysage défile en 120 s (loin), 60 s (milieu) et 30 s (proche) par largeur d'écran, la secousse revient toutes les 6 à 9 s, le scintillement toutes les 15 à 30 s. Ces réglages sont en haut de `main.js`.
-- Respect de `prefers-reduced-motion` : si l'utilisateur le demande, pas de secousses, de respiration ni de zoom, pensée affichée d'un coup et transitions raccourcies.
+- Ambiance volontairement calme : le paysage défile en 120 s (loin), 60 s (milieu) et 30 s (proche) par largeur d'écran, la secousse revient toutes les 6 à 9 s, le scintillement toutes les 15 à 30 s, une bouffée de fumée met 9 s à passer, les lampes vacillent toutes les 0,08 à 0,35 s. Ces réglages sont en haut de `main.js`.
+- Respect de `prefers-reduced-motion` : si l'utilisateur le demande, pas de secousses, de respiration, de fumée qui défile, de lampes qui vacillent ni de zoom, pensée affichée d'un coup et transitions raccourcies.
 
 ---
 
@@ -279,7 +287,7 @@ L'ordre de ce tableau est l'ordre du train.
 | N° | Dossier | Architecture (placeholder) | Histoire | Couleurs propres | Responsable | État |
 |---|---|---|---|---|---|---|
 | 01 | `wagon-01` | Voiture de 3e classe à vapeur (vers 1900) : compartiments ouverts, banquettes en bois face à face, poêle à charbon, toit à lanterneau, lampes suspendues. Voyageurs de face et de dos | Placeholder (Lorem ipsum) | aucune | à définir | placeholder |
-| 02 | `wagon-02` | Voiture-salon Pullman (années 1930) : fauteuils capitonnés face à l'allée, petites tables à lampe, boiseries, rideaux. Voyageurs de côté | Placeholder (Dolor sit amet) | aucune | à définir | placeholder |
+| 02 | `wagon-02` | Voiture-salon de 1re classe d'un train à vapeur (vers 1900) : voûte en acajou à caissons, filets de laiton, fenêtres cintrées à rideaux de velours et lambrequins, appliques et lampes à gaz, fauteuils de velours capitonnés, guéridons à nappe blanche, tapis d'Orient, tableaux au mur du fond. Dehors, la fumée de la locomotive passe devant les fenêtres. Voyageurs de côté, en tenue 1900 (enfant en marin, vieux monsieur à monocle, haut-de-forme, dame à chapeau à plume) | Le Salon à vapeur (pensées en Lorem ipsum) | acajou `#7a3b2e`, acajou sombre `#47212a`, laiton `#c98f3e` | à définir | illustration v1 |
 | 03 | `wagon-03` | Voiture Corail (années 1980) : rangées de sièges orange tournés vers la porte, têtières blanches, néons. Voyageurs de dos, tête au-dessus des dossiers | Placeholder (Consectetur) | aucune | à définir | placeholder |
 | 04 | `wagon-04` | Train du futur : sièges coques le long des parois, plafond arrondi, bandes lumineuses cyan, grandes baies. Voyageurs de côté | Placeholder (Adipiscing elit) | aucune | à définir | placeholder |
 

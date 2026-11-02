@@ -36,6 +36,15 @@ const VITESSE_ECRITURE = 0.025;
 // Respiration des voyageurs : intervalle aléatoire, en secondes
 const RESPIRATION_MIN = 2.5;
 const RESPIRATION_MAX = 5;
+// Fumée de la locomotive : temps pour qu'une bouffée passe du fond du paysage
+// jusqu'aux fenêtres les plus proches, en secondes, et agrandissement atteint à la fin
+const DUREE_FUMEE = 9;
+const ECHELLE_FUMEE = 3;
+// Lampes à gaz : opacité des halos (entre ces deux valeurs) et délai entre deux variations
+const LUEUR_MIN = 0.32;
+const LUEUR_MAX = 0.5;
+const LUEUR_DELAI_MIN = 0.08;
+const LUEUR_DELAI_MAX = 0.35;
 // Sans action pendant ce temps (en secondes), la porte clignote pour montrer où aller
 const DELAI_ATTENTE = 8;
 
@@ -612,6 +621,47 @@ function respirer(image) {
 }
 
 
+// Fumée de la locomotive : dans chaque wagon, les copies du calque wagon__fumee
+// s'agrandissent en boucle depuis le point de fuite, décalées dans le temps
+// pour qu'il y ait toujours des bouffées le long des fenêtres.
+// Chaque bouffée apparaît au loin, puis s'efface avant de sortir de l'écran.
+function lancerFumee() {
+  wagons.forEach((wagon) => {
+    const copies = wagon.querySelectorAll(".wagon__fumee");
+    copies.forEach((copie, i) => {
+      const passage = gsap.timeline({ repeat: -1 })
+        .fromTo(copie, { scale: 1 }, { scale: ECHELLE_FUMEE, duration: DUREE_FUMEE, ease: "power1.in" }, 0)
+        .fromTo(copie, { opacity: 0 }, { opacity: 1, duration: DUREE_FUMEE * 0.2, ease: "steps(3)" }, 0)
+        .to(copie, { opacity: 0, duration: DUREE_FUMEE * 0.3, ease: "steps(3)" }, DUREE_FUMEE * 0.7);
+      passage.progress(i / copies.length);
+    });
+  });
+}
+
+// Fumée immobile quand l'utilisateur préfère moins d'animations : une seule copie, visible.
+function poserFumee() {
+  wagons.forEach((wagon) => {
+    const copie = wagon.querySelector(".wagon__fumee");
+    if (copie) {
+      gsap.set(copie, { scale: 1.6, opacity: 1 });
+    }
+  });
+}
+
+// Flamme des lampes à gaz : l'opacité des halos varie un peu, sans cesse, par paliers.
+// lueur : élément img.wagon__lueur
+function vaciller(lueur) {
+  gsap.to(lueur, {
+    opacity: gsap.utils.random(LUEUR_MIN, LUEUR_MAX),
+    duration: 0.05,
+    ease: "steps(1)",
+    delay: gsap.utils.random(LUEUR_DELAI_MIN, LUEUR_DELAI_MAX),
+    onComplete: vaciller,
+    onCompleteParams: [lueur],
+  });
+}
+
+
 /* ==========================================================
    6. Écouteurs
    ========================================================== */
@@ -690,8 +740,12 @@ ouvrirAccueil();
 lancerPaysage();
 preparerPersonnages();
 
-if (!mouvementReduit) {
+if (mouvementReduit) {
+  poserFumee();
+} else {
   secouer();
   scintiller();
+  lancerFumee();
   document.querySelectorAll(".wagon__personnage").forEach(respirer);
+  document.querySelectorAll(".wagon__lueur").forEach(vaciller);
 }
