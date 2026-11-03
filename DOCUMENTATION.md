@@ -125,7 +125,8 @@ R.308---Multimedia/
     │   │   ├── bulle-queue.png     petites bulles entre le nuage et la tête (7 x 11)
     │   │   └── curseur-oeil.png    curseur sur un personnage (32 x 32)
     │   ├── wagon-01/
-    │   │   ├── interieur.png       parois, sol, plafond, banquettes
+    │   │   ├── interieur.png       parois, sol, plafond (sans les bancs)
+    │   │   ├── banc-d1.png, banc-d1-fond.png ... un banc = 2 calques (face avant, fond), rangs 1 à 4, côtés d et g
     │   │   ├── personnage-01.png   un fichier par personnage
     │   │   └── personnage-02.png   ...
     │   ├── wagon-02/
@@ -204,15 +205,24 @@ Ouvrir `assets/images/wagon-01/interieur.png` dans son logiciel donne tous ces r
 2. `fumee.png` (facultatif, classe `wagon__fumee`) : ce qui passe dehors, propre au wagon
 3. `passage.png` (derrière la porte)
 4. `porte-gauche.png` et `porte-droite.png`
-5. `interieur.png` (avec trous transparents pour les fenêtres et la porte)
+5. `interieur.png` : parois, sol, plafond, avec trous transparents pour les fenêtres et la porte. **Sans aucun banc** : les bancs sont des calques à part
 6. `lueurs.png` (facultatif, classe `wagon__lueur`) : halos des lampes
-7. `personnage-XX.png`, du plus éloigné au plus proche
+7. Les bancs et les personnages, **rang par rang, du plus éloigné au plus proche** (rang 4, puis 3, 2, 1), et dans chaque rang le côté droit (`d`) puis le côté gauche (`g`). Chaque banc a deux calques, dans cet ordre :
+   1. `banc-dN-fond.png` / `banc-gN-fond.png` : dossier, assise et tranche côté allée ;
+   2. `banc-dN.png` / `banc-gN.png` : face avant du banc (la partie brune sous l'assise).
+
+   Les personnages se glissent dans cette pile selon ce qu'on doit voir d'eux :
+   - **tête ou buste seulement** (le reste est caché par le dossier) : le calque est placé juste **avant** le `-fond` du banc ;
+   - **coupé à la taille** : placé **entre** le `-fond` et la face avant, qui cache le bas du corps ;
+   - **en entier, pieds au sol** : placé **après** la face avant, car ses jambes passent devant.
 
 Calques facultatifs d'ambiance, utilisables par tous les wagons (le wagon 02 sert d'exemple) :
 - `wagon__fumee` : dessiné loin dehors, sur les plans du paysage (profondeur 3 à 6). `main.js` l'agrandit en boucle depuis le point de fuite, ce qui fait glisser son contenu le long des fenêtres vers le spectateur. Mettre trois fois la même image dans la section : les copies sont décalées dans le temps pour un défilement continu.
 - `wagon__lueur` : halos tramés (pixels pleins, un sur deux ou un sur quatre) autour des lampes. Le CSS les ajoute à l'image en mode écran (`mix-blend-mode: screen`) et `main.js` fait vaciller leur opacité comme une flamme.
 
-Les personnages sont toujours au-dessus de l'intérieur. Si un siège placé devant un voyageur doit le cacher en partie (banquette en travers, dossier), on dessine le voyageur **déjà découpé** : les pixels cachés par le siège sont transparents dans son calque. Ainsi seule sa partie visible réagit au survol.
+Les personnages sont toujours au-dessus de l'intérieur. Comme les bancs sont des calques séparés, c'est **l'ordre des calques** qui cache une partie d'un voyageur (dossier, face avant du banc, rang de devant) : on dessine donc le voyageur **en entier**, sans le découper à la main. Le survol reste précis, car seuls les pixels visibles du calque comptent.
+
+Rangs et échelle : les rangs sont numérotés du plus proche (1) au plus éloigné (4). Plus un rang est loin, plus ses bancs sont petits et proches de la porte (échelles 0,86 / 0,76 / 0,68 / 0,61). Les sièges regardent tous le spectateur : on voit les voyageurs de face, et ceux des rangs arrière dépassent au-dessus de ceux de devant.
 
 ### Palette
 
