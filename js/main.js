@@ -52,7 +52,7 @@ const DELAI_ATTENTE = 8;
 const TOLERANCE_OBSERVER = 10;
 
 // Pensées : espace entre le haut de la tête et la pointe de la bulle, en pixels source
-const ECART_BULLE = 6;
+const ECART_BULLE = 8;
 // Amplitude des secousses (train et porte verrouillée), en pixels source
 const PAS_SECOUSSE = 2;
 // Au-delà de cette distance (en pixels écran), un appui est un glissé et pas un clic ou un tap
@@ -77,6 +77,7 @@ const fondu = document.querySelector(".fondu");
 const indicateurNumero = document.querySelector(".indicateur__numero");
 const indicateurNom = document.querySelector(".indicateur__nom");
 const boutonArriere = document.querySelector(".bouton-arriere");
+const boutonAvant = document.querySelector(".bouton-avant");
 const bulle = document.querySelector(".pensee");
 const bulleTexte = document.querySelector(".pensee__texte");
 const cadrePorte = document.querySelector(".cadre-porte");
@@ -154,7 +155,7 @@ function creerTrain() {
   });
 }
 
-// Met à jour l'indicateur (petit train et texte) et l'état du bouton Arrière.
+// Met à jour l'indicateur (petit train et texte) et l'état des boutons Arrière et Suivant.
 function mettreAJourInterface() {
   [...indicateurTrain.children].forEach((petitWagon, i) => {
     petitWagon.classList.toggle("indicateur__wagon--passe", i < wagonActuel);
@@ -163,6 +164,7 @@ function mettreAJourInterface() {
   indicateurNumero.textContent = `${formaterNumero(wagonActuel + 1)} / ${formaterNumero(wagons.length)}`;
   indicateurNom.textContent = wagons[wagonActuel].dataset.titre;
   boutonArriere.disabled = wagonActuel === 0;
+  boutonAvant.disabled = wagonActuel === wagons.length - 1;
 }
 
 // Affiche uniquement le wagon demandé et referme ses portes.
@@ -399,6 +401,8 @@ function afficherPensee(image) {
     personnageAffiche.classList.remove("wagon__personnage--survole");
   }
   image.classList.add("wagon__personnage--survole");
+  // Les autres voyageurs du wagon passent en retrait (voir .wagon--lecture dans style.css)
+  image.closest(".wagon").classList.add("wagon--lecture");
   personnageAffiche = image;
 
   const { ancre } = donneesPersonnages.get(image);
@@ -463,6 +467,7 @@ function masquerPensee() {
     return;
   }
   personnageAffiche.classList.remove("wagon__personnage--survole");
+  personnageAffiche.closest(".wagon").classList.remove("wagon--lecture");
   personnageAffiche = null;
   gsap.killTweensOf(bulle);
   gsap.to(bulle, { autoAlpha: 0, duration: 0.1, ease: "steps(2)" });
@@ -578,14 +583,14 @@ function fermerAccueil() {
   accueilOuvert = false;
   clignotementInvite.kill();
   gsap.to(accueil, { autoAlpha: 0, duration: adapterDuree(0.4), ease: "steps(4)" });
-  gsap.to([indicateur, boutonArriere], { autoAlpha: 1, duration: adapterDuree(0.4), ease: "steps(4)" });
+  gsap.to([indicateur, boutonArriere, boutonAvant], { autoAlpha: 1, duration: adapterDuree(0.4), ease: "steps(4)" });
   afficherCarton(wagonActuel);
   relancerAttente();
 }
 
 // Prépare l'écran d'accueil : interface cachée, invitation qui clignote, bouton prêt au clavier.
 function ouvrirAccueil() {
-  gsap.set([indicateur, boutonArriere], { autoAlpha: 0 });
+  gsap.set([indicateur, boutonArriere, boutonAvant], { autoAlpha: 0 });
   clignotementInvite = gsap.to(inviteAccueil, { opacity: 0, duration: 0.5, ease: "steps(1)", repeat: -1, yoyo: true });
   boutonAccueil.focus();
 }
@@ -730,8 +735,9 @@ document.addEventListener("keydown", (evenement) => {
 // Écran d'accueil : un clic ou un tap n'importe où le ferme
 accueil.addEventListener("pointerup", fermerAccueil);
 
-// Bouton de retour au wagon précédent
+// Boutons : retour au wagon précédent, passage au suivant (comme la porte du fond)
 boutonArriere.addEventListener("click", wagonPrecedent);
+boutonAvant.addEventListener("click", wagonSuivant);
 
 // Pensées et porte : survol à la souris, clic ou tap
 scene.addEventListener("pointermove", gererSurvol);

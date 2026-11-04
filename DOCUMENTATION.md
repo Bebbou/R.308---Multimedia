@@ -25,6 +25,7 @@ Des personnages sont assis dans le wagon. Selon l'architecture du wagon, on les 
 | Clic ou tap ailleurs, ou touche Échap | La bulle disparaît |
 
 - Une seule bulle à la fois. Elle disparaît pendant les changements de wagon.
+- Pendant qu'une pensée est ouverte, les autres voyageurs du wagon sont légèrement assombris (classe `wagon--lecture` sur la section, filtre `--filtre-retrait` dans le CSS) : l'oeil va directement à celui qu'on lit.
 - La bulle est un nuage pixel art (`assets/images/interface/bulle-cadre.png`, découpé en 9 morceaux par le CSS) relié à la tête par deux petites bulles (`bulle-queue.png`). Elle affiche le prénom du personnage (`data-nom`) puis sa pensée, écrite lettre par lettre.
 - Le survol est détecté au pixel près : seuls les pixels visibles du calque du personnage comptent, pas le rectangle de l'image.
 - La bulle se place au-dessus du pixel le plus haut du personnage (le haut de la tête). Rien à régler : dessiner le personnage suffit.
@@ -43,7 +44,8 @@ Le rendu est en **pixel art 2D**, dans le style de Joaquim (le personnage de Lin
 | Flèche gauche ou flèche haut | Retour au wagon précédent |
 | Clic ou tap sur la porte du fond | Passage au wagon suivant |
 | Survol de la porte à la souris | Cadre lumineux autour de la porte et étiquette « Wagon suivant » (« Fin du train » au dernier wagon) |
-| Bouton "Arrière" à l'écran | Retour au wagon précédent |
+| Bouton "Arrière" à l'écran (en bas à gauche) | Retour au wagon précédent |
+| Bouton "Suivant" à l'écran (en bas à droite) | Passage au wagon suivant (même effet que la porte) |
 
 Passage au wagon suivant : la porte du fond s'ouvre pendant que la vue s'approche d'elle (zoom), l'écran passe au noir, puis le wagon suivant apparaît avec un léger recul.
 Retour : fondu au noir, puis le wagon précédent apparaît.
@@ -52,14 +54,15 @@ Retour : fondu au noir, puis le wagon précédent apparaît.
 ### Accueil et interface
 
 - Au chargement, un écran d'accueil (titre et consignes) couvre la fenêtre, le train roule déjà derrière. Le premier geste (clic, tap, molette, swipe ou touche) le ferme sans changer de wagon.
-- En haut à gauche, l'indicateur montre un petit train (un wagon par `section.wagon`, le wagon actuel allumé en jaune), le numéro et le titre du wagon.
+- En haut à gauche, dans un cartouche blanc à trait noir (lisible sur tous les décors), l'indicateur montre un petit train (un wagon par `section.wagon`, le wagon actuel allumé en jaune), le numéro et le titre du wagon.
 - Signes de vie : chaque voyageur se soulève d'un pixel de temps en temps (respiration). Après 8 s sans action, le cadre de la porte clignote doucement pour montrer où aller (sauf au dernier wagon).
 
 Règles :
 - Une action = un seul wagon, jamais plus.
 - Pendant une animation, les nouvelles actions sont ignorées (pas de file d'attente).
 - Au dernier wagon, la porte est verrouillée : elle tremble légèrement au lieu de s'ouvrir.
-- Au premier wagon, le bouton "Arrière" est désactivé.
+- Au premier wagon, le bouton "Arrière" est désactivé ; au dernier, le bouton "Suivant" l'est aussi.
+- Placement des voyageurs : deux voyageurs côte à côte ne doivent pas se chevaucher de plus de quelques pixels, et personne ne doit cacher la porte du fond (x 288 à 352). Les sprites ne sont jamais redimensionnés : pour gagner de la place à l'écran, on avance la rangée vers la caméra (wagons 01 et 02 : rangée du milieu en profondeur 2,0, rangée de devant en 1,2 à 1,25).
 - Prévu plus tard (pas maintenant) : avancer progressivement dans l'allée, plusieurs crans de molette avant d'atteindre la porte.
 
 ---
@@ -325,7 +328,7 @@ L'ordre de ce tableau est l'ordre du train.
 
 | N° | Dossier | Architecture (placeholder) | Histoire | Couleurs propres | Responsable | État |
 |---|---|---|---|---|---|---|
-| 01 | `wagon-01` | Voiture en bois clair (placeholder) : banquettes en bois toutes tournées vers le spectateur (rangée du milieu, rangée de devant à dossier bas, coupée par le bas de l'écran), poêle à charbon, toit à lanterneau, lampes suspendues. Bancs en calques séparés (`banc-01` à `banc-03`). Les 8 élèves : au milieu Lino, Joaquim, Inas et Erine ; devant Lilian, Raphaël, Liku et Alio | Placeholder (Lorem ipsum), futur wagon MMI | aucune en plus de la palette | à définir | Joaquim et Erine dessinés à la main, les 6 autres provisoires (variantes de Joaquim) |
+| 01 | `wagon-01` | Voiture en bois clair (placeholder) : banquettes en bois toutes tournées vers le spectateur (rangée du milieu, rangée de devant à dossier bas, coupée par le bas de l'écran : on y voit surtout les têtes), poêle à charbon, toit à lanterneau, lampes suspendues. Bancs en calques séparés (`banc-01` à `banc-03`). Les 8 élèves : au milieu Lino, Joaquim, Inas et Erine ; devant Lilian, Raphaël, Liku et Alio | Placeholder (Lorem ipsum), futur wagon MMI | aucune en plus de la palette | à définir | Joaquim et Erine dessinés à la main, les 6 autres provisoires (variantes de Joaquim) |
 | 02 | `wagon-02` | Voiture-salon de 1re classe d'un train à vapeur (vers 1900) : voûte en acajou à caissons, filets de laiton, fenêtres cintrées à rideaux de velours et lambrequins, appliques et lampes à gaz, fauteuils pivotants de velours capitonnés tournés vers le spectateur, guéridons à nappe blanche, tapis d'Orient, tableaux au mur du fond. Dehors, la fumée de la locomotive passe devant les fenêtres. Les 5 professeurs en tenue 1900 : Mr Blanco (melon), Mr Bernard (haut-de-forme, monocle), Mme De velder (chapeau à plume), Mme Pitot (chignon), Mr Gassin (canotier, au premier plan) | Le Salon à vapeur (pensées en Lorem ipsum) | acajou `#7a3b2e`, acajou sombre `#47212a`, laiton `#c98f3e`, velours `#b3263f`, velours prune `#5e1f45` | à définir | illustration v2 (DA Joaquim), professeurs provisoires (variantes de Joaquim) |
 | 03 | `wagon-03` | Voiture Corail (années 1980) : rangées de sièges orange tournés vers la porte, têtières blanches, néons. Voyageurs de dos, tête au-dessus des dossiers | Placeholder (Consectetur) | aucune | à définir | placeholder |
 | 04 | `wagon-04` | Train du futur : sièges coques le long des parois, plafond arrondi, bandes lumineuses cyan, grandes baies. Voyageurs de côté | Placeholder (Adipiscing elit) | aucune | à définir | placeholder |

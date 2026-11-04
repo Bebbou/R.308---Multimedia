@@ -125,7 +125,7 @@
 
   </main>
 
-  <!-- Interface : indicateur du wagon courant et bouton de retour.
+  <!-- Interface : indicateur du wagon courant et boutons Arrière / Suivant.
        Le petit train est rempli par main.js (un wagon dessiné par section.wagon). -->
   <p class="indicateur" aria-live="polite">
     <span class="indicateur__train" aria-hidden="true"></span>
@@ -133,16 +133,18 @@
     <span class="indicateur__nom"></span>
   </p>
 
-  <button class="bouton-arriere" type="button">Arrière</button>
+  <button class="bouton bouton-arriere" type="button">Arrière</button>
+  <!-- Même action que la porte du fond, pour ceux qui ne pensent pas à cliquer dessus -->
+  <button class="bouton bouton-avant" type="button">Suivant</button>
 
   <!-- Écran d'accueil : titre et consignes sur toute la fenêtre, disparaît à la première action -->
   <div class="accueil">
     <div class="accueil__contenu">
       <h1 class="accueil__titre">Le Train des Époques</h1>
       <ul class="accueil__consignes">
-        <li><span class="accueil__geste">Molette, glisser ou flèches</span> avancer d'un wagon</li>
         <li><span class="accueil__geste">Survoler ou toucher un voyageur</span> lire sa pensée</li>
-        <li><span class="accueil__geste">Porte du fond</span> passer au wagon suivant</li>
+        <li><span class="accueil__geste">Porte du fond ou bouton Suivant</span> wagon suivant</li>
+        <li><span class="accueil__geste">Flèches, molette ou glisser</span> se déplacer</li>
       </ul>
       <button class="accueil__bouton" type="button">Monter à bord</button>
       <p class="accueil__invite">ou appuie n'importe où</p>
