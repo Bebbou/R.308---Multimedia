@@ -31,19 +31,30 @@
       </div>
 
       <!-- Wagons : calques empilés de l'arrière vers l'avant, un seul wagon visible à la fois -->
+      <!-- Wagon 01 : les élèves, tous tournés vers le spectateur.
+           Les bancs sont des calques séparés (banc-01 au fond, banc-02 au milieu, banc-03 devant) :
+           les voyageurs d'une rangée se placent juste après le calque de leur banc.
+           Pensées provisoires (Lorem ipsum) en attendant les vraies. -->
       <section class="wagon" data-titre="Lorem ipsum">
         <img class="wagon__calque" src="assets/images/commun/passage.png" alt="">
         <img class="wagon__calque wagon__porte wagon__porte--gauche" src="assets/images/commun/porte-gauche.png" alt="">
         <img class="wagon__calque wagon__porte wagon__porte--droite" src="assets/images/commun/porte-droite.png" alt="">
-        <img class="wagon__calque" src="assets/images/wagon-01/interieur.png" alt="Intérieur du wagon, banquettes en bois face à face">
-        <img class="wagon__calque" src="assets/images/wagon-01/banc-02.png" alt="">
+        <img class="wagon__calque" src="assets/images/wagon-01/interieur.png" alt="Intérieur d'une voiture en bois, banquettes tournées vers le spectateur">
         <img class="wagon__calque" src="assets/images/wagon-01/banc-01.png" alt="">
-        <img class="wagon__calque" src="assets/images/wagon-01/banc-03.png" alt="">
-        <img class="wagon__calque wagon__personnage" src="assets/images/wagon-01/personnage-01.png" alt="Vieux monsieur assis de dos" data-nom="Margot" data-pensee="Lorem ipsum dolor sit amet, consectetur adipiscing elit.">
-        <img class="wagon__calque wagon__personnage" src="assets/images/wagon-01/personnage-02.png" alt="Voyageuse aux cheveux violets, assise de face" data-nom="Jules" data-pensee="Sed do eiusmod tempor incididunt ut labore.">
+        <img class="wagon__calque" src="assets/images/wagon-01/banc-02.png" alt="">
+        <!-- Rangée du milieu -->
+        <img class="wagon__calque wagon__personnage" src="assets/images/wagon-01/personnage-01.png" alt="Lino, assis sur la banquette (personnage provisoire)" data-nom="Lino" data-pensee="Lorem ipsum dolor sit amet, consectetur adipiscing elit.">
         <!-- Joaquim : sprite dessiné par Lino, posé tel quel (sans retouche ni mise à l'échelle) -->
-        <img class="wagon__calque wagon__personnage" src="assets/images/wagon-01/personnage-03.png" alt="Joaquim, assis sur la banquette, un livre bleu sur les genoux" data-nom="Joaquim" data-pensee="Ut enim ad minim veniam, quis nostrud.">
-        <img class="wagon__calque wagon__personnage" src="assets/images/wagon-01/personnage-04.png" alt="Voyageur assis de dos" data-nom="Paul" data-pensee="Duis aute irure dolor in reprehenderit.">
+        <img class="wagon__calque wagon__personnage" src="assets/images/wagon-01/personnage-02.png" alt="Joaquim, assis sur la banquette, un livre bleu sur les genoux" data-nom="Joaquim" data-pensee="Ut enim ad minim veniam, quis nostrud.">
+        <img class="wagon__calque wagon__personnage" src="assets/images/wagon-01/personnage-03.png" alt="Inas, assis sur la banquette (personnage provisoire)" data-nom="Inas" data-pensee="Sed do eiusmod tempor incididunt ut labore.">
+        <!-- Erine : sprite dessiné par Inas, posé tel quel. Elle ne parle qu'en PHP (bulle de code) -->
+        <img class="wagon__calque wagon__personnage" src="assets/images/wagon-01/personnage-04.png" alt="Erine, longs cheveux bruns, pull bleu marine, assise sur la banquette" data-nom="Erine" data-langage="php" data-pensee="<?php echo &quot;Lorem ipsum dolor sit amet&quot;; ?>">
+        <img class="wagon__calque" src="assets/images/wagon-01/banc-03.png" alt="">
+        <!-- Rangée de devant, coupée par le bas de l'écran -->
+        <img class="wagon__calque wagon__personnage" src="assets/images/wagon-01/personnage-05.png" alt="Lilian, assis sur la banquette (personnage provisoire)" data-nom="Lilian" data-pensee="Duis aute irure dolor in reprehenderit.">
+        <img class="wagon__calque wagon__personnage" src="assets/images/wagon-01/personnage-06.png" alt="Raphaël, assis sur la banquette (personnage provisoire)" data-nom="Raphaël" data-pensee="Excepteur sint occaecat cupidatat non proident.">
+        <img class="wagon__calque wagon__personnage" src="assets/images/wagon-01/personnage-07.png" alt="Liku, assis sur la banquette (personnage provisoire)" data-nom="Liku" data-pensee="Nemo enim ipsam voluptatem quia voluptas sit.">
+        <img class="wagon__calque wagon__personnage" src="assets/images/wagon-01/personnage-08.png" alt="Alio, assis sur la banquette (personnage provisoire)" data-nom="Alio" data-pensee="Quis autem vel eum iure reprehenderit.">
       </section>
 
       <!-- Wagon 02 : voiture-salon de 1re classe d'un train à vapeur (vers 1900).
@@ -58,10 +69,13 @@
         <img class="wagon__calque wagon__porte wagon__porte--droite" src="assets/images/commun/porte-droite.png" alt="">
         <img class="wagon__calque" src="assets/images/wagon-02/interieur.png" alt="Voiture-salon de luxe d'un train à vapeur : boiseries d'acajou, fauteuils de velours rouge, lampes à gaz">
         <img class="wagon__calque wagon__lueur" src="assets/images/wagon-02/lueurs.png" alt="">
-        <img class="wagon__calque wagon__personnage" src="assets/images/wagon-02/personnage-01.png" alt="Monsieur en haut-de-forme" data-nom="Max" data-pensee="Quis autem vel eum iure reprehenderit.">
-        <img class="wagon__calque wagon__personnage" src="assets/images/wagon-02/personnage-02.png" alt="Dame au grand chapeau à plume" data-nom="Rose" data-pensee="Neque porro quisquam est, qui dolorem ipsum.">
-        <img class="wagon__calque wagon__personnage" src="assets/images/wagon-02/personnage-03.png" alt="Enfant en costume marin" data-nom="Lucie" data-pensee="Excepteur sint occaecat cupidatat non proident.">
-        <img class="wagon__calque wagon__personnage" src="assets/images/wagon-02/personnage-04.png" alt="Vieux monsieur à canne et monocle" data-nom="Hugo" data-pensee="Nemo enim ipsam voluptatem quia voluptas sit.">
+        <!-- Les professeurs, en tenues de 1900, dans des fauteuils pivotants tournés vers le spectateur.
+             Pensées provisoires (Lorem ipsum) en attendant les vraies. -->
+        <img class="wagon__calque wagon__personnage" src="assets/images/wagon-02/personnage-01.png" alt="Mr Blanco, chapeau melon et noeud papillon rouge, dans un fauteuil de velours" data-nom="Mr Blanco" data-pensee="Quis autem vel eum iure reprehenderit.">
+        <img class="wagon__calque wagon__personnage" src="assets/images/wagon-02/personnage-02.png" alt="Mr Bernard, haut-de-forme et monocle, un journal sur les genoux" data-nom="Mr Bernard" data-pensee="Neque porro quisquam est, qui dolorem ipsum.">
+        <img class="wagon__calque wagon__personnage" src="assets/images/wagon-02/personnage-03.png" alt="Mme De velder, grand chapeau à plume et robe turquoise" data-nom="Mme De velder" data-pensee="Excepteur sint occaecat cupidatat non proident.">
+        <img class="wagon__calque wagon__personnage" src="assets/images/wagon-02/personnage-04.png" alt="Mme Pitot, chignon et robe violette à col montant" data-nom="Mme Pitot" data-pensee="Nemo enim ipsam voluptatem quia voluptas sit.">
+        <img class="wagon__calque wagon__personnage" src="assets/images/wagon-02/personnage-05.png" alt="Mr Gassin, canotier de paille et veste bleu marine, au premier plan" data-nom="Mr Gassin" data-pensee="Ut enim ad minima veniam, quis nostrum.">
       </section>
 
       <section class="wagon" data-titre="Consectetur">

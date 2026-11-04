@@ -287,11 +287,25 @@ function porteVerrouillee(portes) {
 }
 
 
+// Calques de décor placés après ce personnage dans son wagon (bancs de devant, par exemple) :
+// ils sont dessinés par-dessus lui et cachent une partie de son corps.
+// Les calques d'ambiance (lueurs, fumée) sont transparents à l'oeil et ne comptent pas.
+// image : élément img.wagon__personnage
+function calquesDevant(image) {
+  const calques = [...image.closest(".wagon").querySelectorAll(".wagon__calque")];
+  return calques
+    .slice(calques.indexOf(image) + 1)
+    .filter((calque) => !calque.matches(".wagon__personnage, .wagon__lueur, .wagon__fumee"));
+}
+
 // Lit les pixels d'une image de personnage : quels pixels sont visibles,
 // et où se trouve le haut de sa tête (ancrage de la bulle).
+// Le personnage est dessiné en entier : les pixels cachés par un calque de décor posé
+// devant lui (un banc) sont retirés, pour que seul ce qu'on voit de lui réagisse au survol.
 // image : élément img.wagon__personnage
 async function analyserPersonnage(image) {
-  await image.decode();
+  const devant = calquesDevant(image);
+  await Promise.all([image, ...devant].map((calque) => calque.decode()));
 
   // On dessine l'image en taille réelle (640 x 360) dans un canvas invisible
   const toile = document.createElement("canvas");
@@ -299,6 +313,9 @@ async function analyserPersonnage(image) {
   toile.height = TOILE_HAUTEUR;
   const contexte = toile.getContext("2d");
   contexte.drawImage(image, 0, 0, TOILE_LARGEUR, TOILE_HAUTEUR);
+  // "destination-out" efface du personnage tout ce que les calques de devant recouvrent
+  contexte.globalCompositeOperation = "destination-out";
+  devant.forEach((calque) => contexte.drawImage(calque, 0, 0, TOILE_LARGEUR, TOILE_HAUTEUR));
   const pixels = contexte.getImageData(0, 0, TOILE_LARGEUR, TOILE_HAUTEUR).data;
 
   // Un pixel est visible si son canal alpha (4e valeur) n'est pas nul
@@ -389,6 +406,8 @@ function afficherPensee(image) {
   const presBordGauche = positionX < ZONE_BORD;
   const presBordDroit = positionX > 1 - ZONE_BORD;
   bulleNom.textContent = image.dataset.nom;
+  // Un voyageur qui « parle » en code (data-langage, ex. Erine en PHP) a une bulle de code
+  bulle.classList.toggle("pensee--code", Boolean(image.dataset.langage));
   ecrirePensee(image.dataset.pensee);
 
   // Près d'un bord, la bulle s'aligne sur la tête au lieu d'être centrée
