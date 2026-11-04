@@ -31,36 +31,37 @@
       </div>
 
       <!-- Wagons : calques empilés de l'arrière vers l'avant, un seul wagon visible à la fois -->
-      <!-- Wagon 01 : les élèves, tous tournés vers le spectateur.
-           Les bancs sont des calques séparés (banc-01 au fond, banc-02 au milieu, banc-03 devant) :
-           les voyageurs d'une rangée se placent juste après le calque de leur banc.
+      <!-- Wagon 01 : un TER d'aujourd'hui (inspiré des trains liO), les élèves tous tournés vers le spectateur.
+           On est debout au milieu de la voiture : dans cette moitié, les sièges regardent vers nous.
+           Chaque rangée de sièges est un calque séparé (banc-01 au fond, banc-02 au milieu, banc-03 devant) :
+           les voyageurs d'une rangée se placent juste après le calque de leurs sièges.
            Pensées provisoires (Lorem ipsum) en attendant les vraies. -->
-      <section class="wagon" data-titre="Lorem ipsum">
+      <section class="wagon" data-titre="Lorem ipsum" data-ambiance="led">
         <img class="wagon__calque" src="assets/images/commun/passage.png" alt="">
         <img class="wagon__calque wagon__porte wagon__porte--gauche" src="assets/images/commun/porte-gauche.png" alt="">
         <img class="wagon__calque wagon__porte wagon__porte--droite" src="assets/images/commun/porte-droite.png" alt="">
-        <img class="wagon__calque" src="assets/images/wagon-01/interieur.png" alt="Intérieur d'une voiture en bois, banquettes tournées vers le spectateur">
+        <img class="wagon__calque" src="assets/images/wagon-01/interieur.png" alt="Intérieur d'un TER moderne : grandes fenêtres, sièges bleus à appuie-tête rouges tournés vers le spectateur">
         <img class="wagon__calque" src="assets/images/wagon-01/banc-01.png" alt="">
         <img class="wagon__calque" src="assets/images/wagon-01/banc-02.png" alt="">
         <!-- Rangée du milieu -->
-        <img class="wagon__calque wagon__personnage" src="assets/images/wagon-01/personnage-01.png" alt="Lino, assis sur la banquette (personnage provisoire)" data-nom="Lino" data-pensee="Lorem ipsum dolor sit amet, consectetur adipiscing elit.">
+        <img class="wagon__calque wagon__personnage" src="assets/images/wagon-01/personnage-01.png" alt="Lino, assis dans son siège (personnage provisoire)" data-nom="Lino" data-pensee="Lorem ipsum dolor sit amet, consectetur adipiscing elit.">
         <!-- Joaquim : sprite dessiné par Lino, posé tel quel (sans retouche ni mise à l'échelle) -->
-        <img class="wagon__calque wagon__personnage" src="assets/images/wagon-01/personnage-02.png" alt="Joaquim, assis sur la banquette, un livre bleu sur les genoux" data-nom="Joaquim" data-pensee="Ut enim ad minim veniam, quis nostrud.">
-        <img class="wagon__calque wagon__personnage" src="assets/images/wagon-01/personnage-03.png" alt="Inas, assis sur la banquette (personnage provisoire)" data-nom="Inas" data-pensee="Sed do eiusmod tempor incididunt ut labore.">
+        <img class="wagon__calque wagon__personnage" src="assets/images/wagon-01/personnage-02.png" alt="Joaquim, assis dans son siège, un livre bleu sur les genoux" data-nom="Joaquim" data-pensee="Ut enim ad minim veniam, quis nostrud.">
+        <img class="wagon__calque wagon__personnage" src="assets/images/wagon-01/personnage-03.png" alt="Inas, assis dans son siège (personnage provisoire)" data-nom="Inas" data-pensee="Sed do eiusmod tempor incididunt ut labore.">
         <!-- Erine : sprite dessiné par Inas, posé tel quel. Elle ne parle qu'en PHP (bulle de code) -->
-        <img class="wagon__calque wagon__personnage" src="assets/images/wagon-01/personnage-04.png" alt="Erine, longs cheveux bruns, pull bleu marine, assise sur la banquette" data-nom="Erine" data-langage="php" data-pensee="<?php echo &quot;Lorem ipsum dolor sit amet&quot;; ?>">
+        <img class="wagon__calque wagon__personnage" src="assets/images/wagon-01/personnage-04.png" alt="Erine, longs cheveux bruns, pull bleu marine, assise dans son siège" data-nom="Erine" data-langage="php" data-pensee="<?php echo &quot;Lorem ipsum dolor sit amet&quot;; ?>">
         <img class="wagon__calque" src="assets/images/wagon-01/banc-03.png" alt="">
         <!-- Rangée de devant, coupée par le bas de l'écran -->
-        <img class="wagon__calque wagon__personnage" src="assets/images/wagon-01/personnage-05.png" alt="Lilian, assis sur la banquette (personnage provisoire)" data-nom="Lilian" data-pensee="Duis aute irure dolor in reprehenderit.">
-        <img class="wagon__calque wagon__personnage" src="assets/images/wagon-01/personnage-06.png" alt="Raphaël, assis sur la banquette (personnage provisoire)" data-nom="Raphaël" data-pensee="Excepteur sint occaecat cupidatat non proident.">
-        <img class="wagon__calque wagon__personnage" src="assets/images/wagon-01/personnage-07.png" alt="Liku, assis sur la banquette (personnage provisoire)" data-nom="Liku" data-pensee="Nemo enim ipsam voluptatem quia voluptas sit.">
-        <img class="wagon__calque wagon__personnage" src="assets/images/wagon-01/personnage-08.png" alt="Alio, assis sur la banquette (personnage provisoire)" data-nom="Alio" data-pensee="Quis autem vel eum iure reprehenderit.">
+        <img class="wagon__calque wagon__personnage" src="assets/images/wagon-01/personnage-05.png" alt="Lilian, assis dans son siège (personnage provisoire)" data-nom="Lilian" data-pensee="Duis aute irure dolor in reprehenderit.">
+        <img class="wagon__calque wagon__personnage" src="assets/images/wagon-01/personnage-06.png" alt="Raphaël, assis dans son siège (personnage provisoire)" data-nom="Raphaël" data-pensee="Excepteur sint occaecat cupidatat non proident.">
+        <img class="wagon__calque wagon__personnage" src="assets/images/wagon-01/personnage-07.png" alt="Liku, assis dans son siège (personnage provisoire)" data-nom="Liku" data-pensee="Nemo enim ipsam voluptatem quia voluptas sit.">
+        <img class="wagon__calque wagon__personnage" src="assets/images/wagon-01/personnage-08.png" alt="Alio, assis dans son siège (personnage provisoire)" data-nom="Alio" data-pensee="Quis autem vel eum iure reprehenderit.">
       </section>
 
       <!-- Wagon 02 : voiture-salon de 1re classe d'un train à vapeur (vers 1900).
            Trois copies de la fumée, décalées dans le temps par main.js, pour un défilement continu.
            Les lueurs des lampes sont posées sur l'intérieur, sous les voyageurs. -->
-      <section class="wagon" data-titre="Le Salon à vapeur">
+      <section class="wagon" data-titre="Le Salon à vapeur" data-ambiance="gaz">
         <img class="wagon__calque wagon__fumee" src="assets/images/wagon-02/fumee.png" alt="">
         <img class="wagon__calque wagon__fumee" src="assets/images/wagon-02/fumee.png" alt="">
         <img class="wagon__calque wagon__fumee" src="assets/images/wagon-02/fumee.png" alt="">

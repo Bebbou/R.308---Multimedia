@@ -175,6 +175,8 @@ function afficherWagon(index) {
   });
   const portes = trouverPortes(wagons[index]);
   gsap.set([portes.gauche, portes.droite], { xPercent: 0 });
+  // Lumière du wagon (voir .scene[data-ambiance] dans style.css)
+  scene.dataset.ambiance = wagons[index].dataset.ambiance || "";
   // Annule le zoom du trajet précédent
   gsap.set(decor, { scale: 1 });
   wagonActuel = index;
@@ -628,8 +630,14 @@ function secouer() {
 }
 
 // Scintillement bref et irrégulier de la lumière, puis on reprogramme le suivant.
+// Les LED d'un train d'aujourd'hui ne scintillent pas : rien dans un wagon data-ambiance="led".
 function scintiller() {
-  gsap.timeline({ onComplete: scintiller, delay: gsap.utils.random(SCINTILLEMENT_MIN, SCINTILLEMENT_MAX) })
+  const delai = gsap.utils.random(SCINTILLEMENT_MIN, SCINTILLEMENT_MAX);
+  if (scene.dataset.ambiance === "led") {
+    gsap.delayedCall(delai, scintiller);
+    return;
+  }
+  gsap.timeline({ onComplete: scintiller, delay: delai })
     .to(lumiere, { opacity: 0.4, duration: 0.06, ease: "steps(1)" })
     .to(lumiere, { opacity: 1, duration: 0.06, ease: "steps(1)" })
     .to(lumiere, { opacity: 0.6, duration: 0.05, ease: "steps(1)" })

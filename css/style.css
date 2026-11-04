@@ -270,12 +270,27 @@ img {
   opacity: 0;
 }
 
-/* Lumière d'ambiance : reflet chaud et bords légèrement assombris */
+/* Lumière propre à chaque wagon (data-ambiance sur la section, recopié sur la scène par main.js).
+   LED d'un TER : lumière blanche froide qui tombe du plafond et jour qui entre par les fenêtres,
+   sans scintillement. Lampes à gaz (vers 1900) : lumière chaude. */
+.scene[data-ambiance="led"] {
+  --couleur-lumiere: rgba(235, 245, 255, 0.16);
+  --couleur-jour: rgba(255, 255, 240, 0.10);
+  --couleur-vignette: rgba(27, 26, 38, 0.15);
+}
+
+.scene[data-ambiance="gaz"] {
+  --couleur-lumiere: rgba(255, 190, 100, 0.10);
+}
+
+/* Lumière d'ambiance : reflet venu du plafond, jour des fenêtres sur les côtés (si défini),
+   bords légèrement assombris */
 .lumiere {
   position: absolute;
   inset: 0;
   background:
     radial-gradient(ellipse at 50% 0%, var(--couleur-lumiere), transparent 60%),
+    linear-gradient(90deg, var(--couleur-jour, transparent), transparent 30%, transparent 70%, var(--couleur-jour, transparent)),
     radial-gradient(ellipse at 50% 50%, transparent 60%, var(--couleur-vignette));
   pointer-events: none;
 }
