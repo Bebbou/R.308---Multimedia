@@ -416,7 +416,7 @@ img {
 
 
 /* ==========================================================
-   7. Interface (indicateur, bouton Arrière)
+   7. Interface (indicateur, boutons Arrière, Suivant et Son)
    ========================================================== */
 
 /* Cartouche blanc à trait noir (comme les boutons) : il reste lisible
@@ -523,6 +523,13 @@ img {
 }
 
 .bouton-avant {
+  right: var(--marge-interface);
+}
+
+/* Bouton Son : en haut à droite, face à l'indicateur */
+.bouton-son {
+  top: var(--marge-interface);
+  bottom: auto;
   right: var(--marge-interface);
 }
 
@@ -720,5 +727,10 @@ img {
   .bouton {
     font-size: 0.8rem;
     padding: 0.5rem 0.8rem;
+  }
+
+  /* À côté de l'indicateur, il cacherait son titre : il descend juste en dessous */
+  .bouton-son {
+    top: calc(var(--marge-interface) + 3.5rem);
   }
 }

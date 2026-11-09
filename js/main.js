@@ -48,6 +48,18 @@ const LUEUR_DELAI_MAX = 0.35;
 // Sans action pendant ce temps (en secondes), la porte clignote pour montrer où aller
 const DELAI_ATTENTE = 8;
 
+// Sons (Howler) : volumes de 0 à 1, et temps de fondu entre deux ambiances, en secondes.
+// L'ambiance de chaque wagon est donnée dans le HTML (data-son sur la section).
+const VOLUME_AMBIANCE = 0.5;
+const VOLUME_EFFETS = 0.6;
+const DUREE_FONDU_SON = 1.2;
+// Bruitages communs à tous les wagons
+const SONS_EFFETS = {
+  porte: "assets/sons/porte.wav",
+  porteVerrouillee: "assets/sons/porte-verrouillee.wav",
+  bulle: "assets/sons/bulle.wav",
+};
+
 // Distance minimale (en pixels) avant qu'Observer considère un geste
 const TOLERANCE_OBSERVER = 10;
 
@@ -78,6 +90,7 @@ const indicateurNumero = document.querySelector(".indicateur__numero");
 const indicateurNom = document.querySelector(".indicateur__nom");
 const boutonArriere = document.querySelector(".bouton-arriere");
 const boutonAvant = document.querySelector(".bouton-avant");
+const boutonSon = document.querySelector(".bouton-son");
 const bulle = document.querySelector(".pensee");
 const bulleTexte = document.querySelector(".pensee__texte");
 const cadrePorte = document.querySelector(".cadre-porte");
@@ -120,6 +133,14 @@ let apparitionCarton = null;
 let clignotementInvite = null;
 let minuterieAttente = null;
 let appelPorte = null;
+
+// Sons : une ambiance en boucle par wagon (null si le wagon n'en a pas), et les bruitages
+const ambiances = [];
+const effets = {};
+// Ambiance en train de jouer (null si aucune)
+let ambianceActuelle = null;
+// Vrai quand l'utilisateur a coupé le son
+let sonCoupe = false;
 
 
 /* ==========================================================
@@ -179,6 +200,10 @@ function afficherWagon(index) {
   scene.dataset.ambiance = wagons[index].dataset.ambiance || "";
   // Annule le zoom du trajet précédent
   gsap.set(decor, { scale: 1 });
+  // Le son ne démarre qu'après l'écran d'accueil (le navigateur bloque le son avant un geste)
+  if (!accueilOuvert) {
+    changerAmbiance(index);
+  }
   wagonActuel = index;
   mettreAJourInterface();
 }
@@ -254,6 +279,7 @@ function wagonSuivant() {
   // Déplacement d'un battant, en pourcentage de la largeur du calque
   const ouverture = (LARGEUR_BATTANT / TOILE_LARGEUR) * 100;
   const trajet = creerTrajet();
+  jouerEffet("porte");
 
   // Les battants glissent pixel par pixel dans la paroi
   trajet
@@ -284,6 +310,7 @@ function wagonPrecedent() {
 function porteVerrouillee(portes) {
   const unPixel = (PAS_SECOUSSE / TOILE_LARGEUR) * 100;
   const trajet = creerTrajet();
+  jouerEffet("porteVerrouillee");
   trajet
     .to([portes.gauche, portes.droite], { xPercent: -unPixel, duration: 0.05, ease: "steps(1)" })
     .to([portes.gauche, portes.droite], { xPercent: unPixel, duration: 0.05, ease: "steps(1)", repeat: 3, yoyo: true })
@@ -406,6 +433,7 @@ function afficherPensee(image) {
   // Les autres voyageurs du wagon passent en retrait (voir .wagon--lecture dans style.css)
   image.closest(".wagon").classList.add("wagon--lecture");
   personnageAffiche = image;
+  jouerEffet("bulle");
 
   const { ancre } = donneesPersonnages.get(image);
   const positionX = ancre.x / TOILE_LARGEUR;
@@ -585,16 +613,72 @@ function fermerAccueil() {
   accueilOuvert = false;
   clignotementInvite.kill();
   gsap.to(accueil, { autoAlpha: 0, duration: adapterDuree(0.4), ease: "steps(4)" });
-  gsap.to([indicateur, boutonArriere, boutonAvant], { autoAlpha: 1, duration: adapterDuree(0.4), ease: "steps(4)" });
+  gsap.to([indicateur, boutonArriere, boutonAvant, boutonSon], { autoAlpha: 1, duration: adapterDuree(0.4), ease: "steps(4)" });
+  // Premier geste de l'utilisateur : le navigateur autorise enfin le son
+  changerAmbiance(wagonActuel);
   afficherCarton(wagonActuel);
   relancerAttente();
 }
 
 // Prépare l'écran d'accueil : interface cachée, invitation qui clignote, bouton prêt au clavier.
 function ouvrirAccueil() {
-  gsap.set([indicateur, boutonArriere, boutonAvant], { autoAlpha: 0 });
+  gsap.set([indicateur, boutonArriere, boutonAvant, boutonSon], { autoAlpha: 0 });
   clignotementInvite = gsap.to(inviteAccueil, { opacity: 0, duration: 0.5, ease: "steps(1)", repeat: -1, yoyo: true });
   boutonAccueil.focus();
+}
+
+
+// Crée les sons avec Howler : l'ambiance de chaque wagon (data-son, jouée en boucle)
+// et les bruitages communs (SONS_EFFETS). Rien ne joue encore.
+function preparerSons() {
+  wagons.forEach((wagon) => {
+    const fichier = wagon.dataset.son;
+    ambiances.push(fichier ? new Howl({ src: [fichier], loop: true, volume: 0 }) : null);
+  });
+  Object.entries(SONS_EFFETS).forEach(([nom, fichier]) => {
+    effets[nom] = new Howl({ src: [fichier], volume: VOLUME_EFFETS });
+  });
+}
+
+// Passe en fondu de l'ambiance du wagon quitté à celle du wagon demandé.
+// L'ancienne est mise en pause à la fin de son fondu, sauf si on y est revenu entre-temps.
+// index : numéro du wagon (0 = premier wagon)
+function changerAmbiance(index) {
+  const nouvelle = ambiances[index];
+  const ancienne = ambianceActuelle;
+  if (nouvelle === ancienne) {
+    return;
+  }
+  const duree = DUREE_FONDU_SON * 1000;
+  if (ancienne) {
+    ancienne.fade(ancienne.volume(), 0, duree);
+    ancienne.once("fade", () => {
+      if (ancienne !== ambianceActuelle) {
+        ancienne.pause();
+      }
+    });
+  }
+  if (nouvelle) {
+    if (!nouvelle.playing()) {
+      nouvelle.play();
+    }
+    nouvelle.fade(nouvelle.volume(), VOLUME_AMBIANCE, duree);
+  }
+  ambianceActuelle = nouvelle;
+}
+
+// Joue un bruitage une fois.
+// nom : clé de SONS_EFFETS ("porte", "porteVerrouillee" ou "bulle")
+function jouerEffet(nom) {
+  effets[nom].play();
+}
+
+// Coupe ou remet tout le son (bouton Son et touche M).
+function basculerSon() {
+  sonCoupe = !sonCoupe;
+  Howler.mute(sonCoupe);
+  boutonSon.textContent = sonCoupe ? "Son : non" : "Son : oui";
+  boutonSon.setAttribute("aria-pressed", String(!sonCoupe));
 }
 
 
@@ -737,6 +821,8 @@ document.addEventListener("keydown", (evenement) => {
     wagonPrecedent();
   } else if (evenement.key === "Escape") {
     masquerPensee();
+  } else if (evenement.key === "m" || evenement.key === "M") {
+    basculerSon();
   }
 });
 
@@ -746,6 +832,8 @@ accueil.addEventListener("pointerup", fermerAccueil);
 // Boutons : retour au wagon précédent, passage au suivant (comme la porte du fond)
 boutonArriere.addEventListener("click", wagonPrecedent);
 boutonAvant.addEventListener("click", wagonSuivant);
+// Bouton Son : coupe ou remet le son
+boutonSon.addEventListener("click", basculerSon);
 
 // Pensées et porte : survol à la souris, clic ou tap
 scene.addEventListener("pointermove", gererSurvol);
@@ -770,6 +858,7 @@ scene.addEventListener("pointerup", gererAppui);
    ========================================================== */
 
 creerTrain();
+preparerSons();
 afficherWagon(0);
 ouvrirAccueil();
 lancerPaysage();
