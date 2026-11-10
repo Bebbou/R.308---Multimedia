@@ -272,7 +272,7 @@ img {
 
 /* Lumière propre à chaque wagon (data-ambiance sur la section, recopié sur la scène par main.js).
    LED d'un TER : lumière blanche froide qui tombe du plafond et jour qui entre par les fenêtres,
-   sans scintillement. Lampes à gaz (vers 1900) : lumière chaude. */
+   sans scintillement. Lampes à gaz (vers 1900) : lumière chaude. Lanternes et néons : voir plus bas. */
 .scene[data-ambiance="led"] {
   --couleur-lumiere: rgba(235, 245, 255, 0.16);
   --couleur-jour: rgba(255, 255, 240, 0.10);
@@ -281,6 +281,20 @@ img {
 
 .scene[data-ambiance="gaz"] {
   --couleur-lumiere: rgba(255, 190, 100, 0.10);
+}
+
+/* Lanternes de papier du wagon 03 : lumière dorée, bords un peu verts (la forêt) */
+.scene[data-ambiance="lanterne"] {
+  --couleur-lumiere: rgba(255, 214, 130, 0.14);
+  --couleur-jour: rgba(255, 250, 220, 0.08);
+  --couleur-vignette: rgba(47, 90, 58, 0.22);
+}
+
+/* Néons du wagon 04 : lumière cyan au plafond, reflet rose sur les côtés */
+.scene[data-ambiance="neon"] {
+  --couleur-lumiere: rgba(138, 240, 240, 0.14);
+  --couleur-jour: rgba(255, 95, 168, 0.06);
+  --couleur-vignette: rgba(34, 52, 110, 0.22);
 }
 
 /* Lumière d'ambiance : reflet venu du plafond, jour des fenêtres sur les côtés (si défini),
