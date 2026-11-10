@@ -27,6 +27,8 @@
   --couleur-pensee-nom: #1882de;
   /* Texte des voyageurs qui « parlent » en code (Erine, en PHP) */
   --couleur-pensee-code: #6a3d8f;
+  /* Réplique d'un voyageur qu'on a trop embêté */
+  --couleur-pensee-colere: #d8364b;
   --couleur-actif: #fdc86e;
   --couleur-voile-accueil: rgba(27, 26, 38, 0.82);
   --couleur-voile-carton: rgba(27, 26, 38, 0.75);
@@ -266,6 +268,15 @@ img {
   filter: var(--filtre-retrait);
 }
 
+/* Ce qui sort du chapeau magique (colombes, cartes, Cheddar) : petits canvas dessinés par main.js,
+   placés et agrandis par lui (2 pixels source par pixel de grille) */
+.wagon__surprise {
+  position: absolute;
+  height: auto;
+  image-rendering: pixelated;
+  pointer-events: none;
+}
+
 /* Fumée de la locomotive, dehors : main.js l'agrandit depuis le point de fuite (centre de la toile),
    ce qui fait glisser les bouffées le long des fenêtres vers le spectateur */
 .wagon__fumee {
@@ -384,10 +395,14 @@ img {
 
 /* Curseur en forme d'oeil sur un personnage (on "lit" sa pensée), main sur la porte.
    Image de 32 x 32 : le point actif est au centre (16 16). */
-.scene--survol-personnage {
+.scene--survol-personnage,
+.scene--survol-objet {
   cursor: url("../assets/images/interface/curseur-oeil.png") 16 16, pointer;
 }
 
+/* Main sur un chapeau magique (data-chapeau) : on peut cliquer dessus.
+   Placé après le curseur oeil pour passer devant lui. */
+.scene--survol-chapeau,
 .scene--survol-porte {
   cursor: pointer;
 }
@@ -447,6 +462,12 @@ img {
   overflow-wrap: anywhere;
 }
 
+/* Voyageur en colère (trop embêté) : réplique en rouge et en gras */
+.pensee--colere .pensee__texte {
+  color: var(--couleur-pensee-colere);
+  font-weight: 700;
+}
+
 /* Personnage près du bord gauche : la bulle part vers la droite,
    les petites bulles restent sous la tête (10 % de la largeur, comme dans main.js) */
 .pensee--gauche::after {
@@ -480,7 +501,8 @@ img {
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--couleur-bouton-texte);
-  pointer-events: none;
+  /* Un clic sur l'indicateur fait siffler le train */
+  cursor: pointer;
 }
 
 /* Chiffres de largeur fixe pour éviter que le texte bouge */

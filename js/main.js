@@ -76,6 +76,122 @@ const ZONE_BORD = 0.2;
 // Un clic ou un tap dans cette zone ouvre la porte.
 const ZONE_PORTE = { gauche: 288, droite: 352, haut: 144, bas: 284 };
 
+// Agacement : cliquer (ou retoucher) un voyageur dont la pensée est ouverte l'embête.
+// Le spectateur est invisible : le voyageur sent quelque chose et le pense, il ne nous parle pas.
+// Chaque clic le fait monter d'un niveau ; sans être embêté pendant ce délai (en secondes), il se calme.
+const DELAI_OUBLI_AGACEMENT = 4;
+// Hauteur du sursaut d'un voyageur embêté, en pixels source
+const HAUTEUR_SURSAUT = 6;
+// Pensées, de la plus calme à la plus paniquée (une liste par niveau, tirée au hasard).
+// Le dernier niveau est la colère : le voyageur tremble et sa pensée s'écrit en rouge.
+const REPLIQUES_AGACEMENT = [
+  ["Hein ? Quelqu'un m'a touché l'épaule ?", "C'était quoi, ça ?", "Tiens, un courant d'air."],
+  ["Encore ! Il n'y a personne derrière moi, pourtant.", "Je sens une présence. Je ne me retourne pas.", "Ce train est hanté. Je le savais."],
+  ["Respire. C'est la fatigue. Les fantômes, ça n'existe pas.", "Si ça recommence, je change de wagon.", "Je ne regarde pas. Si je ne regarde pas, ça n'existe pas."],
+  ["JE SAIS QUE TU ES LÀ, FANTÔME !", "LAISSE-MOI TRANQUILLE, ESPRIT DU TRAIN !", "QUI EST LÀ ?!"],
+];
+// Après la colère, le voyageur fait le vide dans sa tête
+const REPLIQUE_BOUDE = "Je ne pense à rien. Je ne pense à rien. Je ne pense à rien.";
+
+// Chapeau magique : un voyageur avec data-chapeau (ligne du bas de son chapeau, en pixels source)
+// perd son chapeau quand on clique dessus. Le chapeau s'envole et quelque chose en sort.
+// Les tours s'enchaînent dans cet ordre, puis recommencent.
+// surprise : sprite de SPRITES_SURPRISES, nombre : combien en sortent, tourne : le chapeau pivote,
+// pensee : ce que pense le voyageur pendant le tour
+const TOURS_CHAPEAU = [
+  { surprise: "colombe", nombre: 3, tourne: true, pensee: "Mon chapeau s'envole tout seul ? Et... des colombes ?!" },
+  { surprise: "carte", nombre: 6, tourne: true, pensee: "Des cartes ! Je ne sais même pas faire un tour de magie." },
+  { surprise: "colombe", nombre: 5, tourne: true, pensee: "Encore des colombes. Ce chapeau est plus doué que moi." },
+  { surprise: "cheddar", nombre: 1, tourne: false, pensee: "CHEDDAR ?! Tu étais caché là-dessous depuis le départ ?!" },
+];
+// Hauteur à laquelle monte le chapeau, en pixels source (moins haut quand Cheddar est dessous)
+const HAUTEUR_VOL_CHAPEAU = 40;
+const HAUTEUR_VOL_CHEDDAR = 26;
+// Temps pendant lequel le chapeau reste en l'air, en secondes
+const DUREE_VOL_CHAPEAU = 1.4;
+// Petits sprites pixel art dessinés par main.js (pas de fichier image) :
+// une lettre = un pixel de grille (2 x 2 pixels source), "." = transparent.
+// Couleurs de la palette « Joaquim » (DOCUMENTATION.md, section 4).
+const PALETTE_SURPRISES = {
+  k: "#000000",
+  w: "#ffffff",
+  g: "#d1dae9",
+  o: "#f58a4c",
+  r: "#d8364b",
+  y: "#fdc86e",
+  b: "#d29a5c",
+};
+const SPRITES_SURPRISES = {
+  colombe: [
+    "....kk.......",
+    "...kwwk......",
+    "..kwwgk......",
+    "..kwwgk...kk.",
+    "kk.kwwgk.kwwk",
+    "kwkkwwwwkwwkwk",
+    ".kwwwwwwwwwkoo",
+    "..kgwwwwwwwk..",
+    "...kggwwwgk...",
+    "....kkkkkk....",
+  ],
+  carte: [
+    "kkkkkkk",
+    "kwwwwwk",
+    "kwrwrwk",
+    "krrrrrk",
+    "kwrrrwk",
+    "kwwrwwk",
+    "kwwwwwk",
+    "kwwwwwk",
+    "kkkkkkk",
+  ],
+  // Cheddar, le chien de Raphaël
+  cheddar: [
+    "....kkkkkk....",
+    "...kyyyyyyk...",
+    ".kkyyyyyyyykk.",
+    "kbbkyyyyyykbbk",
+    "kbbkykyykykbbk",
+    "kbbkyyyyyykbbk",
+    "kbbkyykkyykbbk",
+    ".kbkyyyyyykbk.",
+    "..kkyyrryykk..",
+    "....kkrrkk....",
+    "......kk......",
+  ],
+};
+
+// Objets du décor (div.wagon__objet dans le HTML) : la lumière coupée par data-effet="lumiere"
+// assombrit la scène jusqu'à cette opacité, pendant ce temps (en secondes)
+const OPACITE_COUPURE = 0.75;
+const DUREE_COUPURE = 0.6;
+
+// Porte verrouillée du dernier wagon : ce que dit l'étiquette à chaque nouvel essai.
+// La première est celle du simple survol ; la dernière reste affichée ensuite.
+const REPLIQUES_PORTE = [
+  "Fin du train",
+  "C'est fermé.",
+  "Toujours fermé.",
+  "Tu crois que ça va s'ouvrir ?",
+  "Il n'y a rien derrière. Promis.",
+  "Bon. Il y a un lama. Mais c'est privé.",
+];
+// À partir de cet essai, tout le wagon tremble avec la porte
+const ESSAI_COLERE_PORTE = 3;
+// Les secousses de la porte grandissent à chaque essai, jusqu'à ce multiple de PAS_SECOUSSE
+const FORCE_MAX_PORTE = 4;
+// Temps pendant lequel l'étiquette reste affichée après un essai, en secondes
+const DUREE_REPLIQUE_PORTE = 1.6;
+
+// Sifflet (petit train de l'indicateur ou touche T) : texte du carton,
+// accord joué (en Hz), deux coups de sifflet (début et durée en secondes), volume de 0 à 1,
+// et décalage entre deux voyageurs qui sursautent (la ola part de la gauche)
+const TEXTE_SIFFLET = "Tchou tchou !";
+const NOTES_SIFFLET = [587, 740, 880];
+const COUPS_SIFFLET = [{ debut: 0, duree: 0.3 }, { debut: 0.4, duree: 0.8 }];
+const VOLUME_SIFFLET = 0.12;
+const DECALAGE_OLA = 0.08;
+
 
 /* ==========================================================
    2. Sélection des éléments du DOM
@@ -141,6 +257,22 @@ const effets = {};
 let ambianceActuelle = null;
 // Vrai quand l'utilisateur a coupé le son
 let sonCoupe = false;
+
+// Voyageurs embêtés : pour chaque image, son niveau d'agacement et la minuterie qui le calme
+const agacements = new Map();
+// Nombre de fois où l'utilisateur a essayé d'ouvrir la porte verrouillée
+let essaisPorte = 0;
+// Objet du décor dont la pensée est affichée (null si aucun)
+let objetAffiche = null;
+// Pour chaque objet du décor, nombre de pensées déjà lues (pour passer à la suivante)
+const compteursObjets = new Map();
+// Coupure de lumière en cours (objet data-effet="lumiere"), gardée pour pouvoir l'arrêter
+let coupureLumiere = null;
+// Chapeau magique : copie du calque qui ne garde que le chapeau, pour chaque voyageur à chapeau
+const chapeaux = new Map();
+// Nombre de tours de chapeau déjà faits, et vrai pendant qu'un chapeau est en l'air
+let toursChapeau = 0;
+let chapeauEnVol = false;
 
 
 /* ==========================================================
@@ -232,9 +364,16 @@ function ajouterFondu(trajet, index) {
 // Affiche le carton titre du wagon ("Wagon 02" et son titre), puis le cache.
 // index : numéro du wagon (0 = premier wagon)
 function afficherCarton(index) {
+  montrerCarton(`Wagon ${formaterNumero(index + 1)}`, wagons[index].dataset.titre);
+}
+
+// Affiche un carton quelques instants (DUREE_CARTON), puis le cache.
+// numero : petite ligne du haut (peut être vide)
+// titre : grande ligne
+function montrerCarton(numero, titre) {
   masquerCarton();
-  cartonNumero.textContent = `Wagon ${formaterNumero(index + 1)}`;
-  cartonTitre.textContent = wagons[index].dataset.titre;
+  cartonNumero.textContent = numero;
+  cartonTitre.textContent = titre;
   apparitionCarton = gsap.timeline()
     .fromTo(carton, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.2, ease: "steps(3)" })
     .to(carton, { autoAlpha: 0, duration: 0.2, ease: "steps(3)" }, `+=${DUREE_CARTON}`);
@@ -251,6 +390,11 @@ function masquerCarton() {
 // Crée une timeline qui libère le verrou à la fin.
 function creerTrajet() {
   enAnimation = true;
+  // Une coupure de lumière en cours ne doit pas gêner le fondu au noir
+  if (coupureLumiere) {
+    coupureLumiere.kill();
+    gsap.set(fondu, { opacity: 0 });
+  }
   masquerPensee();
   survolerPorte(false);
   masquerCarton();
@@ -305,16 +449,50 @@ function wagonPrecedent() {
   ajouterFondu(trajet, wagonActuel - 1);
 }
 
-// Fait trembler la porte fermée, de PAS_SECOUSSE pixels source à gauche et à droite.
+// Fait trembler la porte fermée, à gauche et à droite.
+// Plus l'utilisateur insiste, plus elle tremble fort, puis tout le wagon tremble avec elle,
+// et l'étiquette lui répond (REPLIQUES_PORTE).
 // portes : battants renvoyés par trouverPortes()
 function porteVerrouillee(portes) {
-  const unPixel = (PAS_SECOUSSE / TOILE_LARGEUR) * 100;
+  essaisPorte += 1;
+  const force = Math.min(essaisPorte, FORCE_MAX_PORTE);
+  const unPixel = ((PAS_SECOUSSE * force) / TOILE_LARGEUR) * 100;
   const trajet = creerTrajet();
   jouerEffet("porteVerrouillee");
   trajet
     .to([portes.gauche, portes.droite], { xPercent: -unPixel, duration: 0.05, ease: "steps(1)" })
     .to([portes.gauche, portes.droite], { xPercent: unPixel, duration: 0.05, ease: "steps(1)", repeat: 3, yoyo: true })
     .to([portes.gauche, portes.droite], { xPercent: 0, duration: 0.05, ease: "steps(1)" });
+  if (essaisPorte >= ESSAI_COLERE_PORTE && !mouvementReduit) {
+    secouerDecor(trajet, force);
+  }
+  protesterPorte();
+}
+
+// Ajoute à une timeline une secousse horizontale de tout le décor (paysage et wagon).
+// trajet : timeline GSAP
+// force : multiple de PAS_SECOUSSE
+function secouerDecor(trajet, force) {
+  const decalage = ((PAS_SECOUSSE * force) / TOILE_LARGEUR) * 100;
+  trajet
+    .fromTo(decor, { xPercent: -decalage }, { xPercent: decalage, duration: 0.05, ease: "steps(1)", repeat: 3, yoyo: true }, 0)
+    .set(decor, { xPercent: 0 });
+}
+
+// Texte de l'étiquette de la porte verrouillée, selon le nombre d'essais déjà faits.
+function repliquePorte() {
+  return REPLIQUES_PORTE[Math.min(essaisPorte, REPLIQUES_PORTE.length - 1)];
+}
+
+// Affiche quelques instants la réplique de la porte verrouillée, même sans survol
+// (essai au bouton Suivant ou au clavier).
+function protesterPorte() {
+  etiquettePorte.textContent = repliquePorte();
+  etiquettePorte.classList.add("etiquette-porte--fermee");
+  gsap.killTweensOf(etiquettePorte);
+  gsap.timeline()
+    .to(etiquettePorte, { autoAlpha: 1, duration: 0.12, ease: "steps(2)" })
+    .to(etiquettePorte, { autoAlpha: 0, duration: 0.12, ease: "steps(2)" }, `+=${DUREE_REPLIQUE_PORTE}`);
 }
 
 
@@ -326,7 +504,7 @@ function calquesDevant(image) {
   const calques = [...image.closest(".wagon").querySelectorAll(".wagon__calque")];
   return calques
     .slice(calques.indexOf(image) + 1)
-    .filter((calque) => !calque.matches(".wagon__personnage, .wagon__lueur, .wagon__fumee"));
+    .filter((calque) => !calque.matches(".wagon__personnage, .wagon__lueur, .wagon__fumee, .wagon__chapeau"));
 }
 
 // Lit les pixels d'une image de personnage : quels pixels sont visibles,
@@ -429,20 +607,27 @@ function afficherPensee(image) {
   if (personnageAffiche) {
     personnageAffiche.classList.remove("wagon__personnage--survole");
   }
+  objetAffiche = null;
   image.classList.add("wagon__personnage--survole");
   // Les autres voyageurs du wagon passent en retrait (voir .wagon--lecture dans style.css)
   image.closest(".wagon").classList.add("wagon--lecture");
   personnageAffiche = image;
   jouerEffet("bulle");
 
-  const { ancre } = donneesPersonnages.get(image);
-  const positionX = ancre.x / TOILE_LARGEUR;
-  const presBordGauche = positionX < ZONE_BORD;
-  const presBordDroit = positionX > 1 - ZONE_BORD;
   bulleNom.textContent = image.dataset.nom;
   // Un voyageur qui « parle » en code (data-langage, ex. Erine en PHP) a une bulle de code
   bulle.classList.toggle("pensee--code", Boolean(image.dataset.langage));
+  bulle.classList.remove("pensee--colere");
   ecrirePensee(image.dataset.pensee);
+  placerBulle(donneesPersonnages.get(image).ancre);
+}
+
+// Place la bulle au-dessus d'un point de la toile et la fait apparaître.
+// ancre : { x, y } en pixels source (haut de la tête d'un voyageur, haut d'un objet)
+function placerBulle(ancre) {
+  const positionX = ancre.x / TOILE_LARGEUR;
+  const presBordGauche = positionX < ZONE_BORD;
+  const presBordDroit = positionX > 1 - ZONE_BORD;
 
   // Près d'un bord, la bulle s'aligne sur la tête au lieu d'être centrée
   bulle.classList.toggle("pensee--gauche", presBordGauche);
@@ -490,17 +675,366 @@ function ecrirePensee(texte) {
   );
 }
 
+// Embête un voyageur dont la pensée est déjà ouverte : il sursaute, monte d'un niveau
+// d'agacement et répond dans sa bulle à la place de sa pensée.
+// image : élément img.wagon__personnage
+function embeterPersonnage(image) {
+  const etat = agacements.get(image) || { niveau: 0, oubli: null };
+  if (etat.oubli) {
+    etat.oubli.kill();
+  }
+  etat.niveau += 1;
+  // Laissé tranquille assez longtemps, il oublie tout
+  etat.oubli = gsap.delayedCall(DELAI_OUBLI_AGACEMENT, () => agacements.delete(image));
+  agacements.set(image, etat);
+
+  const enColere = etat.niveau === REPLIQUES_AGACEMENT.length;
+  jouerEffet("bulle");
+  bulle.classList.toggle("pensee--colere", enColere);
+  ecrirePensee(formulerReplique(image, choisirReplique(etat.niveau)));
+  // La bulle se regonfle à chaque réplique
+  gsap.killTweensOf(bulle);
+  gsap.fromTo(bulle, { autoAlpha: 1, scale: 0.85 }, { scale: 1, duration: 0.12, ease: "steps(2)" });
+  // Quand il boude, il ne bouge plus
+  if (etat.niveau <= REPLIQUES_AGACEMENT.length) {
+    sursauter(image, enColere);
+  }
+}
+
+// Choisit au hasard une réplique du niveau d'agacement demandé.
+// niveau : 1 pour le premier clic, puis 2, 3...
+function choisirReplique(niveau) {
+  if (niveau > REPLIQUES_AGACEMENT.length) {
+    return REPLIQUE_BOUDE;
+  }
+  return gsap.utils.random(REPLIQUES_AGACEMENT[niveau - 1]);
+}
+
+// Adapte une réplique à la façon de parler du voyageur : Erine répond en PHP.
+// image : élément img.wagon__personnage
+// replique : texte à dire
+function formulerReplique(image, replique) {
+  if (image.dataset.langage === "php") {
+    return `<?php die("${replique}"); ?>`;
+  }
+  return replique;
+}
+
+// Fait sursauter un voyageur de HAUTEUR_SURSAUT pixels source, pixel par pixel.
+// En colère, il tremble en plus de gauche à droite.
+// On anime x et y, et non xPercent et yPercent, pour ne pas gêner la respiration.
+// image : élément img.wagon__personnage
+// enColere : vrai pour ajouter le tremblement
+function sursauter(image, enColere) {
+  if (mouvementReduit) {
+    return;
+  }
+  const unPixel = scene.getBoundingClientRect().height / TOILE_HAUTEUR;
+  gsap.killTweensOf(image, "x,y");
+  const saut = gsap.timeline()
+    .to(image, { y: -HAUTEUR_SURSAUT * unPixel, duration: 0.12, ease: "steps(3)" })
+    .to(image, { y: 0, duration: 0.12, ease: "steps(3)" });
+  if (enColere) {
+    saut
+      .fromTo(image, { x: -PAS_SECOUSSE * unPixel }, { x: PAS_SECOUSSE * unPixel, duration: 0.04, ease: "steps(1)", repeat: 7, yoyo: true })
+      .set(image, { x: 0 });
+  }
+}
+
+// Coup de sifflet du train : le sifflet retentit, le wagon tremble,
+// le carton annonce « Tchou tchou ! » et les voyageurs font la ola de gauche à droite.
+function siffler() {
+  if (enAnimation || accueilOuvert) {
+    return;
+  }
+  relancerAttente();
+  jouerSifflet();
+  montrerCarton("", TEXTE_SIFFLET);
+  if (mouvementReduit) {
+    return;
+  }
+  secouerDecor(gsap.timeline(), 1);
+  const voyageurs = [...wagons[wagonActuel].querySelectorAll(".wagon__personnage")]
+    .filter((image) => donneesPersonnages.has(image))
+    .sort((a, b) => donneesPersonnages.get(a).ancre.x - donneesPersonnages.get(b).ancre.x);
+  voyageurs.forEach((image, i) => {
+    gsap.delayedCall(i * DECALAGE_OLA, sursauter, [image, false]);
+  });
+}
+
+// Joue le sifflet du train, fabriqué à la volée (pas de fichier son) :
+// un accord de trois notes (NOTES_SIFFLET) en deux coups (COUPS_SIFFLET).
+// Il passe par le volume général de Howler, donc le bouton Son le coupe aussi.
+function jouerSifflet() {
+  const contexte = Howler.ctx;
+  if (!contexte || !Howler.masterGain) {
+    return;
+  }
+  if (contexte.state === "suspended") {
+    contexte.resume();
+  }
+  const depart = contexte.currentTime + 0.02;
+  const volume = contexte.createGain();
+  volume.gain.setValueAtTime(0, depart);
+  volume.connect(Howler.masterGain);
+  // Chaque coup monte vite, tient, puis retombe
+  COUPS_SIFFLET.forEach(({ debut, duree }) => {
+    const t = depart + debut;
+    volume.gain.setValueAtTime(0, t);
+    volume.gain.linearRampToValueAtTime(VOLUME_SIFFLET, t + 0.04);
+    volume.gain.setValueAtTime(VOLUME_SIFFLET, t + duree - 0.08);
+    volume.gain.linearRampToValueAtTime(0, t + duree);
+  });
+  const dernierCoup = COUPS_SIFFLET[COUPS_SIFFLET.length - 1];
+  const fin = depart + dernierCoup.debut + dernierCoup.duree;
+  NOTES_SIFFLET.forEach((frequence) => {
+    const oscillateur = contexte.createOscillator();
+    oscillateur.type = "triangle";
+    oscillateur.frequency.value = frequence;
+    oscillateur.connect(volume);
+    oscillateur.start(depart);
+    oscillateur.stop(fin);
+  });
+}
+
 // Cache la bulle de pensée et retire le contour du personnage.
 function masquerPensee() {
   scene.classList.remove("scene--survol-personnage");
+  if (!personnageAffiche && !objetAffiche) {
+    return;
+  }
+  retirerContour();
+  objetAffiche = null;
+  gsap.killTweensOf(bulle);
+  gsap.to(bulle, { autoAlpha: 0, duration: 0.1, ease: "steps(2)" });
+}
+
+// Indique si le pointeur est sur le chapeau d'un voyageur (au-dessus de sa ligne data-chapeau).
+// image : élément img.wagon__personnage sous le pointeur
+// evenement : événement de pointeur
+function estSurChapeau(image, evenement) {
+  const pixel = convertirEnPixel(evenement);
+  return Boolean(image.dataset.chapeau) && pixel !== null && pixel.y < Number(image.dataset.chapeau);
+}
+
+// Dessine un petit sprite (SPRITES_SURPRISES) dans un canvas, un pixel du canvas par lettre.
+// Le CSS l'agrandit sans flou (.wagon__surprise).
+// lignes : lignes de lettres du sprite
+function dessinerSprite(lignes) {
+  const toile = document.createElement("canvas");
+  toile.className = "wagon__surprise";
+  toile.width = Math.max(...lignes.map((ligne) => ligne.length));
+  toile.height = lignes.length;
+  const contexte = toile.getContext("2d");
+  lignes.forEach((ligne, y) => {
+    [...ligne].forEach((lettre, x) => {
+      if (lettre !== ".") {
+        contexte.fillStyle = PALETTE_SURPRISES[lettre];
+        contexte.fillRect(x, y, 1, 1);
+      }
+    });
+  });
+  return toile;
+}
+
+// Pose un sprite dans la scène : le milieu de son bord bas sur le point (x, y) de la toile.
+// Il est agrandi pour qu'un pixel de grille fasse 2 pixels source, comme tout le projet.
+// sprite : canvas renvoyé par dessinerSprite()
+// x, y : point de la toile, en pixels source
+function poserSprite(sprite, x, y) {
+  gsap.set(sprite, {
+    left: `${(x / TOILE_LARGEUR) * 100}%`,
+    top: `${(y / TOILE_HAUTEUR) * 100}%`,
+    width: `${((sprite.width * 2) / TOILE_LARGEUR) * 100}%`,
+    xPercent: -50,
+    yPercent: -100,
+  });
+}
+
+// Crée (la première fois) la copie du calque d'un voyageur qui ne garde que son chapeau :
+// elle est découpée sous la ligne data-chapeau et posée juste au-dessus du voyageur.
+// image : élément img.wagon__personnage avec data-chapeau
+function preparerChapeau(image) {
+  if (chapeaux.has(image)) {
+    return chapeaux.get(image);
+  }
+  const chapeau = document.createElement("img");
+  chapeau.className = "wagon__calque wagon__chapeau";
+  chapeau.src = image.src;
+  chapeau.alt = "";
+  const bas = (Number(image.dataset.chapeau) / TOILE_HAUTEUR) * 100;
+  gsap.set(chapeau, { clipPath: `inset(0% 0% ${100 - bas}% 0%)`, autoAlpha: 0 });
+  image.after(chapeau);
+  chapeaux.set(image, chapeau);
+  return chapeau;
+}
+
+// Tour de chapeau : le chapeau du voyageur s'envole, quelque chose en sort (TOURS_CHAPEAU),
+// puis il retombe sur sa tête. Le voyageur pense ce qui lui arrive.
+// image : élément img.wagon__personnage avec data-chapeau
+function tourDeChapeau(image) {
+  if (chapeauEnVol) {
+    return;
+  }
+  const tour = TOURS_CHAPEAU[toursChapeau % TOURS_CHAPEAU.length];
+  toursChapeau += 1;
+  afficherPensee(image);
+  bulle.classList.remove("pensee--colere");
+  ecrirePensee(tour.pensee);
+  if (mouvementReduit) {
+    return;
+  }
+  chapeauEnVol = true;
+
+  const chapeau = preparerChapeau(image);
+  const { ancre } = donneesPersonnages.get(image);
+  const bas = Number(image.dataset.chapeau);
+  const unPixel = scene.getBoundingClientRect().height / TOILE_HAUTEUR;
+  const hauteur = tour.surprise === "cheddar" ? HAUTEUR_VOL_CHEDDAR : HAUTEUR_VOL_CHAPEAU;
+  // La bulle monte au-dessus du chapeau en l'air, pour ne pas le cacher
+  placerBulle({ x: ancre.x, y: ancre.y - hauteur });
+
+  // Le voyageur est coupé au bord de son chapeau : seule la copie montre le chapeau, qui peut partir
+  gsap.set(image, { clipPath: `inset(${(bas / TOILE_HAUTEUR) * 100}% 0% 0% 0%)` });
+  gsap.set(chapeau, {
+    autoAlpha: 1,
+    x: 0,
+    y: 0,
+    rotation: 0,
+    yPercent: gsap.getProperty(image, "yPercent"),
+    transformOrigin: `${(ancre.x / TOILE_LARGEUR) * 100}% ${(((ancre.y + bas) / 2) / TOILE_HAUTEUR) * 100}%`,
+  });
+
+  const vol = gsap.timeline({
+    onComplete: () => {
+      gsap.set(image, { clipPath: "none" });
+      gsap.set(chapeau, { autoAlpha: 0, rotation: 0 });
+      chapeauEnVol = false;
+    },
+  });
+  vol.to(chapeau, { y: -hauteur * unPixel, rotation: tour.tourne ? 360 : 0, duration: 0.4, ease: "steps(8)" });
+
+  if (tour.surprise === "cheddar") {
+    // Cheddar était assis sur la tête, sous le chapeau : il apparaît quand le chapeau monte
+    const chien = dessinerSprite(SPRITES_SURPRISES.cheddar);
+    chapeau.before(chien);
+    poserSprite(chien, ancre.x, bas);
+    vol
+      .fromTo(chien, { rotation: -8 }, { rotation: 8, duration: 0.12, ease: "steps(1)", repeat: 9, yoyo: true }, 0.4)
+      // Il disparaît une fois le chapeau retombé sur lui
+      .call(() => chien.remove(), null, 0.4 + DUREE_VOL_CHAPEAU + 0.3);
+  } else {
+    vol.call(lacherSurprises, [tour, image.closest(".wagon"), ancre.x, bas - hauteur, unPixel], 0.4);
+  }
+
+  // Le chapeau retombe sur la tête et rebondit d'un pixel
+  vol
+    .to(chapeau, { y: 0, duration: 0.3, ease: "steps(6)" }, 0.4 + DUREE_VOL_CHAPEAU)
+    .to(chapeau, { y: -2 * unPixel, duration: 0.06, ease: "steps(1)" })
+    .to(chapeau, { y: 0, duration: 0.06, ease: "steps(1)" });
+}
+
+// Fait sortir des colombes (qui s'envolent) ou des cartes (qui retombent) du chapeau en l'air.
+// tour : élément de TOURS_CHAPEAU
+// wagon : section.wagon où poser les sprites
+// x, y : ouverture du chapeau sur la toile, en pixels source
+// unPixel : taille d'un pixel source à l'écran
+function lacherSurprises(tour, wagon, x, y, unPixel) {
+  for (let i = 0; i < tour.nombre; i++) {
+    const sprite = dessinerSprite(SPRITES_SURPRISES[tour.surprise]);
+    wagon.append(sprite);
+    poserSprite(sprite, x, y);
+    const envol = gsap.timeline({ delay: i * 0.12, onComplete: () => sprite.remove() })
+      .fromTo(sprite, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.05, ease: "steps(1)" });
+
+    if (tour.surprise === "colombe") {
+      // Vers le haut de l'écran, plutôt vers le milieu du wagon ; le sprite regarde vers où il vole
+      const dx = gsap.utils.random(-240, 60);
+      gsap.set(sprite, { scaleX: dx < 0 ? -1 : 1 });
+      envol
+        .to(sprite, { x: dx * unPixel, y: gsap.utils.random(-300, -200) * unPixel, duration: 1.4, ease: "steps(14)" })
+        .fromTo(sprite, { scaleY: 1 }, { scaleY: 0.5, duration: 0.1, ease: "steps(1)", repeat: 13, yoyo: true }, "<");
+    } else {
+      // Les cartes jaillissent, tournent et retombent jusqu'en bas de l'écran
+      const dx = gsap.utils.random(-90, 90);
+      envol
+        .to(sprite, { x: dx * 0.5 * unPixel, y: gsap.utils.random(-90, -50) * unPixel, rotation: gsap.utils.random(-90, 90), duration: 0.35, ease: "steps(5)" })
+        .to(sprite, { x: dx * unPixel, y: 220 * unPixel, rotation: gsap.utils.random(-360, 360), duration: 0.9, ease: "steps(9)" });
+    }
+  }
+}
+
+// Retire le contour et le retrait des autres voyageurs, si une pensée de voyageur est ouverte.
+function retirerContour() {
   if (!personnageAffiche) {
     return;
   }
   personnageAffiche.classList.remove("wagon__personnage--survole");
   personnageAffiche.closest(".wagon").classList.remove("wagon--lecture");
   personnageAffiche = null;
-  gsap.killTweensOf(bulle);
-  gsap.to(bulle, { autoAlpha: 0, duration: 0.1, ease: "steps(2)" });
+}
+
+// Lit la zone d'un objet du décor (data-zone="gauche haut droite bas", en pixels source).
+// objet : élément .wagon__objet
+function lireZone(objet) {
+  const [gauche, haut, droite, bas] = objet.dataset.zone.split(" ").map(Number);
+  return { gauche, haut, droite, bas };
+}
+
+// Renvoie l'objet du décor du wagon courant situé sous le pointeur, ou null.
+// evenement : événement de pointeur
+function trouverObjet(evenement) {
+  const pixel = convertirEnPixel(evenement);
+  if (!pixel) {
+    return null;
+  }
+  const objets = [...wagons[wagonActuel].querySelectorAll(".wagon__objet")];
+  const objet = objets.find((element) => {
+    const zone = lireZone(element);
+    return pixel.x >= zone.gauche && pixel.x < zone.droite && pixel.y >= zone.haut && pixel.y < zone.bas;
+  });
+  return objet || null;
+}
+
+// Affiche la pensée suivante d'un objet du décor, au-dessus de lui.
+// Ses pensées (data-pensees, séparées par |) défilent dans l'ordre à chaque clic, puis recommencent.
+// objet : élément .wagon__objet
+function afficherObjet(objet) {
+  retirerContour();
+  objetAffiche = objet;
+  const pensees = objet.dataset.pensees.split("|");
+  const rang = compteursObjets.get(objet) || 0;
+  compteursObjets.set(objet, rang + 1);
+
+  jouerEffet("bulle");
+  bulleNom.textContent = objet.dataset.nom;
+  bulle.classList.toggle("pensee--code", Boolean(objet.dataset.langage));
+  bulle.classList.remove("pensee--colere");
+  ecrirePensee(pensees[rang % pensees.length]);
+  const zone = lireZone(objet);
+  placerBulle({ x: (zone.gauche + zone.droite) / 2, y: zone.haut });
+  reagirObjet(objet.dataset.effet);
+}
+
+// Effet visible quand on touche un objet (data-effet, facultatif) :
+// "lumiere" fait sauter la lumière, "secousse" fait trembler le wagon.
+// effet : nom de l'effet, ou undefined
+function reagirObjet(effet) {
+  if (mouvementReduit || !effet) {
+    return;
+  }
+  if (effet === "secousse") {
+    secouerDecor(gsap.timeline(), 2);
+  } else if (effet === "lumiere") {
+    if (coupureLumiere) {
+      coupureLumiere.kill();
+    }
+    coupureLumiere = gsap.timeline()
+      .to(fondu, { opacity: OPACITE_COUPURE, duration: 0.05, ease: "steps(1)" })
+      .to(fondu, { opacity: 0, duration: 0.05, ease: "steps(1)" }, "+=0.08")
+      .to(fondu, { opacity: OPACITE_COUPURE, duration: 0.05, ease: "steps(1)" }, "+=0.1")
+      .to(fondu, { opacity: 0, duration: 0.05, ease: "steps(1)" }, `+=${DUREE_COUPURE}`);
+  }
 }
 
 // Indique si le pointeur se trouve sur la porte du fond.
@@ -527,7 +1061,7 @@ function survolerPorte(actif) {
 
   if (actif) {
     const dernierWagon = wagonActuel === wagons.length - 1;
-    etiquettePorte.textContent = dernierWagon ? "Fin du train" : "Wagon suivant";
+    etiquettePorte.textContent = dernierWagon ? repliquePorte() : "Wagon suivant";
     etiquettePorte.classList.toggle("etiquette-porte--fermee", dernierWagon);
   }
   gsap.killTweensOf([cadrePorte, etiquettePorte]);
@@ -569,21 +1103,27 @@ function gererSurvol(evenement) {
   }
   relancerAttente();
   const personnage = trouverPersonnage(evenement);
+  // Un personnage devant un objet ou la porte a la priorité sur eux
+  const objet = personnage ? null : trouverObjet(evenement);
   if (personnage) {
     afficherPensee(personnage);
-  } else {
+  } else if (objet === null || objet !== objetAffiche) {
+    // La pensée d'un objet reste ouverte tant que la souris reste dessus
     masquerPensee();
   }
-  // Un personnage devant la porte a la priorité sur elle
-  const surPorte = personnage === null && estSurPorte(evenement);
+  const surPorte = personnage === null && objet === null && estSurPorte(evenement);
   survolerPorte(surPorte);
   scene.classList.toggle("scene--survol-personnage", personnage !== null);
+  scene.classList.toggle("scene--survol-objet", objet !== null);
+  scene.classList.toggle("scene--survol-chapeau", personnage !== null && estSurChapeau(personnage, evenement));
   scene.classList.toggle("scene--survol-porte", surPorte);
 }
 
 // Clic (souris) ou tap (doigt) dans la scène :
-// sur un personnage, affiche sa pensée ; sur la porte, passe au wagon suivant ;
-// ailleurs, cache la pensée. Un glissé est ignoré (le swipe sert déjà à changer de wagon).
+// sur un personnage, affiche sa pensée (ou l'embête si elle est déjà ouverte) ;
+// sur un objet du décor, affiche sa pensée suivante ;
+// sur la porte, passe au wagon suivant ; ailleurs, cache la pensée.
+// Un glissé est ignoré (le swipe sert déjà à changer de wagon).
 // evenement : événement pointerup
 function gererAppui(evenement) {
   if (enAnimation || accueilOuvert || !debutAppui) {
@@ -596,8 +1136,15 @@ function gererAppui(evenement) {
     return;
   }
   const personnage = trouverPersonnage(evenement);
-  if (personnage) {
+  const objet = personnage ? null : trouverObjet(evenement);
+  if (personnage && estSurChapeau(personnage, evenement)) {
+    tourDeChapeau(personnage);
+  } else if (personnage && personnage === personnageAffiche) {
+    embeterPersonnage(personnage);
+  } else if (personnage) {
     afficherPensee(personnage);
+  } else if (objet) {
+    afficherObjet(objet);
   } else if (estSurPorte(evenement)) {
     wagonSuivant();
   } else {
@@ -823,8 +1370,13 @@ document.addEventListener("keydown", (evenement) => {
     masquerPensee();
   } else if (evenement.key === "m" || evenement.key === "M") {
     basculerSon();
+  } else if (evenement.key === "t" || evenement.key === "T") {
+    siffler();
   }
 });
+
+// Petit train de l'indicateur : coup de sifflet (aussi avec la touche T)
+indicateur.addEventListener("click", siffler);
 
 // Écran d'accueil : un clic ou un tap n'importe où le ferme
 accueil.addEventListener("pointerup", fermerAccueil);

@@ -53,9 +53,15 @@
         <img class="wagon__calque" src="assets/images/wagon-01/banc-03.png" alt="">
         <!-- Rangée de devant, coupée par le bas de l'écran -->
         <img class="wagon__calque wagon__personnage" src="assets/images/wagon-01/personnage-05.png" alt="Thomas, assis dans son siège (personnage provisoire)" data-nom="Max" data-pensee="Si je m'endors maintenant, je me réveille au terminus. Encore.">
-        <img class="wagon__calque wagon__personnage" src="assets/images/wagon-01/personnage-06.png" alt="Raphaël, chapeau haut-de-forme et sweat orange, assis dans son siège" data-nom="Raphaël" data-pensee="Mon chien Cheddar me manque">
+        <img class="wagon__calque wagon__personnage" src="assets/images/wagon-01/personnage-06.png" alt="Raphaël, chapeau haut-de-forme et sweat orange, assis dans son siège" data-nom="Raphaël" data-pensee="Mon chien Cheddar me manque" data-chapeau="298">
         <img class="wagon__calque wagon__personnage" src="assets/images/wagon-01/personnage-07.png" alt="Nicolas, assis dans son siège (personnage provisoire)" data-nom="Kévin" data-pensee="Le monsieur derrière est au téléphone en haut-parleur. Je connais toute sa vie maintenant.">
         <img class="wagon__calque wagon__personnage" src="assets/images/wagon-01/personnage-08.png" alt="Julien, assis dans son siège (personnage provisoire)" data-nom="Julien" data-pensee="Dix minutes de retard. Donc on est en avance sur le train d'hier.">
+        <!-- Objets du décor : zones cliquables (data-zone = gauche haut droite bas, en pixels de la toile)
+             qui ont leurs propres pensées (data-pensees, séparées par |, lues dans l'ordre à chaque clic).
+             data-effet facultatif : "lumiere" (la lumière saute) ou "secousse" (le wagon tremble). -->
+        <div class="wagon__objet" hidden data-zone="242 155 278 182" data-nom="Écran d'information" data-pensees="Prochain arrêt : je ne sais pas. Personne ne me dit rien.|J'affiche « à l'heure » depuis ce matin. Personne n'a encore remarqué.|Ils lisent tous mon heure d'arrivée, puis ils soupirent. C'est dur, comme métier."></div>
+        <div class="wagon__objet" hidden data-zone="366 155 402 182" data-nom="Wifi à bord" data-langage="wifi" data-pensees="Connexion en cours...|Connexion en cours... toujours.|Connecté ! À rien, mais connecté."></div>
+        <div class="wagon__objet" hidden data-zone="380 190 398 224" data-nom="Extincteur" data-pensees="Dix ans que j'attends une urgence. Une vraie.|Et si je tombais, juste un peu ? Pour voir.|Un jour, ils auront besoin de moi. Ce jour-là, je serai prêt."></div>
       </section>
 
       <!-- Wagon 02 : voiture-salon de 1re classe d'un train à vapeur (vers 1900).
@@ -79,6 +85,10 @@
         <img class="wagon__calque wagon__personnage" src="assets/images/wagon-02/personnage-05.png" alt="Mr Gassin, canotier de paille et veste bleu marine, au premier plan" data-nom="M. Gontran" data-pensee="Mon canotier a failli s'envoler au dernier tunnel. Personne n'a rien vu.">
         <!-- Lilian (sprite dessiné à la main), debout à côté du guéridon de droite. Pensée provisoire. -->
         <img class="wagon__calque wagon__personnage" src="assets/images/wagon-02/personnage-06.png" alt="Lilian, debout en costume trois-pièces bleu, à côté du guéridon" data-nom="M. Lilian Cornet" data-pensee="Je ne sais pas comment je suis arrivé en 1900, mais ce costume me va très bien.">
+        <!-- Objets du décor (voir le wagon 01) -->
+        <div class="wagon__objet" hidden data-zone="298 26 338 120" data-nom="Lampe à gaz" data-effet="lumiere" data-pensees="Pfff... Pardon, j'ai le hoquet.|Trois jours que je brûle sans pause. On parle de mes droits ?|Si je m'éteins, personne ne verra la plume de Madame. Ce serait un service à lui rendre."></div>
+        <div class="wagon__objet" hidden data-zone="238 148 276 180" data-nom="Tableau" data-pensees="Une montagne. On m'a peint une montagne. Dans un train qui passe devant cent montagnes.|Le tableau d'en face se croit plus beau que moi.|Je suis accroché de travers depuis Lyon. Personne ne m'aide."></div>
+        <div class="wagon__objet" hidden data-zone="364 148 404 180" data-nom="Autre tableau" data-pensees="Je suis l'original. Celui d'en face est une copie.|Les voyageurs me regardent sans me voir. Comme tous les tableaux de train.|À chaque tunnel, je fais un petit saut. On ne m'en a jamais parlé à l'école des beaux-arts."></div>
       </section>
 
       <!-- Wagon 03 : vieux train de campagne gagné par la forêt, dans l'esprit des films Ghibli.
@@ -102,6 +112,11 @@
         <!-- Blanco (sprite dessiné à la main), à genoux à l'envers sur le siège de devant à droite, tourné vers le spectateur.
              Le dossier de son siège cache le bas de son corps. -->
         <img class="wagon__calque wagon__personnage" src="assets/images/wagon-03/personnage-05.png" alt="Blanco, à l'envers sur son siège, tourné vers le spectateur, veste noire" data-nom="Blanco" data-pensee="CUUUUUUUUUUTTT">
+        <!-- Objets du décor (voir le wagon 01) -->
+        <div class="wagon__objet" hidden data-zone="412 268 466 306" data-nom="Le chat" data-pensees="Mrrr. Une main invisible me caresse. J'accepte.|Plus à gauche. Voilà. Là.|Assez. Je mords les fantômes, moi aussi.|...ronron. Bon. D'accord. Encore une fois."></div>
+        <div class="wagon__objet" hidden data-zone="368 146 400 178" data-nom="Horloge" data-pensees="Tic.|Tac.|J'ai avancé de dix minutes pour faire peur au conducteur. Ça ne marche pas.|Il est l'heure d'être en retard."></div>
+        <div class="wagon__objet" hidden data-zone="296 46 344 90" data-nom="Lanterne" data-effet="lumiere" data-pensees="Les lucioles me volent mon travail.|Oups. J'ai cligné.|Une lanterne de papier dans un wagon en bois. Personne n'a pensé à ça ?"></div>
+        <div class="wagon__objet" hidden data-zone="18 170 60 222" data-nom="Plante verte" data-pensees="Je pousse. Très lentement. Comme ce train.|Un jour, ce wagon sera à moi. Feuille après feuille.|Quelqu'un pourrait ouvrir la fenêtre ? J'ai envie de voir mes cousines dehors."></div>
       </section>
 
       <!-- Wagon 04 : train rétro-futuriste, le futur imaginé dans les années 1950-60.
@@ -120,6 +135,11 @@
         <img class="wagon__calque wagon__personnage" src="assets/images/wagon-04/personnage-02.png" alt="Monsieur à visière lumineuse, combinaison moutarde (personnage provisoire)" data-nom="Sam" data-pensee="Mon implant me rappelle que j'ai oublié d'éteindre le four. Le futur ne change rien.">
         <img class="wagon__calque wagon__personnage" src="assets/images/wagon-04/personnage-03.png" alt="Dame à haute coiffure rose et lunettes, robe corail (personnage provisoire)" data-nom="Jeanne" data-pensee="Le robot contrôleur m'a demandé mon billet trois fois. Je crois qu'il m'aime bien.">
         <img class="wagon__calque wagon__personnage" src="assets/images/wagon-04/personnage-04.png" alt="Cosmonaute blond en combinaison argentée, casque bulle (personnage provisoire)" data-nom="Noé" data-pensee="Téléportation en panne, alors on reprend le train comme nos ancêtres. Quelle horreur.">
+        <!-- Objets du décor (voir le wagon 01) -->
+        <div class="wagon__objet" hidden data-zone="492 236 550 352" data-nom="Robot contrôleur" data-langage="robot" data-effet="secousse" data-pensees="ANALYSE : PRÉSENCE INVISIBLE DÉTECTÉE. BILLET : NON DÉTECTÉ.|UN FANTÔME SANS BILLET. AMENDE : 3 CRÉDITS. COMMENT LUI DONNER ?|RAPPORT AU CENTRAL : LE TRAIN EST HANTÉ. RÉPONSE DU CENTRAL : MAIS OUI.|ERREUR 404 : PATIENCE INTROUVABLE."></div>
+        <div class="wagon__objet" hidden data-zone="84 262 154 348" data-nom="Téléviseur" data-pensees="Ce soir : le futur. Demain soir : le futur. Rediffusion jeudi.|Pas de signal dans l'espace. Je fais semblant de capter.|On m'a dit que j'étais une télé du futur. Je n'ai qu'une seule chaîne."></div>
+        <div class="wagon__objet" hidden data-zone="232 144 276 186" data-nom="Radar" data-pensees="Bip. Soucoupe à trois heures.|Bip. Ah non, c'est une mouche sur l'écran.|Bip. Je bipe pour rien, mais tout le monde a l'air rassuré."></div>
+        <div class="wagon__objet" hidden data-zone="362 144 408 188" data-nom="Pupitre de commande" data-effet="secousse" data-pensees="Ne touche pas à mes boutons.|Tu as touché à mes boutons.|Vitesse lumière enclenchée. Non, je plaisante. Mais tu as eu peur."></div>
       </section>
     </div>
 
@@ -167,6 +187,9 @@
       <h1 class="accueil__titre">Le Train des Époques</h1>
       <ul class="accueil__consignes">
         <li><span class="accueil__geste">Survoler ou toucher un voyageur</span> lire sa pensée</li>
+        <li><span class="accueil__geste">Cliquer dessus, encore et encore</span> le hanter</li>
+        <li><span class="accueil__geste">Cliquer sur un objet du train</span> lire ses pensées aussi</li>
+        <li><span class="accueil__geste">Petit train en haut ou touche T</span> siffler</li>
         <li><span class="accueil__geste">Porte du fond ou bouton Suivant</span> wagon suivant</li>
         <li><span class="accueil__geste">Flèches, molette ou glisser</span> se déplacer</li>
         <li><span class="accueil__geste">Bouton Son ou touche M</span> couper le son</li>

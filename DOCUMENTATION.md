@@ -23,6 +23,9 @@ Des personnages sont assis dans le wagon. Selon l'architecture du wagon, on les 
 | Souris hors du personnage | La bulle disparaît |
 | Clic ou tap sur un personnage | Sa bulle de pensée apparaît |
 | Clic ou tap ailleurs, ou touche Échap | La bulle disparaît |
+| Nouveau clic ou tap sur un voyageur dont la pensée est ouverte | On le hante : il sursaute et sa pensée change. Le spectateur reste invisible, le voyageur ne lui parle pas : il sent une présence et le pense, de plus en plus paniqué à chaque clic (au 4e, il tremble et sa pensée est en rouge ; ensuite il se force à ne penser à rien). Laissé tranquille 4 s, il se calme. Erine pense en PHP (`<?php die("..."); ?>`). Pensées dans `REPLIQUES_AGACEMENT` (main.js) |
+| Clic ou tap sur le chapeau de Raphaël | Tour de chapeau : le chapeau s'envole (une copie du calque découpée au bord du chapeau, ligne `data-chapeau`), des colombes ou des cartes en sortent, puis il retombe sur sa tête. Au 4e tour, Cheddar, son chien, était caché dessous. Raphaël pense ce qui lui arrive. Les petits sprites (colombe, carte, Cheddar) sont dessinés en lettres dans `SPRITES_SURPRISES` (main.js), avec la palette « Joaquim » : pas de fichier image. N'importe quel voyageur à chapeau peut avoir `data-chapeau="ligne"` |
+| Clic ou tap sur un objet du décor (chat, horloge, robot...) | Les objets pensent aussi : une bulle affiche leur pensée suivante (elles défilent dans l'ordre). Certains font sauter la lumière ou trembler le wagon |
 
 - Une seule bulle à la fois. Elle disparaît pendant les changements de wagon.
 - Lumière par wagon : `data-ambiance` sur la section (`led` pour le TER : blanc froid, jour qui entre par les côtés, aucun scintillement ; `gaz` pour le salon 1900 : lumière chaude qui scintille ; `lanterne` pour le wagon 03 : lumière dorée ; `neon` pour le wagon 04 : cyan et rose). main.js la recopie sur `.scene`, le CSS adapte `.lumiere`.
@@ -31,6 +34,9 @@ Des personnages sont assis dans le wagon. Selon l'architecture du wagon, on les 
 - Le survol est détecté au pixel près : seuls les pixels visibles du calque du personnage comptent, pas le rectangle de l'image.
 - La bulle se place au-dessus du pixel le plus haut du personnage (le haut de la tête). Rien à régler : dessiner le personnage suffit.
 - Un personnage qui « parle » en code (Erine, qui ne parle qu'en PHP) porte `data-langage="php"` : sa pensée s'écrit en violet, comme du code (`<?php echo "..."; ?>`).
+- Objets du décor : ils font partie de `interieur.png`, on les rend cliquables avec une zone rectangulaire dans la section du wagon, après les voyageurs :
+  `<div class="wagon__objet" hidden data-zone="412 268 466 306" data-nom="Le chat" data-pensees="Première pensée|Deuxième pensée" data-effet="lumiere"></div>`
+  `data-zone` = gauche haut droite bas, en pixels de la toile 640 x 360. `data-effet` est facultatif (`lumiere` ou `secousse`), `data-langage` aussi (bulle de code). Un voyageur placé devant un objet garde la priorité. Les pensées restent dans le jeu de rôle : l'objet pense, il ne parle pas au spectateur.
 - Cette détection lit les pixels des images, ce que le navigateur n'autorise qu'avec un serveur. Il faut donc toujours ouvrir le site avec Live Server, jamais en double-cliquant sur `index.html`.
 
 Le rendu est en **pixel art 2D**, dans le style de Joaquim (le personnage de Lino) : voir la charte de direction artistique, section 4.
@@ -61,7 +67,8 @@ Retour : fondu au noir, puis le wagon précédent apparaît.
 Règles :
 - Une action = un seul wagon, jamais plus.
 - Pendant une animation, les nouvelles actions sont ignorées (pas de file d'attente).
-- Au dernier wagon, la porte est verrouillée : elle tremble légèrement au lieu de s'ouvrir.
+- Au dernier wagon, la porte est verrouillée : elle tremble légèrement au lieu de s'ouvrir. Plus on insiste, plus elle tremble fort (à partir du 3e essai, tout le wagon tremble avec elle) et l'étiquette répond (« C'est fermé. », « Toujours fermé. »... voir `REPLIQUES_PORTE` dans main.js).
+- Sifflet : un clic sur l'indicateur en haut à gauche, ou la touche T, fait siffler le train (son fabriqué en Web Audio, coupé par le bouton Son), affiche « Tchou tchou ! » et fait faire la ola aux voyageurs du wagon.
 - Au premier wagon, le bouton "Arrière" est désactivé ; au dernier, le bouton "Suivant" l'est aussi.
 - Placement des voyageurs : deux voyageurs côte à côte ne doivent pas se chevaucher de plus de quelques pixels, et personne ne doit cacher la porte du fond (x 288 à 352). Les sprites ne sont jamais redimensionnés : pour gagner de la place à l'écran, on avance la rangée vers la caméra (wagons 01 et 02 : rangée du milieu en profondeur 2,0, rangée de devant en 1,2 à 1,25). Wagon 01 : chaque élève est au centre de son siège (`SIEGES_TER` dans le générateur, x 0,6 et 1,15).
 - Prévu plus tard (pas maintenant) : avancer progressivement dans l'allée, plusieurs crans de molette avant d'atteindre la porte.
