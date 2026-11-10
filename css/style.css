@@ -188,6 +188,36 @@ img {
   background-image: url("../assets/images/commun/paysage-proche.png");
 }
 
+/* Paysages propres à un wagon : ils remplacent le paysage commun selon data-ambiance (voir plus bas).
+   Wagon 03 : ciel d'été à grands cumulus et prairie en fleurs. Wagon 04 : l'espace. */
+.scene[data-ambiance="lanterne"] .paysage {
+  background-image: url("../assets/images/wagon-03/paysage-ete-ciel.png");
+}
+
+.scene[data-ambiance="lanterne"] .paysage__bande--loin {
+  background-image: url("../assets/images/wagon-03/paysage-ete-loin.png");
+}
+
+.scene[data-ambiance="lanterne"] .paysage__bande--proche {
+  background-image: url("../assets/images/wagon-03/paysage-ete-proche.png");
+}
+
+.scene[data-ambiance="neon"] .paysage {
+  background-image: url("../assets/images/wagon-04/paysage-espace-ciel.png");
+}
+
+.scene[data-ambiance="neon"] .paysage__bande--loin {
+  background-image: url("../assets/images/wagon-04/paysage-espace-loin.png");
+}
+
+.scene[data-ambiance="neon"] .paysage__bande--milieu {
+  background-image: url("../assets/images/wagon-04/paysage-espace-milieu.png");
+}
+
+.scene[data-ambiance="neon"] .paysage__bande--proche {
+  background-image: url("../assets/images/wagon-04/paysage-espace-proche.png");
+}
+
 /* Côté droit : la bande est calée sur le bord droit du plan */
 .paysage__cote--droite .paysage__bande {
   left: auto;
