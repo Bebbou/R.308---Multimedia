@@ -34,6 +34,7 @@ Des personnages sont assis dans le wagon. Selon l'architecture du wagon, on les 
 - Le survol est détecté au pixel près : seuls les pixels visibles du calque du personnage comptent, pas le rectangle de l'image.
 - La bulle se place au-dessus du pixel le plus haut du personnage (le haut de la tête). Rien à régler : dessiner le personnage suffit.
 - Un personnage qui « parle » en code (Erine, qui ne parle qu'en PHP) porte `data-langage="php"` : sa pensée s'écrit en violet, comme du code (`<?php echo "..."; ?>`).
+- Un personnage peut avoir sa propre voix : `data-son="assets/sons/..."` sur son image. Elle est jouée quand on le survole ou le touche, et à chaque clic quand on le hante, à la place du son de bulle (Joachim : `hehe_Joachim.mp3`).
 - Objets du décor : ils font partie de `interieur.png`, on les rend cliquables avec une zone rectangulaire dans la section du wagon, après les voyageurs :
   `<div class="wagon__objet" hidden data-zone="412 268 466 306" data-nom="Le chat" data-pensees="Première pensée|Deuxième pensée" data-effet="lumiere"></div>`
   `data-zone` = gauche haut droite bas, en pixels de la toile 640 x 360. `data-effet` est facultatif (`lumiere` ou `secousse`), `data-langage` aussi (bulle de code). Un voyageur placé devant un objet garde la priorité. Les pensées restent dans le jeu de rôle : l'objet pense, il ne parle pas au spectateur.

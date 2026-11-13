@@ -253,6 +253,8 @@ let appelPorte = null;
 // Sons : une ambiance en boucle par wagon (null si le wagon n'en a pas), et les bruitages
 const ambiances = [];
 const effets = {};
+// Voix propres à certains voyageurs (data-son sur l'image du personnage), une par image
+const voix = new Map();
 // Ambiance en train de jouer (null si aucune)
 let ambianceActuelle = null;
 // Vrai quand l'utilisateur a coupé le son
@@ -612,7 +614,7 @@ function afficherPensee(image) {
   // Les autres voyageurs du wagon passent en retrait (voir .wagon--lecture dans style.css)
   image.closest(".wagon").classList.add("wagon--lecture");
   personnageAffiche = image;
-  jouerEffet("bulle");
+  jouerVoix(image);
 
   bulleNom.textContent = image.dataset.nom;
   // Un voyageur qui « parle » en code (data-langage, ex. Erine en PHP) a une bulle de code
@@ -689,7 +691,7 @@ function embeterPersonnage(image) {
   agacements.set(image, etat);
 
   const enColere = etat.niveau === REPLIQUES_AGACEMENT.length;
-  jouerEffet("bulle");
+  jouerVoix(image);
   bulle.classList.toggle("pensee--colere", enColere);
   ecrirePensee(formulerReplique(image, choisirReplique(etat.niveau)));
   // La bulle se regonfle à chaque réplique
@@ -1185,6 +1187,10 @@ function preparerSons() {
   Object.entries(SONS_EFFETS).forEach(([nom, fichier]) => {
     effets[nom] = new Howl({ src: [fichier], volume: VOLUME_EFFETS });
   });
+  // Un voyageur peut avoir sa propre voix (data-son), jouée à la place du son de bulle
+  document.querySelectorAll(".wagon__personnage[data-son]").forEach((image) => {
+    voix.set(image, new Howl({ src: [image.dataset.son], volume: VOLUME_EFFETS }));
+  });
 }
 
 // Passe en fondu de l'ambiance du wagon quitté à celle du wagon demandé.
@@ -1218,6 +1224,19 @@ function changerAmbiance(index) {
 // nom : clé de SONS_EFFETS ("porte", "porteVerrouillee" ou "bulle")
 function jouerEffet(nom) {
   effets[nom].play();
+}
+
+// Joue la voix d'un voyageur quand on le survole ou le touche (data-son),
+// ou le son de bulle s'il n'en a pas. La voix repart du début si elle jouait déjà.
+// image : élément img.wagon__personnage
+function jouerVoix(image) {
+  const sienne = voix.get(image);
+  if (!sienne) {
+    jouerEffet("bulle");
+    return;
+  }
+  sienne.stop();
+  sienne.play();
 }
 
 // Coupe ou remet tout le son (bouton Son et touche M).
