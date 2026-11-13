@@ -36,6 +36,18 @@ const VITESSE_ECRITURE = 0.025;
 // Respiration des voyageurs : intervalle aléatoire, en secondes
 const RESPIRATION_MIN = 2.5;
 const RESPIRATION_MAX = 5;
+// Marill suspendu : angle du balancement (degrés), durée d'une demi-oscillation (secondes)
+// et point d'accroche au plafond sur la toile 640 x 360, en pourcentage
+// Vie des voyageurs : manières de bouger (une par voyageur), intervalle entre deux gestes (secondes)
+const MANIERES = ["respirer", "dodeliner", "somnoler", "guetter"];
+const GESTE_MIN = 3;
+const GESTE_MAX = 8;
+// Personnalités : intervalle entre deux scènes jouées par un voyageur, en secondes
+const PERSONNALITE_MIN = 5;
+const PERSONNALITE_MAX = 11;
+const BALANCEMENT_ANGLE = 3;
+const BALANCEMENT_DUREE = 1.4;
+const ACCROCHE_MARILL = "50% 6.7%";
 // Fumée de la locomotive : temps pour qu'une bouffée passe du fond du paysage
 // jusqu'aux fenêtres les plus proches, en secondes, et agrandissement atteint à la fin
 const DUREE_FUMEE = 9;
@@ -251,6 +263,8 @@ function masquerCarton() {
 // Crée une timeline qui libère le verrou à la fin.
 function creerTrajet() {
   enAnimation = true;
+  masquerEmotes();
+  masquerObjets();
   masquerPensee();
   survolerPorte(false);
   masquerCarton();
@@ -434,6 +448,7 @@ function afficherPensee(image) {
   image.closest(".wagon").classList.add("wagon--lecture");
   personnageAffiche = image;
   jouerEffet("bulle");
+  jouerSonPensee(image);
 
   const { ancre } = donneesPersonnages.get(image);
   const positionX = ancre.x / TOILE_LARGEUR;
@@ -673,6 +688,35 @@ function jouerEffet(nom) {
   effets[nom].play();
 }
 
+// Sons propres à certains personnages (data-son-pensee sur l'image) : déjà chargés, un par fichier
+const sonsPensees = new Map();
+// Son de pensée en cours, pour l'arrêter si on change de personnage
+let sonPenseeActuel = null;
+
+// Joue le son d'un personnage quand sa bulle apparaît (par exemple le "CUUUT" de Blanco).
+// Rien ne se passe si le personnage n'a pas de data-son-pensee.
+// image : élément img.wagon__personnage
+function jouerSonPensee(image) {
+  arreterSonPensee();
+  const fichier = image.dataset.sonPensee;
+  if (!fichier) {
+    return;
+  }
+  if (!sonsPensees.has(fichier)) {
+    sonsPensees.set(fichier, new Howl({ src: [fichier], volume: VOLUME_EFFETS }));
+  }
+  sonPenseeActuel = sonsPensees.get(fichier);
+  sonPenseeActuel.play();
+}
+
+// Coupe le son de pensée en cours.
+function arreterSonPensee() {
+  if (sonPenseeActuel) {
+    sonPenseeActuel.stop();
+    sonPenseeActuel = null;
+  }
+}
+
 // Coupe ou remet tout le son (bouton Son et touche M).
 function basculerSon() {
   sonCoupe = !sonCoupe;
@@ -738,6 +782,384 @@ function respirer(image) {
     .to(image, { yPercent: 0, duration: 0.01 }, "+=0.6");
 }
 
+
+// Donne à chaque voyageur sa propre manière de bouger, pour que le wagon vive.
+// La manière se choisit avec data-animation dans le HTML (respirer, dodeliner, somnoler, guetter),
+// sinon elle est répartie à tour de rôle.
+// image : élément img.wagon__personnage
+// index : rang du voyageur dans la page
+function animerPersonnage(image, index) {
+  if (image.dataset.personnalite === "livreur") {
+    lancerEmbrouille(image, document.querySelector('.wagon__personnage[data-personnalite="dame"]'));
+    return;
+  }
+  if (image.dataset.personnalite === "dame") {
+    return;
+  }
+  if (PERSONNALITES[image.dataset.personnalite]) {
+    jouerPersonnalite(image, image.dataset.personnalite);
+    return;
+  }
+  const maniere = MANIERES.includes(image.dataset.animation)
+    ? image.dataset.animation
+    : MANIERES[index % MANIERES.length];
+  if (maniere === "respirer") {
+    respirer(image);
+  } else {
+    gesteDe(image, maniere);
+  }
+}
+
+// Joue un geste, puis programme le suivant à un intervalle irrégulier.
+// Tous les mouvements se font par paliers d'un ou deux pixels source.
+// image : élément img.wagon__personnage
+// maniere : "dodeliner" (balance d'un côté), "somnoler" (la tête tombe puis se redresse)
+// ou "guetter" (se penche à gauche puis à droite, comme pour regarder dehors)
+function gesteDe(image, maniere) {
+  const deuxX = (2 / TOILE_LARGEUR) * 100;
+  const deuxY = (2 / TOILE_HAUTEUR) * 100;
+  const geste = gsap.timeline({
+    delay: gsap.utils.random(GESTE_MIN, GESTE_MAX),
+    onComplete: gesteDe,
+    onCompleteParams: [image, maniere],
+  });
+  if (maniere === "dodeliner") {
+    geste
+      .to(image, { xPercent: deuxX, duration: 0.01 })
+      .to(image, { xPercent: 0, duration: 0.01 }, "+=0.9")
+      .to(image, { xPercent: -deuxX, duration: 0.01 }, "+=1.2")
+      .to(image, { xPercent: 0, duration: 0.01 }, "+=0.9");
+  } else if (maniere === "somnoler") {
+    geste
+      .to(image, { yPercent: deuxY, duration: 1.2, ease: "steps(2)" })
+      .to(image, { yPercent: 0, duration: 0.01 }, "+=1.5");
+  } else {
+    geste
+      .to(image, { xPercent: -deuxX, duration: 0.01 })
+      .to(image, { xPercent: deuxX, duration: 0.01 }, "+=1")
+      .to(image, { xPercent: 0, duration: 0.01 }, "+=1");
+  }
+}
+
+// Scènes de personnalité : chaque voyageur a un petit jeu d'acteur qui lui est propre,
+// choisi avec data-personnalite dans le HTML. "emote" est l'icône qui apparaît au-dessus de sa tête
+// (assets/images/emotes/<nom>.png). "jouer" ajoute le mouvement à la timeline,
+// avec deux pixels source = 2 / 640 de la largeur, 2 / 360 de la hauteur.
+// Sprite de départ de Joaquim (ses autres poses ont le même nom, avec joachim-<pose> à la place de personnage-02)
+const SPRITE_JOACHIM = "assets/images/wagon-01/personnage-02.png";
+const DEUX_X = (2 / TOILE_LARGEUR) * 100;
+const DEUX_Y = (2 / TOILE_HAUTEUR) * 100;
+const PERSONNALITES = {
+  // Joaquim joue sur sa DS et rage : il serre les dents, se lève, brandit sa console puis la jette
+  // par terre dans l'allée (elle y reste un moment), et se rassoit les bras ballants.
+  // Ses poses sont dans assets/images/wagon-01/joachim-<pose>.png (voir joachim-planche.png).
+  rager: {
+    emote: "colere",
+    dureeEmote: 0.9,
+    jouer: (t, img) => {
+      const pose = (nom) => () => {
+        img.src = nom === "jouer" ? SPRITE_JOACHIM : SPRITE_JOACHIM.replace("personnage-02", `joachim-${nom}`);
+      };
+      const tenue = trouverObjet("ds-tenue");
+      const sol = trouverObjet("ds-sol");
+      const enPourcent = (x, y) => ({ left: `${(x / TOILE_LARGEUR) * 100}%`, top: `${(y / TOILE_HAUTEUR) * 100}%` });
+      const LEVER = (16 / TOILE_HAUTEUR) * 100;
+      // Console brandie au-dessus de sa tête (position dans la toile, une fois debout) et point d'impact
+      const haut = { x: 451, y: 199 - 16 };
+      const impact = { x: 330, y: 330 };
+
+      // 1. Il serre la console et tremble de rage
+      t.call(pose("rage"), null, 0);
+      for (let i = 0; i < 6; i++) {
+        t.to(img, { xPercent: i % 2 ? DEUX_X : -DEUX_X, duration: 0.01 }, `+=${i === 0 ? 0 : 0.07}`);
+      }
+      t.to(img, { xPercent: 0, duration: 0.01 }, "+=0.07");
+      // 2. Il se lève d'un bond, bras tendus, la console au-dessus de la tête
+      t.call(pose("haut"), null, "+=0.15")
+        .to(img, { yPercent: -LEVER, duration: 0.2, ease: "steps(3)" }, "<");
+      // 3. Il la lâche : les bras retombent, elle file vers le sol de l'allée
+      t.call(() => {
+        pose("lance")();
+        gsap.set(tenue, { ...enPourcent(haut.x, haut.y), autoAlpha: 1 });
+      }, null, "+=0.4")
+        .to(tenue, { left: `${(impact.x / TOILE_LARGEUR) * 100}%`, duration: 0.5, ease: "steps(10)" }, ">")
+        .to(tenue, { top: `${(impact.y / TOILE_HAUTEUR) * 100}%`, duration: 0.5, ease: "steps(10)" }, "<");
+      // 4. Elle s'écrase : un rebond, puis elle reste au sol
+      t.call(() => {
+        gsap.set(tenue, { autoAlpha: 0 });
+        gsap.set(sol, { ...enPourcent(impact.x, impact.y - 6), autoAlpha: 1 });
+      }, null, ">")
+        .to(sol, { top: `${(impact.y / TOILE_HAUTEUR) * 100}%`, duration: 0.01 }, "+=0.1");
+      // 5. Il se rassoit, essoufflé, les bras ballants
+      t.call(pose("vide"), null, "+=0.3")
+        .to(img, { yPercent: 0, duration: 0.2, ease: "steps(3)" }, "<");
+      // 6. La console clignote puis disparaît : il la reprend en main
+      t.to(sol, { autoAlpha: 0, duration: 0.01 }, "+=3")
+        .to(sol, { autoAlpha: 1, duration: 0.01 }, "+=0.15")
+        .to(sol, { autoAlpha: 0, duration: 0.01 }, "+=0.15")
+        .call(pose("jouer"), null, ">");
+    },
+    // Rétablit la pose de départ, même si la scène a été interrompue
+    fin: (img) => {
+      img.src = SPRITE_JOACHIM;
+    },
+  },
+  // Erine tape du code : petits coups rapides, icône </>
+  coder: {
+    emote: "code",
+    jouer: (t, img) => {
+      for (let i = 0; i < 6; i++) {
+        t.to(img, { yPercent: -DEUX_Y / 2, duration: 0.01 }, "+=0.1").to(img, { yPercent: 0, duration: 0.01 }, "+=0.1");
+      }
+    },
+  },
+  // Inas cherche son billet : elle se tortille à gauche et à droite
+  fouiller: {
+    emote: "question",
+    jouer: (t, img) => {
+      for (let i = 0; i < 3; i++) {
+        t.to(img, { xPercent: -DEUX_X, duration: 0.01 }, "+=0.15").to(img, { xPercent: DEUX_X, duration: 0.01 }, "+=0.15");
+      }
+      t.to(img, { xPercent: 0, duration: 0.01 }, "+=0.15");
+    },
+  },
+  // Raphaël pense à son chien : il s'affaisse, une larme
+  soupirer: {
+    emote: "larme",
+    jouer: (t, img) => {
+      t.to(img, { yPercent: DEUX_Y, duration: 0.8, ease: "steps(2)" }).to(img, { yPercent: 0, duration: 0.01 }, "+=1.6");
+    },
+  },
+  // Max s'endort : la tête tombe, zzz
+  somnoler: {
+    emote: "zzz",
+    jouer: (t, img) => {
+      t.to(img, { yPercent: DEUX_Y, duration: 1.2, ease: "steps(2)" }).to(img, { yPercent: 0, duration: 0.01 }, "+=1.8");
+    },
+  },
+  // Lino est scandalisé par le prix des chips : il sursaute
+  indigner: {
+    emote: "exclam",
+    jouer: (t, img) => {
+      t.to(img, { yPercent: -DEUX_Y, duration: 0.01 }).to(img, { yPercent: 0, duration: 0.01 }, "+=0.15")
+        .to(img, { yPercent: -DEUX_Y, duration: 0.01 }, "+=0.2").to(img, { yPercent: 0, duration: 0.01 }, "+=0.15");
+    },
+  },
+  // Kévin écoute son voisin : il se penche pour regarder derrière
+  espionner: {
+    emote: "question",
+    jouer: (t, img) => {
+      t.to(img, { xPercent: DEUX_X, duration: 0.01 }).to(img, { xPercent: 0, duration: 0.01 }, "+=1.6");
+    },
+  },
+  // Julien trépigne d'impatience : petits sauts, sans icône
+  trepigner: {
+    emote: null,
+    jouer: (t, img) => {
+      for (let i = 0; i < 5; i++) {
+        t.to(img, { yPercent: -DEUX_Y, duration: 0.01 }, "+=0.12").to(img, { yPercent: 0, duration: 0.01 }, "+=0.12");
+      }
+    },
+  },
+};
+
+// Objets posés dans la scène (la console de Joaquim...), un par nom
+const objets = new Map();
+
+// Renvoie l'objet d'un nom (la crée au premier appel), centré sur le point donné par left et top.
+// nom : nom du fichier dans assets/images/objets (sans .png)
+function trouverObjet(nom) {
+  if (!objets.has(nom)) {
+    const objet = document.createElement("img");
+    objet.className = "objet";
+    objet.alt = "";
+    objet.src = `assets/images/objets/${nom}.png`;
+    objet.addEventListener("load", () => {
+      objet.style.width = `${(objet.naturalWidth / TOILE_LARGEUR) * 100}%`;
+    });
+    scene.append(objet);
+    gsap.set(objet, { autoAlpha: 0, xPercent: -50, yPercent: -50 });
+    objets.set(nom, objet);
+  }
+  return objets.get(nom);
+}
+
+// Icônes d'émotion déjà créées : pour chaque voyageur, une par nom d'icône
+const emotes = new Map();
+
+// Renvoie l'icône d'émotion d'un voyageur (la crée au premier appel).
+// image : élément img.wagon__personnage
+// nom : nom du fichier dans assets/images/emotes (sans .png)
+function trouverEmote(image, nom) {
+  if (!emotes.has(image)) {
+    emotes.set(image, new Map());
+  }
+  const parNom = emotes.get(image);
+  if (!parNom.has(nom)) {
+    const emote = document.createElement("img");
+    emote.className = "emote";
+    emote.alt = "";
+    emote.src = `assets/images/emotes/${nom}.png`;
+    emote.addEventListener("load", () => {
+      emote.style.width = `${(emote.naturalWidth / TOILE_LARGEUR) * 100}%`;
+    });
+    scene.append(emote);
+    gsap.set(emote, { autoAlpha: 0 });
+    parNom.set(nom, emote);
+  }
+  return parNom.get(nom);
+}
+
+// Pose l'icône au-dessus de la tête d'un voyageur (sans l'afficher) et la renvoie.
+// image : élément img.wagon__personnage
+// nom : nom de l'icône
+function placerEmote(image, nom) {
+  const { ancre } = donneesPersonnages.get(image);
+  const emote = trouverEmote(image, nom);
+  gsap.set(emote, {
+    left: `${(ancre.x / TOILE_LARGEUR) * 100}%`,
+    top: `${((ancre.y - 2) / TOILE_HAUTEUR) * 100}%`,
+    xPercent: -50,
+    yPercent: -100,
+  });
+  return emote;
+}
+
+// Cache toutes les icônes d'émotion.
+function masquerEmotes() {
+  emotes.forEach((parNom) => parNom.forEach((emote) => gsap.set(emote, { autoAlpha: 0 })));
+}
+
+// Cache tous les objets posés (changement de wagon).
+function masquerObjets() {
+  objets.forEach((objet) => gsap.set(objet, { autoAlpha: 0 }));
+}
+
+// Programme la prochaine scène d'un voyageur, la joue si le moment s'y prête, puis recommence.
+// La scène n'a lieu que dans le wagon affiché, hors transition, accueil ou pensée ouverte.
+// image : élément img.wagon__personnage
+// personnalite : clé de PERSONNALITES
+function jouerPersonnalite(image, personnalite) {
+  const [mini, maxi] = PERSONNALITES[personnalite].intervalle || [PERSONNALITE_MIN, PERSONNALITE_MAX];
+  gsap.delayedCall(gsap.utils.random(mini, maxi), () => {
+    const donnees = donneesPersonnages.get(image);
+    const libre = wagons[wagonActuel].contains(image) && !enAnimation && !accueilOuvert && personnageAffiche !== image;
+    if (!libre || !donnees) {
+      jouerPersonnalite(image, personnalite);
+      return;
+    }
+    const { emote: nomEmote, jouer, dureeEmote, fin } = PERSONNALITES[personnalite];
+    const trajet = gsap.timeline({
+      onComplete: () => {
+        if (nomEmote) {
+          gsap.set(trouverEmote(image, nomEmote), { autoAlpha: 0 });
+        }
+        if (fin) {
+          fin(image);
+        }
+        jouerPersonnalite(image, personnalite);
+      },
+    });
+    if (nomEmote) {
+      const emote = placerEmote(image, nomEmote);
+      trajet.to(emote, { autoAlpha: 1, duration: 0.1, ease: "steps(2)" }, 0);
+      // Certaines scènes sont plus longues que l'émotion : elle disparaît avant la fin
+      if (dureeEmote) {
+        trajet.to(emote, { autoAlpha: 0, duration: 0.1, ease: "steps(2)" }, dureeEmote);
+      }
+    }
+    jouer(trajet, image, donnees);
+  });
+}
+
+// Charge à l'avance les poses de Joaquim et ses consoles, pour que la scène ne saccade pas.
+function precharger() {
+  ["rage", "haut", "lance", "vide"].forEach((pose) => {
+    new Image().src = SPRITE_JOACHIM.replace("personnage-02", `joachim-${pose}`);
+  });
+  ["ds-tenue", "ds-sol"].forEach(trouverObjet);
+}
+
+// Embrouille entre le livreur et la dame : une petite scène à deux, rejouée de temps en temps.
+// La dame attaque, le livreur recule puis riposte, ils se retrouvent front contre front
+// (étincelle entre eux), elle le bouscule, puis chacun reprend sa place.
+// livreur, dame : éléments img.wagon__personnage
+function lancerEmbrouille(livreur, dame) {
+  const px = (n) => (n / TOILE_LARGEUR) * 100;
+  const py = (n) => (n / TOILE_HAUTEUR) * 100;
+  gsap.delayedCall(gsap.utils.random(7, 12), () => {
+    const libre = wagons[wagonActuel].contains(livreur) && !enAnimation && !accueilOuvert
+      && personnageAffiche !== livreur && personnageAffiche !== dame
+      && donneesPersonnages.has(livreur) && donneesPersonnages.has(dame);
+    if (!libre) {
+      lancerEmbrouille(livreur, dame);
+      return;
+    }
+    const criDame = placerEmote(dame, "exclam");
+    const rageLivreur = placerEmote(livreur, "colere");
+    const etincelle = trouverObjet("eclair");
+    const ancreL = donneesPersonnages.get(livreur).ancre;
+    const ancreD = donneesPersonnages.get(dame).ancre;
+    // L'étincelle jaillit entre leurs deux visages
+    gsap.set(etincelle, {
+      left: `${(((ancreL.x + ancreD.x) / 2 + 4) / TOILE_LARGEUR) * 100}%`,
+      top: `${((Math.max(ancreL.y, ancreD.y) + 14) / TOILE_HAUTEUR) * 100}%`,
+    });
+    const t = gsap.timeline({
+      onComplete: () => {
+        gsap.set([criDame, rageLivreur, etincelle], { autoAlpha: 0 });
+        gsap.set([livreur, dame], { xPercent: 0, yPercent: 0 });
+        lancerEmbrouille(livreur, dame);
+      },
+    });
+    // 1. La dame attaque : elle se penche trois fois vers lui, le livreur recule d'un pas
+    t.to(criDame, { autoAlpha: 1, duration: 0.01 });
+    for (let i = 0; i < 3; i++) {
+      t.to(dame, { xPercent: -px(2), duration: 0.01 }, "+=0.12").to(dame, { xPercent: 0, duration: 0.01 }, "+=0.14");
+    }
+    t.to(livreur, { xPercent: -px(2), duration: 0.01 }, "<")
+      .to(criDame, { autoAlpha: 0, duration: 0.01 }, "+=0.25");
+    // 2. Le livreur riposte : il avance par saccades, les boîtes tressautent
+    t.to(rageLivreur, { autoAlpha: 1, duration: 0.01 });
+    for (let i = 0; i < 3; i++) {
+      t.to(livreur, { xPercent: px(2), yPercent: -py(2), duration: 0.01 }, "+=0.12")
+        .to(livreur, { xPercent: 0, yPercent: 0, duration: 0.01 }, "+=0.14");
+    }
+    // 3. Front contre front : ils se rapprochent, tremblent, l'étincelle clignote entre eux
+    t.to(livreur, { xPercent: px(3), duration: 0.01 }, "+=0.2")
+      .to(dame, { xPercent: -px(2), duration: 0.01 }, "<")
+      .to(criDame, { autoAlpha: 1, duration: 0.01 }, "<");
+    for (let i = 0; i < 6; i++) {
+      t.to(livreur, { xPercent: px(i % 2 ? 3 : 4), duration: 0.01 }, "+=0.07")
+        .to(dame, { xPercent: -px(i % 2 ? 3 : 2), duration: 0.01 }, "<")
+        .to(etincelle, { autoAlpha: i % 2 ? 0 : 1, duration: 0.01 }, "<");
+    }
+    // 4. Elle le bouscule : le livreur recule en trébuchant, la dame avance, puis tout retombe
+    t.to(etincelle, { autoAlpha: 0, duration: 0.01 }, "+=0.05")
+      .to(dame, { xPercent: -px(5), duration: 0.01 }, "<")
+      .to(livreur, { xPercent: -px(6), yPercent: -py(3), duration: 0.01 }, "<")
+      .to(livreur, { yPercent: 0, duration: 0.01 }, "+=0.15")
+      .to(criDame, { autoAlpha: 0, duration: 0.01 }, "+=0.5")
+      .to(dame, { xPercent: -px(2), duration: 0.01 }, "+=0.3")
+      .to(livreur, { xPercent: -px(2), duration: 0.01 }, "<")
+      .to(rageLivreur, { autoAlpha: 0, duration: 0.01 }, "+=0.2")
+      .to([livreur, dame], { xPercent: 0, duration: 0.01 }, "+=0.4");
+  });
+}
+
+// Balancement de Marill : le calque pivote autour du point d'accroche au plafond,
+// par paliers pour rester dans l'esprit pixel.
+// marill : élément img.wagon__marill
+function balancer(marill) {
+  gsap.set(marill, { rotation: -BALANCEMENT_ANGLE, transformOrigin: ACCROCHE_MARILL });
+  gsap.to(marill, {
+    rotation: BALANCEMENT_ANGLE,
+    duration: BALANCEMENT_DUREE,
+    ease: "steps(8)",
+    repeat: -1,
+    yoyo: true,
+  });
+}
 
 // Fumée de la locomotive : dans chaque wagon, les copies du calque wagon__fumee
 // s'agrandissent en boucle depuis le point de fuite, décalées dans le temps
@@ -870,6 +1292,8 @@ if (mouvementReduit) {
   secouer();
   scintiller();
   lancerFumee();
-  document.querySelectorAll(".wagon__personnage").forEach(respirer);
+  document.querySelectorAll(".wagon__personnage").forEach(animerPersonnage);
   document.querySelectorAll(".wagon__lueur").forEach(vaciller);
+  document.querySelectorAll(".wagon__marill").forEach(balancer);
+  precharger();
 }

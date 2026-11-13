@@ -778,3 +778,22 @@ img {
     top: calc(var(--marge-interface) + 3.5rem);
   }
 }
+
+
+/* Icône d'émotion au-dessus d'un voyageur (colère, zzz...) : placée par main.js, comme la bulle */
+.emote {
+  position: absolute;
+  height: auto;
+  pointer-events: none;
+  image-rendering: pixelated;
+  z-index: 5;
+}
+
+/* Objet posé dans la scène (console jetée par terre...) : placé par main.js */
+.objet {
+  position: absolute;
+  height: auto;
+  pointer-events: none;
+  image-rendering: pixelated;
+  z-index: 5;
+}
