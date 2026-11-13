@@ -448,7 +448,6 @@ function afficherPensee(image) {
   image.closest(".wagon").classList.add("wagon--lecture");
   personnageAffiche = image;
   jouerEffet("bulle");
-  jouerSonPensee(image);
 
   const { ancre } = donneesPersonnages.get(image);
   const positionX = ancre.x / TOILE_LARGEUR;
@@ -613,6 +612,8 @@ function gererAppui(evenement) {
   const personnage = trouverPersonnage(evenement);
   if (personnage) {
     afficherPensee(personnage);
+    // Le son propre au personnage (le "CUUUT" de Blanco) ne part qu'au clic ou au tap, pas au survol
+    jouerSonPensee(personnage);
   } else if (estSurPorte(evenement)) {
     wagonSuivant();
   } else {
@@ -693,7 +694,7 @@ const sonsPensees = new Map();
 // Son de pensée en cours, pour l'arrêter si on change de personnage
 let sonPenseeActuel = null;
 
-// Joue le son d'un personnage quand sa bulle apparaît (par exemple le "CUUUT" de Blanco).
+// Joue le son d'un personnage quand on clique dessus (par exemple le "CUUUT" de Blanco).
 // Rien ne se passe si le personnage n'a pas de data-son-pensee.
 // image : élément img.wagon__personnage
 function jouerSonPensee(image) {
