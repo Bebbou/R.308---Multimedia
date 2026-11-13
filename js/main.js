@@ -70,12 +70,8 @@ const SONS_EFFETS = {
   porte: "assets/sons/porte.wav",
   porteVerrouillee: "assets/sons/porte-verrouillee.wav",
   bulle: "assets/sons/bulle.wav",
-  pet1: "assets/sons/pet-1.wav",
-  pet2: "assets/sons/pet-2.wav",
-  pet3: "assets/sons/pet-3.wav",
+  pet: "assets/sons/pet.wav",
 };
-// Bruits de pet, un au hasard à chaque clic sur un voyageur
-const SONS_PETS = ["pet1", "pet2", "pet3"];
 
 // Distance minimale (en pixels) avant qu'Observer considère un geste
 const TOLERANCE_OBSERVER = 10;
@@ -1247,9 +1243,10 @@ function jouerEffet(nom) {
   effets[nom].play();
 }
 
-// Joue un bruit de pet au hasard (clic ou toucher sur un voyageur).
+// Joue le bruit de pet (clic ou toucher sur un voyageur). Il repart du début s'il jouait déjà.
 function jouerPet() {
-  jouerEffet(SONS_PETS[Math.floor(Math.random() * SONS_PETS.length)]);
+  effets.pet.stop();
+  jouerEffet("pet");
 }
 
 // Joue la voix d'un voyageur quand on le survole ou le touche (data-son),
