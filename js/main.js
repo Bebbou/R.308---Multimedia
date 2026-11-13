@@ -1383,6 +1383,8 @@ function gesteDe(image, maniere) {
 // avec deux pixels source = 2 / 640 de la largeur, 2 / 360 de la hauteur.
 // Sprite de départ de Joaquim (ses autres poses ont le même nom, avec joachim-<pose> à la place de personnage-02)
 const SPRITE_JOACHIM = "assets/images/wagon-01/personnage-02.png";
+// Sprite de départ de Wall-E, dans le wagon 04 (ses autres poses : robot-vibre et robot-choc)
+const SPRITE_ROBOT = "assets/images/wagon-04/robot-etonne.png";
 const DEUX_X = (2 / TOILE_LARGEUR) * 100;
 const DEUX_Y = (2 / TOILE_HAUTEUR) * 100;
 const PERSONNALITES = {
@@ -1489,6 +1491,28 @@ const PERSONNALITES = {
     },
   },
   // Julien trépigne d'impatience : petits sauts, sans icône
+  // Wall-E tient un colis qui se met à vibrer : le colis tressaute, puis le choc le saisit
+  // (cou étiré, yeux écarquillés) avant qu'il retrouve son calme
+  robot: {
+    emote: "exclam",
+    intervalle: [4, 8],
+    jouer: (t, img) => {
+      const pose = (nom) => () => {
+        img.src = SPRITE_ROBOT.replace("etonne", nom);
+      };
+      for (let i = 0; i < 6; i++) {
+        t.call(pose("vibre"), null, "+=0.07").call(pose("etonne"), null, "+=0.07");
+      }
+      t.call(pose("choc"), null, "+=0.1")
+        .call(pose("vibre"), null, "+=0.5")
+        .call(pose("choc"), null, "+=0.15")
+        .call(pose("etonne"), null, "+=0.5");
+    },
+    // Rétablit la pose de départ, même si la scène a été interrompue
+    fin: (img) => {
+      img.src = SPRITE_ROBOT;
+    },
+  },
   trepigner: {
     emote: null,
     jouer: (t, img) => {
@@ -1612,6 +1636,9 @@ function jouerPersonnalite(image, personnalite) {
 function precharger() {
   ["rage", "haut", "lance", "vide"].forEach((pose) => {
     new Image().src = SPRITE_JOACHIM.replace("personnage-02", `joachim-${pose}`);
+  });
+  ["vibre", "choc"].forEach((pose) => {
+    new Image().src = SPRITE_ROBOT.replace("etonne", pose);
   });
   ["ds-tenue", "ds-sol"].forEach(trouverAccessoire);
 }
